@@ -146,7 +146,7 @@ Just keep the original copyright notice.
 
 ## Author
 
-Created by **[your name]**
+Created by **Marco RANZATO VIANELLO**
 
 If you build something with STEGO, feel free to mention it.
 
