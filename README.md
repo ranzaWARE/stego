@@ -1,68 +1,64 @@
-🦕 STEGO
+# 🦕 STEGO
 
-A lightweight 2D CAD that runs entirely in your browser.
+**A lightweight 2D CAD that runs entirely in your browser.**
 
-Because sometimes you just want to draw lines…
+Because sometimes you just want to draw lines…  
 without installing a 5-gigabyte dinosaur of a CAD.
 
 STEGO is a minimal browser-based CAD focused on simple geometry, fast interaction and a clean project format.
 
-And yes, it's named after Stegosaurus.
+And yes, it's named after **Stegosaurus**.  
 Because dinosaurs are cool. Obviously.
 
-Why STEGO?
+---
+
+## Why STEGO?
 
 Most CAD software feels like a giant prehistoric creature.
 
 STEGO tries to be the opposite:
 
-lightweight
+- lightweight
+- simple
+- hackable
+- browser-native
 
-simple
-
-hackable
-
-browser-native
-
-Open the page and start drawing.
+Open the page and start drawing.  
 No install, no plugins, no cloud lock-in.
 
-Features
+---
 
-🦴 Simple geometric primitives
+## Features
 
-segments
+### 🦴 Geometry primitives
 
-arcs
+- segments
+- arcs
+- circles
+- polylines
 
-circles
+### ✂️ Editing tools
 
-polylines
+- **Break** – split geometry with a click  
+- **Katana** – cut objects with a 2-point blade  
+- selection box
+- layer system
 
-✂️ Editing tools
+### ⚡ Lightweight engine
 
-Break – split geometry with a click
+- fast rendering
+- simple data structures
+- minimal dependencies
 
-Katana – cut objects with a 2-point blade
+---
 
-selection box
+## Project format
 
-layer system
-
-⚡ Lightweight engine
-
-fast rendering
-
-simple data structures
-
-minimal dependencies
-
-Project format
-
-STEGO uses a very simple JSON geometry format.
+STEGO uses a very simple **JSON geometry format**.
 
 Example:
 
+```json
 {
   "layers": {
     "Layer 1": {
@@ -81,78 +77,76 @@ Example:
     }
   ]
 }
+```
 
 Why JSON?
 
-easy to debug
+- easy to debug
+- easy to generate
+- easy to convert from other formats
 
-easy to generate
+---
 
-easy to convert from other formats
+## DXF Import
 
-DXF Import
-
-STEGO can import simple DXF files.
+STEGO can import simple **DXF files**.
 
 Supported entities:
 
-LINE
+- `LINE`
+- `CIRCLE`
+- `ARC`
+- `LWPOLYLINE`
 
-CIRCLE
+You can export DXF from tools like:
 
-ARC
-
-LWPOLYLINE
-
-Export a DXF from tools like:
-
-AutoCAD
-
-LibreCAD
-
-QCAD
+- AutoCAD
+- LibreCAD
+- QCAD
+- DraftSight
 
 and convert it into STEGO's JSON format.
 
-Philosophy
+---
+
+## Philosophy
 
 STEGO is not trying to replace professional CAD suites.
 
 Instead it aims to be:
 
-a small drafting engine
-
-a geometry playground
-
-a hackable CAD core
+- a **small drafting engine**
+- a **geometry playground**
+- a **hackable CAD core**
 
 Perfect for experiments, tools, or custom workflows.
 
-Roadmap
+---
+
+## Roadmap
 
 Possible future improvements:
 
-better snapping engine
+- better snapping engine
+- spatial indexing for large drawings
+- improved polyline editing
+- better DXF support
+- performance optimizations
 
-spatial indexing for large drawings
+---
 
-improved polyline editing
-
-better DXF support
-
-performance optimizations
-
-License
+## License
 
 MIT License
 
-Feel free to use, modify and build on STEGO.
-
+You are free to use, modify and build on STEGO.  
 Just keep the original copyright notice.
 
-Author
+---
 
-Created by [your name]
+## Author
+
+Created by **[your name]**
 
 If you build something with STEGO, feel free to mention it.
 
