@@ -6,6 +6,6 @@
     var v=document.getElementById('uiVersionPill');
     if(v) v.textContent='CAD 2D';
     var b=document.getElementById('btnExit');
-    if(b) b.onclick=function(){ alert('Uscita (placeholder)'); };
+    if(b) b.onclick=function(){ alert(window.t('dialog.exitPlaceholder')); };
   }catch(e){}
 })();

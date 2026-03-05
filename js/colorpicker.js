@@ -16,17 +16,17 @@
   function byId(id){ return document.getElementById(id); }
 
   var targets = {
-    stroke: {
-      native: byId('objColor'),
-      hex: byId('objColorHex'),
-      swatches: [byId('colorSwatch'), byId('dockStrokeSwatch'), byId('dockStrokeBox')]
-    },
-    fill: {
-      native: byId('objFill'),
-      hex: byId('objFillHex'),
-      swatches: [byId('dockFillSwatch'), byId('dockFillBox')]
-    }
-  };
+	    stroke: {
+	      native: byId('objColor'),
+	      hex: byId('objColorHex'),
+	      swatches: [byId('colorSwatch'), byId('dockStrokeSwatch'), byId('dockStrokeBox')]
+	    },
+	    fill: {
+	      native: byId('objFill'),
+	      hex: byId('objFillHex'),
+	      swatches: [byId('fillSwatch'), byId('dockFillSwatch'), byId('dockFillBox')]
+	    }
+	  };
 
   // Optional: if you later add a fill swatch in inspector, you can push it in swatches[]
   // Normalize swatches list (remove nulls)
@@ -63,19 +63,20 @@
     return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
   }
 
-  function setSwatches(kind, hex){
-    (targets[kind].swatches||[]).forEach(function(el){
-      // if it's the inner box, set background; if it's a button, also set a child box if present
-      if(el.classList && el.classList.contains('dockColorBox')) el.style.background = hex;
-      else if(el.tagName==='BUTTON') {
-        // find .dockColorBox inside
-        var box = el.querySelector('.dockColorBox');
-        if(box) box.style.background = hex;
-      } else {
-        el.style.background = hex;
-      }
-    });
-  }
+	  function setSwatches(kind, hex){
+	    (targets[kind].swatches||[]).forEach(function(el){
+	      // if it's the inner box, set background; if it's a button, also set a child box if present
+	      if(el.classList && el.classList.contains('dockColorBox')) el.style.background = hex;
+	      else if(el.tagName==='BUTTON') {
+	        // find .dockColorBox inside
+	        var box = el.querySelector('.dockColorBox');
+	        if(box) box.style.background = hex;
+	        else el.style.background = hex;
+	      } else {
+	        el.style.background = hex;
+	      }
+	    });
+	  }
 
   function setColor(hex, commit){
     var t=targets[currentKind];
@@ -156,9 +157,10 @@
   }
 
   // Wire up existing stroke swatch + new dock swatches
-  var dockStroke=byId('dockStrokeSwatch');
-  var dockFill=byId('dockFillSwatch');
-  var strokeSw=byId('colorSwatch');
+	  var dockStroke=byId('dockStrokeSwatch');
+	  var dockFill=byId('dockFillSwatch');
+	  var strokeSw=byId('colorSwatch');
+	  var fillSw=byId('fillSwatch');
 
   if(strokeSw){
     strokeSw.addEventListener('click', function(){ openModal('stroke'); });
@@ -168,10 +170,14 @@
     dockStroke.addEventListener('click', function(){ openModal('stroke'); });
     dockStroke.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openModal('stroke'); } });
   }
-  if(dockFill){
-    dockFill.addEventListener('click', function(){ openModal('fill'); });
-    dockFill.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openModal('fill'); } });
-  }
+	  if(dockFill){
+	    dockFill.addEventListener('click', function(){ openModal('fill'); });
+	    dockFill.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openModal('fill'); } });
+	  }
+	  if(fillSw){
+	    fillSw.addEventListener('click', function(){ if(!fillSw.disabled) openModal('fill'); });
+	    fillSw.addEventListener('keydown', function(e){ if((e.key==='Enter' || e.key===' ') && !fillSw.disabled){ e.preventDefault(); openModal('fill'); } });
+	  }
 
   back.addEventListener('click', function(){ closeModal(); setColor(lastCommitted,true); });
   cancel.addEventListener('click', function(){ closeModal(); setColor(lastCommitted,true); });

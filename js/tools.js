@@ -70,18 +70,18 @@
     var txt=(ui.textValue.value||'').toString();
 
     if(!txt.trim()){
-      var entered=window.prompt('Testo da inserire:', '');
-      if(entered===null) { setStatus('Annullato'); return; }
+      var entered=window.prompt(window.t('dialog.insertText'), '');
+      if(entered===null) { setStatus(window.t('status.cancelled')); return; }
       txt=(entered||'').toString();
       ui.textValue.value=txt;
     }
 
-    if(!txt.trim()){ setStatus('Inserisci un testo'); return; }
+    if(!txt.trim()){ setStatus(window.t('status.enterText')); return; }
 
     // Prevent "invisible insert" on locked layer
     var lay=currentLayer();
     if(isLayerLocked(lay)){
-      setStatus('Layer bloccato: sblocca il layer per inserire testo');
+      setStatus(window.t('status.unlockLayerForText'));
       return;
     }
 
@@ -106,7 +106,7 @@
     addToZOrder('text', id);
 
     pushHist();
-    setStatus('Testo inserito');
+    setStatus(window.t('status.textInserted'));
     return id;
   }
 

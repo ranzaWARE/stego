@@ -1,22 +1,24 @@
 
-(function(){
-  var chk=document.getElementById('chkFill');
-  var col=document.getElementById('objFill');
-  var hex=document.getElementById('objFillHex');
-  var row=document.getElementById('fillRow');
-  if(!chk || !col || !hex) return;
+	(function(){
+	  var chk=document.getElementById('chkFill');
+	  var col=document.getElementById('objFill');
+	  var hex=document.getElementById('objFillHex');
+	  var sw=document.getElementById('fillSwatch');
+	  var row=document.getElementById('fillRow');
+	  if(!chk || !col || !hex) return;
 
   function normHex(v){
     v=(v||'').trim();
     if(v && v[0]!=='#') v='#'+v;
     return v;
   }
-  function syncEnabled(){
-    var on=!!chk.checked;
-    col.disabled=!on;
-    hex.disabled=!on;
-    if(row) row.style.opacity = on ? '1' : '.45';
-  }
+	  function syncEnabled(){
+	    var on=!!chk.checked;
+	    col.disabled=!on;
+	    hex.disabled=!on;
+	    if(sw) sw.disabled=!on;
+	    if(row) row.style.opacity = on ? '1' : '.45';
+	  }
   function syncHexFromColor(){ hex.value=(col.value||'#000000').toUpperCase(); }
 
   chk.addEventListener('change', syncEnabled);

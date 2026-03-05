@@ -24,8 +24,7 @@
   function primarySelection(){ return state.selection.length ? state.selection[state.selection.length-1] : null; }
 
   function updateSelInfo(){
-    if(!state.selection.length){ ui.selInfo.textContent='Nessuna selezione'; return; }
-    ui.selInfo.textContent = state.selection.length + ' oggetto(i) selezionato(i)';
+    ui.selInfo.textContent = formatSelectionInfo(state.selection.length);
   }
 
 

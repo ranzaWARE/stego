@@ -25,8 +25,8 @@
 
   function updateHud(){
     ui.pos.textContent='x '+fmt(state.cursorMM.x)+' | y '+fmt(state.cursorMM.y);
-    ui.snapLbl.textContent='snap: '+(state.snap?'on':'off')+(state.ctrlDown?' (inv)' : '');
-    ui.zoomLbl.textContent='zoom: '+(Math.round(state.pxPerMM*10)/10)+' px/mm';
+    ui.snapLbl.textContent=formatSnapLabel(state.snap, state.ctrlDown);
+    ui.zoomLbl.textContent=formatZoomLabel(state.pxPerMM);
     updateSelInfo();
   }
 
@@ -726,7 +726,7 @@ function drawPreview(){
       updateHud();
     } catch(err){
       console.error(err);
-      setStatus('Errore render dinamico: '+(err && err.message ? err.message : err));
+      setStatus(t('status.dynamicRenderError', { message: (err && err.message ? err.message : err) }));
     }
   }
 
@@ -742,15 +742,47 @@ function drawPreview(){
       updateHud();
     } catch(err){
       console.error(err);
-      setStatus('Errore render: '+(err && err.message ? err.message : err));
+      setStatus(t('status.renderError', { message: (err && err.message ? err.message : err) }));
     }
   }
 
-  // ----- UI / Tools -----
-  function setStatus(t){ ui.status.textContent=t; }
+	  // ----- UI / Tools -----
+	  function setStatus(t){ ui.status.textContent=t; }
+	  function propsSectionKindForRefType(type){
+	    if(type==='text') return 'text';
+	    if(type==='img') return 'img';
+	    if(type==='dim' || type==='rdim') return 'dim';
+	    return null;
+	  }
 
-  function setTool(t){
-    state.tool=t;
+	  function propsSectionKindFromSelection(){
+	    if(!state.selection || !state.selection.length) return null;
+	    var kind=null;
+	    for(var i=0;i<state.selection.length;i++){
+	      var next=propsSectionKindForRefType(state.selection[i] && state.selection[i].type);
+	      if(!next) return null;
+	      if(kind && kind!==next) return null;
+	      kind=next;
+	    }
+	    return kind;
+	  }
+
+	  function syncPropsSectionsForTool(tool){
+	    var selectionKind = (tool==='select') ? propsSectionKindFromSelection() : null;
+	    var showSelection = tool==='select';
+	    var showDimension = tool==='dim' || selectionKind==='dim';
+	    var showText = tool==='text' || selectionKind==='text';
+	    var showImage = tool==='img' || selectionKind==='img';
+
+	    if(ui.propsSelectionSec) ui.propsSelectionSec.hidden = !showSelection;
+	    if(ui.propsDimensionSec) ui.propsDimensionSec.hidden = !showDimension;
+	    if(ui.propsTextSec) ui.propsTextSec.hidden = !showText;
+	    if(ui.propsImageSec) ui.propsImageSec.hidden = !showImage;
+	    if(ui.propsHistorySec) ui.propsHistorySec.hidden = false;
+	  }
+
+	  function setTool(t){
+	    state.tool=t;
     state.lineStart=null;
     state.rectStart=null;
     state.ellStart=null;
@@ -767,18 +799,20 @@ function drawPreview(){
     ui.btnRect.classList.toggle('active', t==='rect');
     ui.btnEllipse.classList.toggle('active', t==='ell');
     ui.btnSelect.classList.toggle('active', t==='select');
-    ui.btnDim.classList.toggle('active', t==='dim');
-        ui.btnText.classList.toggle('active', t==='text');
-    ui.btnPline.classList.toggle('active', t==='pline');
-    ui.btnCircle.classList.toggle('active', t==='circle');
-    ui.btnArc.classList.toggle('active', t==='arc3');
-    if(ui.btnBreak) ui.btnBreak.classList.toggle('active', t==='break');
-    if(ui.btnKatana) ui.btnKatana.classList.toggle('active', t==='katana');
-    if(ui.btnOffset) ui.btnOffset.classList.toggle('active', t==='offset');
-ui.btnPan.classList.toggle('active', t==='pan');
-    if(ui.toolLbl) ui.toolLbl.textContent=t.toUpperCase();
-    setStatus('OK');
-    draw();
+	    ui.btnDim.classList.toggle('active', t==='dim');
+	        ui.btnText.classList.toggle('active', t==='text');
+	    ui.btnImg.classList.toggle('active', t==='img');
+	    ui.btnPline.classList.toggle('active', t==='pline');
+	    ui.btnCircle.classList.toggle('active', t==='circle');
+	    ui.btnArc.classList.toggle('active', t==='arc3');
+	    if(ui.btnBreak) ui.btnBreak.classList.toggle('active', t==='break');
+	    if(ui.btnKatana) ui.btnKatana.classList.toggle('active', t==='katana');
+	    if(ui.btnOffset) ui.btnOffset.classList.toggle('active', t==='offset');
+	ui.btnPan.classList.toggle('active', t==='pan');
+	    syncPropsSectionsForTool(t);
+	    if(ui.toolLbl) ui.toolLbl.textContent=translateToolLabel(t);
+	    setStatus(window.t('status.ok'));
+	    draw();
   }
 
   ui.btnLine.onclick=function(){ setTool('line'); };
@@ -791,13 +825,13 @@ ui.btnPan.classList.toggle('active', t==='pan');
   ui.btnPline.onclick=function(){ setTool('pline'); };
   ui.btnCircle.onclick=function(){ setTool('circle'); };
   ui.btnArc.onclick=function(){ setTool('arc3'); };
-  if(ui.btnBreak) ui.btnBreak.onclick=function(){ setTool('break'); setStatus('SPEZZA: clicca un oggetto nel punto in cui vuoi spezzarlo'); };
-  if(ui.btnKatana) ui.btnKatana.onclick=function(){ setTool('katana'); setStatus('KATANA: clicca 2 punti per tagliare'); };
-  if(ui.btnOffset) ui.btnOffset.onclick=function(){ setTool('offset'); setStatus('OFFSET: click oggetto, poi click lato (distanza da comando o default 10)'); };
+  if(ui.btnBreak) ui.btnBreak.onclick=function(){ setTool('break'); setStatus(window.t('status.breakIntro')); };
+  if(ui.btnKatana) ui.btnKatana.onclick=function(){ setTool('katana'); setStatus(window.t('status.katanaIntro')); };
+  if(ui.btnOffset) ui.btnOffset.onclick=function(){ setTool('offset'); setStatus(window.t('status.offsetIntro')); };
 
-  ui.btnText.onclick=function(){ setTool('text'); };
-  ui.btnImg.onclick=function(){ ui.fileImage.click(); };
-  ui.btnCmdFocus.onclick=function(){ ui.cmd.focus(); ui.cmd.select(); };
+	  ui.btnText.onclick=function(){ setTool('text'); };
+	  ui.btnImg.onclick=function(){ setTool('img'); ui.fileImage.click(); };
+	  ui.btnCmdFocus.onclick=function(){ ui.cmd.focus(); ui.cmd.select(); };
 
   ui.gridStep.oninput=function(){ state.gridStepMM=+ui.gridStep.value||1; draw(); };
   ui.zoom.oninput=function(){ state.pxPerMM=+ui.zoom.value||5; draw(); };
@@ -827,19 +861,18 @@ ui.btnPan.classList.toggle('active', t==='pan');
 
   // ----- Layers -----
   
-function refreshUI(){
-    ui.layers.innerHTML='';
-    for(var name in state.layers){
-      (function(layerName){
-        var L=state.layers[layerName];
+	function refreshUI(){
+	    ui.layers.innerHTML='';
+	    for(var name in state.layers){
+	      (function(layerName){
+	        var L=state.layers[layerName];
         var div=document.createElement('div');
         div.className='layerItem';
         if(layerName===state.activeLayer) div.classList.add('isActive');
         if(!L.visible) div.classList.add('isHidden');
         if(L.locked) div.classList.add('isLocked');
 
-        var left=document.createElement('div'); left.className='row';
-        var dot=document.createElement('div'); dot.className='dot'; dot.style.background=L.color; left.appendChild(dot);
+	        var left=document.createElement('div'); left.className='row';
 
         var btn=document.createElement('button');
         btn.className='layerBtn';
@@ -851,28 +884,22 @@ function refreshUI(){
 
         var visBtn=document.createElement('button');
         visBtn.className='iconBtn';
-        visBtn.title='Mostra/Nascondi layer';
+        visBtn.title=window.t('layer.toggleVisibility.title');
         visBtn.innerHTML = (L.visible? '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg>' : '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 3l18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M2.5 12s3.5-7 9.5-7c2.2 0 4.1.9 5.6 2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M21.5 12s-3.5 7-9.5 7c-2.2 0-4.1-.9-5.6-2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>');
         visBtn.onclick=function(){ L.visible=!L.visible; refreshUI(); draw(); };
         right.appendChild(visBtn);
 
         var lockBtn=document.createElement('button');
         lockBtn.className='iconBtn';
-        lockBtn.title='Blocca layer (no select/edit)';
+        lockBtn.title=window.t('layer.toggleLock.title');
         lockBtn.innerHTML = (L.locked? '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 11V8a5 5 0 0 1 10 0v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"11\" width=\"12\" height=\"10\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M12 15v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>' : '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 11V8a5 5 0 0 1 9-3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"11\" width=\"12\" height=\"10\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M12 15v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>');
         lockBtn.onclick=function(){ L.locked=!L.locked; refreshUI(); draw(); };
         right.appendChild(lockBtn);
 
-        var col=document.createElement('input');
-        col.type='color'; col.value=L.color||'#111827'; col.style.width='44px';
-        col.title='Colore layer';
-        col.oninput=function(){ L.color=col.value; refreshUI(); draw(); };
-        right.appendChild(col);
-
-        var delBtn=document.createElement('button');
-        delBtn.className='iconBtn';
-        delBtn.innerHTML='<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 3h6l1 2h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M6 7h12l-1 14H7L6 7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M10 11v6M14 11v6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>';
-        delBtn.title='Elimina layer';
+	        var delBtn=document.createElement('button');
+	        delBtn.className='iconBtn';
+	        delBtn.innerHTML='<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 3h6l1 2h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M6 7h12l-1 14H7L6 7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M10 11v6M14 11v6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>';
+        delBtn.title=window.t('layer.delete.title');
         delBtn.onclick=function(e){ e.stopPropagation(); deleteLayer(layerName); };
         right.appendChild(delBtn);
 
@@ -887,11 +914,11 @@ function refreshUI(){
 
   function deleteLayer(layerName){
   var names=Object.keys(state.layers||{});
-  if(names.length<=1){ setStatus('Non puoi eliminare l\'ultimo layer'); return; }
+  if(names.length<=1){ setStatus(window.t('status.cannotDeleteLastLayer')); return; }
   if(!(layerName in state.layers)) return;
 
   // confirm: delete content on that layer
-  if(!confirm('Eliminare il layer "'+layerName+'"?\nATTENZIONE: tutti gli oggetti su questo layer verranno ELIMINATI.')) return;
+  if(!confirm(window.t('dialog.deleteLayerConfirm', { layerName: layerName }))) return;
 
   function keepOtherLayers(arr, field){
     var out=[];
@@ -961,7 +988,7 @@ function refreshUI(){
   refreshLayerDropdown();
   pushHist();
   draw();
-  setStatus('Layer e contenuto eliminati');
+  setStatus(window.t('status.layerDeleted'));
 }
 
 
@@ -977,8 +1004,8 @@ function refreshUI(){
 
   ui.btnAddLayer.onclick=function(){
     var name=(ui.layerName.value||'').trim();
-    if(!name){ setStatus('Inserisci nome layer'); return; }
-    if(state.layers[name]){ setStatus('Layer già esistente'); return; }
+    if(!name){ setStatus(window.t('status.enterLayerName')); return; }
+    if(state.layers[name]){ setStatus(window.t('status.layerExists')); return; }
     state.layers[name]={visible:true,color:'#111827',locked:false};
 
     state.activeLayer=name;
@@ -1005,21 +1032,21 @@ function refreshUI(){
         a.download='minicad_project.json';
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(function(){ try{URL.revokeObjectURL(a.href);}catch(_){}} ,2000);
-        setStatus('Progetto salvato');
-      }catch(err){ console.error(err); setStatus('Errore salvataggio progetto'); }
+        setStatus(window.t('status.projectSaved'));
+      }catch(err){ console.error(err); setStatus(window.t('status.projectSaveError')); }
     }
 
 	    function doLoadText(txt){
 	      try{
 	        var obj=JSON.parse(txt);
 	        if(typeof restore!=='function'){
-	          setStatus('Errore caricamento: restore non disponibile');
+		          setStatus(window.t('status.projectLoadRestoreMissing'));
 	          return;
 	        }
 	        restore(obj);
 	        if(typeof pushHist==='function') pushHist();
-	        setStatus('Progetto caricato');
-	      }catch(err){ console.error(err); setStatus('Errore caricamento progetto'); }
+	        setStatus(window.t('status.projectLoaded'));
+	      }catch(err){ console.error(err); setStatus(window.t('status.projectLoadError')); }
 	    }
 
     if(bSave) bSave.addEventListener('click', doSave);
@@ -1053,7 +1080,7 @@ function refreshUI(){
   }
   function commitPoint(p){ handleClickForTool(p); }
 
-  ui.btnCancelCmd.onclick=function(){ ui.cmd.value=''; setStatus('OK'); canvas.focus(); };
+  ui.btnCancelCmd.onclick=function(){ ui.cmd.value=''; setStatus(window.t('status.ok')); canvas.focus(); };
 
   ui.cmd.addEventListener('keydown', function(e){
     if(e.key==='Enter'){
@@ -1066,7 +1093,7 @@ function refreshUI(){
         if(num!==null && isFinite(num)){
           state.offsetDist = Math.max(0, Math.abs(num));
           ui.cmd.value='';
-          setStatus('OFFSET distanza: '+state.offsetDist+' mm (clic oggetto, poi lato)');
+          setStatus(window.t('status.offsetDistance', { distance: state.offsetDist }));
           draw();
           return;
         }
@@ -1074,7 +1101,7 @@ function refreshUI(){
 
       var base = state.lineStart || state.rectStart || state.ellStart || state.dimFirst || state.cursorMM || {x:0,y:0};
       var p=parseCoord(v, base);
-      if(!p){ setStatus('Coordinate non valide. Usa "x,y" o "@dx,dy" (o un numero per OFFSET).'); return; }
+      if(!p){ setStatus(window.t('status.invalidCoordinates')); return; }
       state.cursorMM=p;
       commitPoint(p);
       ui.cmd.value='';
@@ -1083,7 +1110,7 @@ function refreshUI(){
     if(e.key==='Escape'){
       e.preventDefault();
       ui.cmd.value='';
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
     }
   });
 
@@ -1114,12 +1141,12 @@ function refreshUI(){
       refreshUI();
       setTool('select');
       setSingleSelection({type:'img',id:id});
-      setStatus('Immagine inserita');
+      setStatus(window.t('status.imageInserted'));
       draw();
     };
     img.src=dataUrl;
   }
-  ui.btnAddImage.onclick=function(){ ui.fileImage.click(); };
+	  ui.btnAddImage.onclick=function(){ setTool('img'); ui.fileImage.click(); };
   ui.fileImage.addEventListener('change', function(){
     var f=ui.fileImage.files && ui.fileImage.files[0];
     if(!f) return;
@@ -1130,7 +1157,7 @@ function refreshUI(){
 
   ui.btnFitImage.onclick=function(){
     var p=primarySelection();
-    if(!p || p.type!=='img'){ setStatus("Seleziona un'immagine"); return; }
+    if(!p || p.type!=='img'){ setStatus(window.t('status.selectImage')); return; }
     var im=findById(state.images,p.id); if(!im) return;
     var padPx=24*dpr;
     var viewW=(canvas.width-padPx*2)/state.pxPerMM;
@@ -1146,7 +1173,7 @@ function refreshUI(){
     im.cy=state.panMM.y+(padPx/state.pxPerMM)+im.h/2;
     pushHist();
     draw();
-    setStatus('Immagine adattata');
+    setStatus(window.t('status.imageFitted'));
   };
 
   

@@ -134,9 +134,9 @@ function commitOffset(ref, distSigned){
   var style=styleForNew();
   // Keep source layer by default (mechanical-friendly)
   var lay=g.layer || currentLayer();
-  if(isLayerLocked(lay)){
-    setStatus('Layer bloccato: impossibile creare offset su layer bloccato');
-    return false;
+    if(isLayerLocked(lay)){
+      setStatus(window.t('status.offsetLockedLayer'));
+      return false;
   }
   if(g.type==='seg'){
     state.segments.push({id:id, a:g.a, b:g.b, layer:lay, style:Object.assign({}, g.style, style)});
@@ -163,7 +163,7 @@ function commitOffset(ref, distSigned){
 
 // ----- Apply properties to selection -----
   function applyToSelection(){
-    if(!state.selection.length){ setStatus('Nessuna selezione'); return; }
+    if(!state.selection.length){ setStatus(window.t('status.noSelection')); return; }
     var layer=ui.selLayer.value;
     var color=ui.objColor.value;
     var width=+ui.objWidth.value||1;
@@ -227,6 +227,18 @@ function commitOffset(ref, distSigned){
       } else if(ref.type==='dim'){
         var d=findById(state.dims,ref.id); if(!d) continue;
         d.layer=layer;
+      } else if(ref.type==='arc'){
+        var ar=findById(state.arcs,ref.id); if(!ar) continue;
+        ar.layer=layer;
+        ar.style=ar.style||{};
+        ar.style.stroke=color; ar.style.width=width; ar.style.dashed=dashCfg.dashed;
+        if(dashCfg.dash) ar.style.dash=dashCfg.dash.slice(); else delete ar.style.dash;
+      } else if(ref.type==='rdim'){
+        var rd=findById(state.radDims,ref.id); if(!rd) continue;
+        rd.layer=layer;
+        rd.style=rd.style||{};
+        rd.style.stroke=color; rd.style.width=width; rd.style.dashed=dashCfg.dashed;
+        if(dashCfg.dash) rd.style.dash=dashCfg.dash.slice(); else delete rd.style.dash;
       } else if(ref.type==='img'){
         var im=findById(state.images,ref.id); if(!im) continue;
         im.layer=layer;
@@ -235,8 +247,8 @@ function commitOffset(ref, distSigned){
     }
     pushHist();
     draw();
-    if(skippedLocked>0) setStatus('Proprietà applicate (alcuni oggetti bloccati ignorati)');
-    else setStatus('Proprietà applicate');
+    if(skippedLocked>0) setStatus(window.t('status.propertiesAppliedPartial'));
+    else setStatus(window.t('status.propertiesApplied'));
   }
 
 
@@ -270,29 +282,29 @@ function commitOffset(ref, distSigned){
     }
   }
   function copySelection(){
-    if(!state.selection.length){ setStatus('Nessuna selezione'); return; }
+    if(!state.selection.length){ setStatus(window.t('status.noSelection')); return; }
     state.clipboard = deepClone(state.selection);
-    setStatus('Copiato ('+state.selection.length+')');
+    setStatus(window.t('status.copiedCount', { count: state.selection.length }));
   }
   function pasteSelection(){
-    if(!state.clipboard || !state.clipboard.length){ setStatus('Clipboard vuota'); return; }
+    if(!state.clipboard || !state.clipboard.length){ setStatus(window.t('status.emptyClipboard')); return; }
     var created=[];
     for(var i=0;i<state.clipboard.length;i++) created = created.concat(cloneEntity(state.clipboard[i]));
     offsetRefs(created, 10, 10);
     state.selection=created;
-    pushHist(); draw(); setStatus('Incollato');
+    pushHist(); draw(); setStatus(window.t('status.pasted'));
   }
 
   ui.btnApplyStyle.onclick=applyToSelection;
   ui.btnEditText.onclick=function(){
     var ps=primarySelection();
-    if(!ps || ps.type!=='text'){ setStatus('Seleziona un testo'); return; }
+    if(!ps || ps.type!=='text'){ setStatus(window.t('status.selectText')); return; }
     var t=findById(state.texts,ps.id); if(!t) return;
-    if(isLayerLocked(t.layer)){ setStatus('Layer bloccato: non puoi modificare il testo'); return; }
+    if(isLayerLocked(t.layer)){ setStatus(window.t('status.lockedLayerEditText')); return; }
 
     // 1) content from panel if present, else prompt
     var panelTxt=(ui.textValue.value||'').toString();
-    var nv=panelTxt.trim() ? panelTxt : prompt('Testo:', t.text||'');
+    var nv=panelTxt.trim() ? panelTxt : prompt(window.t('dialog.text'), t.text||'');
     if(nv===null) return;
     t.text=String(nv);
     ui.textValue.value=t.text;
@@ -306,7 +318,7 @@ function commitOffset(ref, distSigned){
 
     pushHist();
     draw();
-    setStatus('Testo aggiornato');
+    setStatus(window.t('status.textUpdated'));
   };
   ui.btnClearSel.onclick=function(){ clearSelection(); draw(); };
   // Z-order buttons (within same type)
@@ -345,31 +357,31 @@ function commitOffset(ref, distSigned){
     clearSelection();
     pushHist();
     draw();
-    setStatus('Eliminato');
+    setStatus(window.t('status.deleted'));
   };
 
   // ----- Dimension apply / pin -----
   ui.btnApplyDim.onclick=function(){
     var p=primarySelection();
-    if(!p || p.type!=='dim'){ setStatus('Seleziona una quota'); return; }
+    if(!p || p.type!=='dim'){ setStatus(window.t('status.selectDimension')); return; }
     var d=findById(state.dims,p.id); if(!d) return;
     d.offsetMM=+ui.dimOffset.value||10;
     d.textMM=+ui.dimText.value||3;
-    pushHist(); draw(); setStatus('Quota aggiornata');
+    pushHist(); draw(); setStatus(window.t('status.dimensionUpdated'));
   };
   ui.btnAddRadDim.onclick=function(){
     var p=primarySelection();
-    if(!p||p.type!=='ell'){ setStatus('Seleziona un cerchio'); return; }
+    if(!p||p.type!=='ell'){ setStatus(window.t('status.selectCircle')); return; }
     var e=findById(state.ellipses,p.id); if(!e) return;
-    if(Math.abs((e.rx||0)-(e.ry||0))>1e-6){ setStatus('Seleziona un cerchio (rx=ry)'); return; }
+    if(Math.abs((e.rx||0)-(e.ry||0))>1e-6){ setStatus(window.t('status.selectCircleRxRy')); return; }
     addRadDimFromCircle(e, state.cursorMM);
-    pushHist(); draw(); setStatus('Quota R aggiunta');
+    pushHist(); draw(); setStatus(window.t('status.radialDimensionAdded'));
   };
 
   ui.btnPinDim.onclick=function(){
     var p=primarySelection();
-    if(!p || p.type!=='dim'){ setStatus('Seleziona una quota'); return; }
-    setStatus('Quota fissata (placeholder)');
+    if(!p || p.type!=='dim'){ setStatus(window.t('status.selectDimension')); return; }
+    setStatus(window.t('status.dimensionPinnedPlaceholder'));
   };
 
   
@@ -448,16 +460,18 @@ function commitOffset(ref, distSigned){
     state.histIndex=state.hist.length-1;
     saveAutosave();
   }
-  function undo(){ if(state.histIndex<=0) return; state.histIndex--; restore(state.hist[state.histIndex]); setStatus('Undo'); }
-  function redo(){ if(state.histIndex>=state.hist.length-1) return; state.histIndex++; restore(state.hist[state.histIndex]); setStatus('Redo'); }
+  function undo(){ if(state.histIndex<=0) return; state.histIndex--; restore(state.hist[state.histIndex]); setStatus(window.t('status.undo')); }
+  function redo(){ if(state.histIndex>=state.hist.length-1) return; state.histIndex++; restore(state.hist[state.histIndex]); setStatus(window.t('status.redo')); }
   ui.btnUndo.onclick=undo;
   ui.btnRedo.onclick=redo;
-  ui.btnRestoreAutosave.onclick=function(){ var a=loadAutosave(); if(!a){ setStatus('Nessun autosave'); return; } if(!confirm('Ripristinare autosave?')) return; restore(a); pushHist(); setStatus('Autosave ripristinato'); };
+  if(ui.btnSaveAutosave) ui.btnSaveAutosave.onclick=function(){ saveAutosave(); setStatus(window.t('status.autosaveSaved')); };
+  ui.btnRestoreAutosave.onclick=function(){ var a=loadAutosave(); if(!a){ setStatus(window.t('status.noAutosave')); return; } if(!confirm(window.t('dialog.restoreAutosave'))) return; restore(a); pushHist(); setStatus(window.t('status.autosaveRestored')); };
 
   ui.btnClear.onclick=function(){
-    if(!confirm('Reset disegno?')) return;
-    state.segments=[]; state.rects=[]; state.ellipses=[]; state.dims=[]; state.images=[]; state.imageCache={};
-    state.imageLoadState={};
+    if(!confirm(window.t('dialog.resetDrawing'))) return;
+    state.segments=[]; state.rects=[]; state.ellipses=[]; state.dims=[]; state.images=[]; state.texts=[];
+    state.polylines=[]; state.arcs=[]; state.radDims=[]; state.zOrder=[];
+    state.imageCache={}; state.imageLoadState={};
     state.panMM={x:0,y:0}; state.pxPerMM=5; state.gridStepMM=1;
     clearSelection();
     pushHist();
@@ -471,11 +485,11 @@ function commitOffset(ref, distSigned){
       addPolyline(state.plinePts,false);
       state.plinePts=null;
       pushHist();
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
       setTool('select');
     } else {
       state.plinePts=null;
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
     }
   }
 
@@ -484,9 +498,9 @@ function commitOffset(ref, distSigned){
     // Finish polyline / cancel construction tools
     if(e.key==='Escape'){
       if(state.tool==='pline' && state.plinePts){ e.preventDefault(); finishPolyline(); draw(); return; }
-      if(state.tool==='circle' && state.circleCenter){ e.preventDefault(); state.circleCenter=null; setStatus('OK'); draw(); return; }
-      if(state.tool==='arc3' && state.arcPts){ e.preventDefault(); state.arcPts=null; setStatus('OK'); draw(); return; }
-      if(state.tool==='line' && state.lineStart){ e.preventDefault(); state.lineStart=null; setStatus('OK'); draw(); return; }
+      if(state.tool==='circle' && state.circleCenter){ e.preventDefault(); state.circleCenter=null; setStatus(window.t('status.ok')); draw(); return; }
+      if(state.tool==='arc3' && state.arcPts){ e.preventDefault(); state.arcPts=null; setStatus(window.t('status.ok')); draw(); return; }
+      if(state.tool==='line' && state.lineStart){ e.preventDefault(); state.lineStart=null; setStatus(window.t('status.ok')); draw(); return; }
     }
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='c'){ e.preventDefault(); if(typeof copySelection==='function') copySelection(); }
     if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='v'){ e.preventDefault(); if(typeof pasteSelection==='function') pasteSelection(); }
@@ -499,14 +513,14 @@ function commitOffset(ref, distSigned){
 	    if(state.tool==='katana'){
       if(!state.cutStart){
         state.cutStart={x:w.x,y:w.y};
-	        setStatus('KATANA: scegli secondo punto');
+	        setStatus(window.t('status.katanaPickSecond'));
       } else {
         var end=w;
         if(orthoNow) end=applyOrtho45(state.cutStart,end);
         var changed = (typeof cutWithSegment === 'function') ? cutWithSegment(state.cutStart, end) : 0;
         state.cutStart=null;
-        if(changed){ pushHist(); setStatus('Taglio: '+changed+' oggetto(i) spezzato(i)'); }
-        else { setStatus('Taglio: nessuna intersezione'); }
+        if(changed){ pushHist(); setStatus(window.t('status.cutObjectsCount', { count: changed })); }
+        else { setStatus(window.t('status.cutNoIntersection')); }
       }
       draw();
       return;
@@ -514,15 +528,15 @@ function commitOffset(ref, distSigned){
 
 	    if(state.tool==='break'){
 	      var hit=pick(w);
-	      if(!hit){ setStatus('SPEZZA: clicca un oggetto'); draw(); return; }
+	      if(!hit){ setStatus(window.t('status.breakPickObject')); draw(); return; }
 	      var lay=getLayerOfRef(hit);
 	      if(lay && isLayerLocked(lay)){
-	        setStatus('SPEZZA: oggetto su layer bloccato');
+	        setStatus(window.t('status.breakLockedLayer'));
 	        draw(); return;
 	      }
 	      var ok = (typeof breakAtPoint==='function') ? breakAtPoint(hit, w) : 0;
-	      if(ok){ pushHist(); setStatus('OK'); }
-	      else { setStatus('SPEZZA: punto non valido (vicino a estremi?)'); }
+	      if(ok){ pushHist(); setStatus(window.t('status.ok')); }
+	      else { setStatus(window.t('status.breakInvalidPoint')); }
 	      draw();
 	      return;
 	    }
@@ -531,14 +545,14 @@ function commitOffset(ref, distSigned){
       // Step 1: choose base object
       if(!state.offsetRef){
         var hit=pick(w);
-        if(!hit){ setStatus('OFFSET: clicca un oggetto (linea, polilinea, cerchio, arco)'); draw(); return; }
+        if(!hit){ setStatus(window.t('status.offsetPickObject')); draw(); return; }
         var lay=getLayerOfRef(hit);
         if(lay && isLayerLocked(lay)){
-          setStatus('OFFSET: oggetto su layer bloccato');
+          setStatus(window.t('status.offsetLockedObject'));
           draw(); return;
         }
         state.offsetRef=hit;
-        setStatus('OFFSET: scegli lato (distanza '+(state.offsetDist||10)+' mm)');
+        setStatus(window.t('status.offsetChooseSide', { distance: (state.offsetDist||10) }));
         draw(); return;
       }
       // Step 2: click side to commit
@@ -547,39 +561,39 @@ function commitOffset(ref, distSigned){
       var ok=commitOffset(state.offsetRef, dist);
       state.offsetPreview=null;
       state.offsetRef=null;
-      if(ok){ pushHist(); setStatus('OK'); }
+      if(ok){ pushHist(); setStatus(window.t('status.ok')); }
       draw(); return;
     }
 
     if(state.tool==='line'){
-      if(!state.lineStart){ state.lineStart=w; setStatus('Linea: scegli punto finale'); }
+      if(!state.lineStart){ state.lineStart=w; setStatus(window.t('status.linePickEnd')); }
       else{
         var end=w;
         if(orthoNow) end=applyOrtho45(state.lineStart,end);
         addSeg(state.lineStart,end);
         state.lineStart=null;
         pushHist();
-        setStatus('OK');
+        setStatus(window.t('status.ok'));
       }
       draw(); return;
     }
     if(state.tool==='rect'){
-      if(!state.rectStart){ state.rectStart=w; setStatus('Rettangolo: scegli angolo opposto'); }
+      if(!state.rectStart){ state.rectStart=w; setStatus(window.t('status.rectPickOpposite')); }
       else{
         addRectFromCorners(state.rectStart,w);
         state.rectStart=null;
         pushHist();
-        setStatus('OK');
+        setStatus(window.t('status.ok'));
       }
       draw(); return;
     }
     if(state.tool==='ell'){
-      if(!state.ellStart){ state.ellStart=w; setStatus('Ellisse: scegli angolo opposto'); }
+      if(!state.ellStart){ state.ellStart=w; setStatus(window.t('status.ellipsePickOpposite')); }
       else{
         addEllipseFromCorners(state.ellStart,w);
         state.ellStart=null;
         pushHist();
-        setStatus('OK');
+        setStatus(window.t('status.ok'));
       }
       draw(); return;
     }
@@ -599,25 +613,25 @@ function commitOffset(ref, distSigned){
     if(state.tool==='pline'){
       if(!state.plinePts){
         state.plinePts=[{x:w.x,y:w.y}];
-        setStatus('Polilinea: aggiungi punti (Doppio click o Esc per finire)');
+        setStatus(window.t('status.polylineAddPoints'));
       } else {
         state.plinePts.push({x:w.x,y:w.y});
       }
       draw(); return;
     }
     if(state.tool==='circle'){
-      if(!state.circleCenter){ state.circleCenter={x:w.x,y:w.y}; setStatus('Cerchio: scegli raggio'); }
+      if(!state.circleCenter){ state.circleCenter={x:w.x,y:w.y}; setStatus(window.t('status.circlePickRadius')); }
       else{
         addCircle(state.circleCenter,w);
         state.circleCenter=null;
         pushHist();
-        setStatus('OK');
+        setStatus(window.t('status.ok'));
       }
       draw(); return;
     }
     if(state.tool==='arc3'){
-      if(!state.arcPts){ state.arcPts=[{x:w.x,y:w.y}]; setStatus('Arco: scegli secondo punto'); }
-      else if(state.arcPts.length===1){ state.arcPts.push({x:w.x,y:w.y}); setStatus('Arco: scegli terzo punto'); }
+      if(!state.arcPts){ state.arcPts=[{x:w.x,y:w.y}]; setStatus(window.t('status.arcPickSecond')); }
+      else if(state.arcPts.length===1){ state.arcPts.push({x:w.x,y:w.y}); setStatus(window.t('status.arcPickThird')); }
       else{
         state.arcPts.push({x:w.x,y:w.y});
         var ok=addArc3p(state.arcPts[0],state.arcPts[1],state.arcPts[2]);
@@ -625,16 +639,16 @@ function commitOffset(ref, distSigned){
         if(ok){
           // keep Arc tool active (no auto-switch to Select) to allow drawing multiple arcs
           pushHist();
-          setStatus('OK');
+          setStatus(window.t('status.ok'));
         } else {
-          setStatus('Arco non valido');
+          setStatus(window.t('status.invalidArc'));
         }
       }
       draw(); return;
     }
 
     if(state.tool==='dim'){
-      if(!state.dimFirst){ state.dimFirst=w; setStatus('Quota: scegli secondo punto'); }
+      if(!state.dimFirst){ state.dimFirst=w; setStatus(window.t('status.dimensionPickSecond')); }
       else{
         addDim(state.dimFirst,w,+ui.dimOffset.value||10,+ui.dimText.value||3);
         state.dimFirst=null;
@@ -644,7 +658,7 @@ function commitOffset(ref, distSigned){
         pushHist();
         setTool('select');
         syncPropsFromPrimary();
-        setStatus('OK');
+        setStatus(window.t('status.ok'));
       }
       draw(); return;
     }

@@ -15,7 +15,7 @@ canvas.addEventListener('pointerdown', function(e){
       if(pointers.size===2){
         var pts=Array.from(pointers.values());
         pinch={ startDist:dist(pts[0],pts[1]), startPxPerMM:state.pxPerMM, startMid:mid(pts[0],pts[1]), startPan:{x:state.panMM.x,y:state.panMM.y} };
-        setStatus('PINCH: zoom/pan');
+        setStatus(window.t('status.pinch'));
         return;
       }
     } else {
@@ -28,7 +28,7 @@ canvas.addEventListener('pointerdown', function(e){
 
     if(e.button===1 || state.spacePan || state.tool==='pan'){
       state.drag={active:true,kind:'pan',startPx:m,startPan:{x:state.panMM.x,y:state.panMM.y}};
-      setStatus('PAN: trascina');
+      setStatus(window.t('status.panDrag'));
       return;
     }
 
@@ -48,7 +48,7 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
         } else {
           state.drag={active:true,kind:'grip',target:{type:gh.type,id:gh.id},grip:gh.grip};
         }
-        setStatus(gh.grip==='rot' ? 'Rotazione: trascina' : 'Grip: modifica');
+        setStatus(gh.grip==='rot' ? window.t('status.rotationDrag') : window.t('status.gripEdit'));
         draw(); return;
       }
 
@@ -63,16 +63,16 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
         // start move for selection (all selected)
         if(state.selection.length){
           state.drag=createMoveDrag(deepClone(state.selection), w);
-          setStatus('Move: trascina');
+          setStatus(window.t('status.moveDrag'));
         } else {
-          setStatus('OK');
+          setStatus(window.t('status.ok'));
         }
         draw(); return;
       } else {
         // empty space -> start box selection
         state.selBox={a:w,b:w};
         state.drag={active:true,kind:'box'};
-        setStatus('Box selection: trascina');
+        setStatus(window.t('status.boxSelection'));
         draw(); return;
       }
     }
@@ -99,10 +99,10 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
       e.preventDefault();
       var t=findById(state.texts, hit.id);
       if(!t) return;
-      if(isLayerLocked(t.layer)){ setStatus('Layer bloccato: non puoi modificare il testo'); return; }
+      if(isLayerLocked(t.layer)){ setStatus(window.t('status.lockedLayerEditText')); return; }
 
       var cur=(t.text||'').toString();
-      var entered=window.prompt('Modifica testo:', cur);
+      var entered=window.prompt(window.t('dialog.editText'), cur);
       if(entered===null) return;
 
       t.text=(entered||'').toString();
@@ -111,7 +111,7 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
 
       state.selection=[{type:'text',id:t.id}];
       pushHist();
-      setStatus('Testo aggiornato');
+      setStatus(window.t('status.textUpdated'));
       syncPropsFromPrimary();
       draw();
       return;
@@ -139,7 +139,7 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
       var after=screenToWorld(midPx);
 
       state.panMM={ x: pinch.startPan.x + (before.x-after.x), y: pinch.startPan.y + (before.y-after.y) };
-      setStatus('PINCH: zoom/pan');
+      setStatus(window.t('status.pinch'));
       draw();
       return;
     }
@@ -174,7 +174,7 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
       if(kind==='move' || kind==='grip' || kind==='pan' || kind==='box'){
         pushHist();
       }
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
       draw();
     }
   }, {passive:false});
@@ -193,7 +193,7 @@ var w = (state.tool==='select') ? w0 : snapWorld(w0).snapped;
       state.drag.active=false;
       state.drag=null;
       state.selBox=null;
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
       draw();
     }
   }, {passive:false});
@@ -222,7 +222,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       state.drag.active=false;
       state.drag=null;
       state.selBox=null;
-      setStatus('OK');
+      setStatus(window.t('status.ok'));
       draw();
     }
   });
@@ -249,7 +249,7 @@ canvas.addEventListener('lostpointercapture', function(e){
     if(e.key==='Escape'){
       state.lineStart=null; state.rectStart=null; state.ellStart=null; state.dimFirst=null;
       state.selBox=null;
-      setStatus('OK'); draw();
+      setStatus(window.t('status.ok')); draw();
     }
     if((e.key==='Delete' || e.key==='Backspace') && state.selection.length){
       ui.btnDelete.click(); e.preventDefault();
@@ -287,7 +287,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 	  function exportSVG(){
 	    var vis=visibleLayerSet();
 	    var box=computeWorldBounds();
-	    if(!box){ setStatus('Niente da esportare'); return; }
+	    if(!box){ setStatus(window.t('status.nothingToExport')); return; }
     var pad=10;
     var w=box.w+pad*2, h=box.h+pad*2;
 
@@ -315,7 +315,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var dash2=dashArr2.length ? ' stroke-dasharray="'+dashArr2.join(' ')+'"' : '';
       var rotDeg=deg(rr.rot||0);
       var rx=x(rr.cx), ry=y(rr.cy);
-      svg.push('<rect x="'+(rx-rr.w/2)+'" y="'+(ry-rr.h/2)+'" width="'+rr.w+'" height="'+rr.h+'" fill="none" stroke="'+(st2.stroke||'#111827')+'" stroke-width="'+(st2.width||1)+'"'+dash2+' transform="rotate('+rotDeg+' '+rx+' '+ry+')" />');
+	      svg.push('<rect x="'+(rx-rr.w/2)+'" y="'+(ry-rr.h/2)+'" width="'+rr.w+'" height="'+rr.h+'" fill="'+(st2.fill||'none')+'" stroke="'+(st2.stroke||'#111827')+'" stroke-width="'+(st2.width||1)+'"'+dash2+' transform="rotate('+rotDeg+' '+rx+' '+ry+')" />');
     }
 
 	    // ellipses with transform
@@ -326,7 +326,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var dash3=dashArr3.length ? ' stroke-dasharray="'+dashArr3.join(' ')+'"' : '';
       var rotDeg2=deg(el.rot||0);
       var ex=x(el.cx), ey=y(el.cy);
-	      svg.push('<ellipse cx="'+ex+'" cy="'+ey+'" rx="'+el.rx+'" ry="'+el.ry+'" fill="none" stroke="'+(st3.stroke||'#111827')+'" stroke-width="'+(st3.width||1)+'"'+dash3+' transform="rotate('+rotDeg2+' '+ex+' '+ey+')" />');
+		      svg.push('<ellipse cx="'+ex+'" cy="'+ey+'" rx="'+el.rx+'" ry="'+el.ry+'" fill="'+(st3.fill||'none')+'" stroke="'+(st3.stroke||'#111827')+'" stroke-width="'+(st3.width||1)+'"'+dash3+' transform="rotate('+rotDeg2+' '+ex+' '+ey+')" />');
 	    }
 
 	    // polylines
@@ -362,39 +362,49 @@ canvas.addEventListener('lostpointercapture', function(e){
 	      var sx=x(aa.cx + Math.cos(aa.a0)*aa.r), sy=y(aa.cy + Math.sin(aa.a0)*aa.r);
 	      var ex2=x(aa.cx + Math.cos(aa.a1)*aa.r), ey2=y(aa.cy + Math.sin(aa.a1)*aa.r);
 	      var laf = (sweep > Math.PI) ? 1 : 0;
-	      // Canvas ccw=true is opposite sweep direction in SVG path flag.
-	      var sf = aa.ccw ? 0 : 1;
+		      // In SVG screen coordinates, sweep-flag 0=CCW and 1=CW.
+		      var sf = aa.ccw ? 0 : 1;
 	      var dPath='M '+sx+' '+sy+' A '+aa.r+' '+aa.r+' 0 '+laf+' '+sf+' '+ex2+' '+ey2;
 	      svg.push('<path d="'+dPath+'" fill="none" stroke="'+(sta.stroke||'#111827')+'" stroke-width="'+(sta.width||1)+'"'+dashA+' />');
 	    }
 
 	    // images are NOT embedded by default in SVG (to keep it simple)
-	    // dims simplified
-	    for(var d=0; d<state.dims.length; d++){
-      var dd=state.dims[d]; if(!vis[dd.layer]) continue;
-      var a=dd.a, b=dd.b;
-      var vx=b.x-a.x, vy=b.y-a.y;
-      var len=hypot(vx,vy); if(len<1e-6) continue;
-      var nx=-vy/len, ny=vx/len;
-      var off=dd.offsetMM||10;
-      var a2={x:a.x+nx*off,y:a.y+ny*off};
-      var b2={x:b.x+nx*off,y:b.y+ny*off};
-      svg.push('<line x1="'+x(a.x)+'" y1="'+y(a.y)+'" x2="'+x(a2.x)+'" y2="'+y(a2.y)+'" stroke="#111827" stroke-width="1"/>');
-      svg.push('<line x1="'+x(b.x)+'" y1="'+y(b.y)+'" x2="'+x(b2.x)+'" y2="'+y(b2.y)+'" stroke="#111827" stroke-width="1"/>');
-      svg.push('<line x1="'+x(a2.x)+'" y1="'+y(a2.y)+'" x2="'+x(b2.x)+'" y2="'+y(b2.y)+'" stroke="#111827" stroke-width="1"/>');
+		    // dims simplified
+		    for(var d=0; d<state.dims.length; d++){
+	      var dd=state.dims[d]; if(!vis[dd.layer]) continue;
+	      var dStyleSvg=dd.style||{};
+	      var dDashSvg=dashPatternForStyle(dStyleSvg);
+	      var dDashAttr=dDashSvg.length ? ' stroke-dasharray="'+dDashSvg.join(' ')+'"' : '';
+	      var dStroke=(dStyleSvg.stroke||'#111827');
+	      var dWidth=(dStyleSvg.width||1);
+	      var a=dd.a, b=dd.b;
+	      var vx=b.x-a.x, vy=b.y-a.y;
+	      var len=hypot(vx,vy); if(len<1e-6) continue;
+	      var nx=-vy/len, ny=vx/len;
+	      var off=dd.offsetMM||10;
+	      var a2={x:a.x+nx*off,y:a.y+ny*off};
+	      var b2={x:b.x+nx*off,y:b.y+ny*off};
+	      svg.push('<line x1="'+x(a.x)+'" y1="'+y(a.y)+'" x2="'+x(a2.x)+'" y2="'+y(a2.y)+'" stroke="'+dStroke+'" stroke-width="'+dWidth+'"'+dDashAttr+'/>');
+	      svg.push('<line x1="'+x(b.x)+'" y1="'+y(b.y)+'" x2="'+x(b2.x)+'" y2="'+y(b2.y)+'" stroke="'+dStroke+'" stroke-width="'+dWidth+'"'+dDashAttr+'/>');
+	      svg.push('<line x1="'+x(a2.x)+'" y1="'+y(a2.y)+'" x2="'+x(b2.x)+'" y2="'+y(b2.y)+'" stroke="'+dStroke+'" stroke-width="'+dWidth+'"'+dDashAttr+'/>');
 	      var mx=(a2.x+b2.x)/2, my=(a2.y+b2.y)/2;
-	      svg.push('<text x="'+x(mx)+'" y="'+y(my-2)+'" font-size="'+(dd.textMM||3)+'" text-anchor="middle" fill="#111827">'+fmt(len)+' mm</text>');
+	      svg.push('<text x="'+x(mx)+'" y="'+y(my-2)+'" font-size="'+(dd.textMM||3)+'" text-anchor="middle" fill="'+dStroke+'">'+fmt(len)+' mm</text>');
 	    }
 
-	    // radial dims (simplified)
-	    for(var rd=0; rd<state.radDims.length; rd++){
-	      var rdd=state.radDims[rd]; if(!vis[rdd.layer]) continue;
-	      if(!rdd.anchor) continue;
-	      svg.push('<line x1="'+x(rdd.cx)+'" y1="'+y(rdd.cy)+'" x2="'+x(rdd.anchor.x)+'" y2="'+y(rdd.anchor.y)+'" stroke="#111827" stroke-width="1"/>');
-	      svg.push('<circle cx="'+x(rdd.cx)+'" cy="'+y(rdd.cy)+'" r="1.2" fill="#111827"/>');
-	      var txr=(rdd.cx+rdd.anchor.x)/2, tyr=(rdd.cy+rdd.anchor.y)/2;
-	      svg.push('<text x="'+x(txr)+'" y="'+y(tyr-2)+'" font-size="'+(rdd.textMM||3)+'" text-anchor="middle" fill="#111827">R '+fmt(rdd.r)+' mm</text>');
-	    }
+		    // radial dims (simplified)
+		    for(var rd=0; rd<state.radDims.length; rd++){
+		      var rdd=state.radDims[rd]; if(!vis[rdd.layer]) continue;
+		      if(!rdd.anchor) continue;
+		      var rdStyleSvg=rdd.style||{};
+		      var rdDashSvg=dashPatternForStyle(rdStyleSvg);
+		      var rdDashAttr=rdDashSvg.length ? ' stroke-dasharray="'+rdDashSvg.join(' ')+'"' : '';
+		      var rdStroke=(rdStyleSvg.stroke||'#111827');
+		      var rdWidth=(rdStyleSvg.width||1);
+		      svg.push('<line x1="'+x(rdd.cx)+'" y1="'+y(rdd.cy)+'" x2="'+x(rdd.anchor.x)+'" y2="'+y(rdd.anchor.y)+'" stroke="'+rdStroke+'" stroke-width="'+rdWidth+'"'+rdDashAttr+'/>');
+		      svg.push('<circle cx="'+x(rdd.cx)+'" cy="'+y(rdd.cy)+'" r="1.2" fill="'+rdStroke+'"/>');
+		      var txr=(rdd.cx+rdd.anchor.x)/2, tyr=(rdd.cy+rdd.anchor.y)/2;
+		      svg.push('<text x="'+x(txr)+'" y="'+y(tyr-2)+'" font-size="'+(rdd.textMM||3)+'" text-anchor="middle" fill="'+rdStroke+'">R '+fmt(rdd.r)+' mm</text>');
+		    }
 
 	    // texts
 	    for(var t=0;t<state.texts.length;t++){
@@ -413,84 +423,271 @@ canvas.addEventListener('lostpointercapture', function(e){
     downloadBlob(new Blob([svg.join('\n')],{type:'image/svg+xml'}),'minicad.svg');
   }
 
-	  function exportDXF(){
-	    var vis=visibleLayerSet();
-	    var dxf=[];
-	    function push(){ dxf.push.apply(dxf, arguments); }
-	    function normDeg(v){
-	      var n=(deg(v||0)%360);
-	      if(n<0) n+=360;
-	      return n;
-	    }
-	    function dxfTextSafe(s){
-	      return String(s==null ? '' : s).replace(/\r?\n/g,' ');
-	    }
-	    push("0","SECTION","2","HEADER","0","ENDSEC");
-	    push("0","SECTION","2","TABLES","0","ENDSEC");
-	    push("0","SECTION","2","ENTITIES");
+		  function exportDXF(){
+		    var vis=visibleLayerSet();
+		    var dxf=[];
+		    function push(){ dxf.push.apply(dxf, arguments); }
+		    function normDeg(v){
+		      var n=(deg(v||0)%360);
+		      if(n<0) n+=360;
+		      return n;
+		    }
+		    function dxfTextSafe(s){
+		      return String(s==null ? '' : s).replace(/\r?\n/g,' ');
+		    }
+		    function hexToRgb(hex){
+		      var m=/^#?([0-9a-f]{6})$/i.exec(String(hex||'').trim());
+		      if(!m) return null;
+		      var n=parseInt(m[1],16);
+		      return {r:(n>>16)&255, g:(n>>8)&255, b:n&255};
+		    }
+		    function dxfTrueColor(hex){
+		      var rgb=hexToRgb(hex);
+		      return rgb ? (rgb.r*65536 + rgb.g*256 + rgb.b) : null;
+		    }
+		    function dxfAci(hex){
+		      var rgb=hexToRgb(hex);
+		      if(!rgb) return 7;
+		      var max=Math.max(rgb.r,rgb.g,rgb.b);
+		      var min=Math.min(rgb.r,rgb.g,rgb.b);
+		      var delta=max-min;
+		      if(max < 32) return 7;
+		      if(delta < 20){
+		        var avg=(rgb.r+rgb.g+rgb.b)/3;
+		        return avg < 128 ? 8 : 7;
+		      }
+		      if(max===rgb.r && rgb.g > rgb.b + 32) return 30;
+		      if(max===rgb.r && rgb.b > rgb.g + 32) return 6;
+		      if(max===rgb.r) return 1;
+		      if(max===rgb.g && rgb.r > rgb.b + 32) return 2;
+		      if(max===rgb.g) return 3;
+		      if(max===rgb.b && rgb.g > rgb.r + 32) return 4;
+		      if(max===rgb.b) return 5;
+		      return 7;
+		    }
+		    function dxfLineweight(width){
+		      var v=parseFloat(width);
+		      if(!isFinite(v)) return null;
+		      return clamp(Math.round(Math.abs(v)*25), 0, 211);
+		    }
+		    function dxfDashPattern(style){
+		      var dash=dashPatternForStyle(style);
+		      if(!dash.length) return null;
+		      var out=[];
+		      for(var i=0;i<dash.length;i++){
+		        var v=parseFloat(dash[i]);
+		        if(isFinite(v) && v>0) out.push(Math.max(0.1, Math.round(v*1000)/1000));
+		      }
+		      return out.length ? out : null;
+		    }
+		    function dxfLtypeName(style){
+		      var dash=dxfDashPattern(style);
+		      if(!dash) return 'CONTINUOUS';
+		      return 'DASH_'+dash.map(function(v){ return String(v).replace(/\./g,'_'); }).join('_');
+		    }
+		    function collectDxfLtypes(){
+		      var map={ CONTINUOUS:{name:'CONTINUOUS', desc:'Solid line', pattern:null} };
+		      function consider(style){
+		        var dash=dxfDashPattern(style);
+		        if(!dash) return;
+		        var name=dxfLtypeName(style);
+		        if(!map[name]) map[name]={name:name, desc:'Dash '+dash.join(','), pattern:dash};
+		      }
+		      function considerArr(arr){
+		        for(var i=0;i<arr.length;i++) consider(arr[i] && arr[i].style);
+		      }
+		      considerArr(state.segments);
+		      considerArr(state.rects);
+		      considerArr(state.ellipses);
+		      considerArr(state.polylines);
+		      considerArr(state.arcs);
+		      considerArr(state.dims);
+		      considerArr(state.radDims);
+		      return Object.keys(map).map(function(k){ return map[k]; });
+		    }
+		    function pushColorCodes(hex){
+		      var aci=dxfAci(hex);
+		      var trueColor=dxfTrueColor(hex);
+		      if(aci!=null) push("62", aci);
+		      if(trueColor!=null) push("420", trueColor);
+		    }
+		    function pushLineStyleCodes(style){
+		      var ltype=dxfLtypeName(style);
+		      if(ltype!=='CONTINUOUS') push("6", ltype);
+		      var lw=dxfLineweight(style && style.width);
+		      if(lw!=null) push("370", lw);
+		    }
+		    function pushEntityCommon(layer, style, colorHex, isLinear){
+		      push("8", layer || "0");
+		      pushColorCodes(colorHex);
+		      if(isLinear) pushLineStyleCodes(style);
+		    }
+		    function pushAlignedTextEntity(layer, text, x, y, height, rotDeg, align, colorHex){
+		      push("0","TEXT");
+		      pushEntityCommon(layer, null, colorHex, false);
+		      push("10",x,"20",y,"30",0,"40",height,"1",dxfTextSafe(text),"50",rotDeg);
+		      if(align){
+		        push("72",align,"73",0,"11",x,"21",y,"31",0);
+		      }
+		    }
+		    function pushLtypeTable(entries){
+		      push("0","TABLE","2","LTYPE","70",entries.length);
+		      for(var i=0;i<entries.length;i++){
+		        var lt=entries[i];
+		        push("0","LTYPE","2",lt.name,"70",0,"3",lt.desc,"72",65);
+		        if(!lt.pattern || !lt.pattern.length){
+		          push("73",0,"40",0);
+		          continue;
+		        }
+		        var total=0;
+		        for(var j=0;j<lt.pattern.length;j++) total += Math.abs(lt.pattern[j]);
+		        push("73",lt.pattern.length,"40",Math.round(total*1000)/1000);
+		        for(var k=0;k<lt.pattern.length;k++){
+		          var seg=lt.pattern[k];
+		          push("49",(k%2===0)? seg : -seg,"74",0);
+		        }
+		      }
+		      push("0","ENDTAB");
+		    }
+		    function pushLayerTable(){
+		      var names=Object.keys(state.layers||{});
+		      if(!names.length) names=['0'];
+		      push("0","TABLE","2","LAYER","70",names.length);
+		      for(var i=0;i<names.length;i++){
+		        var name=names[i];
+		        var layer=state.layers[name]||{};
+		        var colorHex=layer.color || '#111827';
+		        var aci=Math.max(1, dxfAci(colorHex) || 7);
+		        if(layer.visible===false) aci=-Math.abs(aci);
+		        var flags=layer.locked ? 4 : 0;
+		        push("0","LAYER","2",name,"70",flags,"62",aci,"6","CONTINUOUS");
+		        var trueColor=dxfTrueColor(colorHex);
+		        if(trueColor!=null) push("420", trueColor);
+		      }
+		      push("0","ENDTAB");
+		    }
 
-    for(var i=0;i<state.segments.length;i++){
-      var s=state.segments[i]; if(!vis[s.layer]) continue;
-      push("0","LINE","8",s.layer,"10",s.a.x,"20",s.a.y,"11",s.b.x,"21",s.b.y);
-    }
-    // rects exported as 4 lines (rotation approximated by corners)
-    for(var r=0;r<state.rects.length;r++){
-      var rr=state.rects[r]; if(!vis[rr.layer]) continue;
-      var cs=getRectCorners(rr);
-      for(var k=0;k<4;k++){
-        var p1=cs[k], p2=cs[(k+1)%4];
-        push("0","LINE","8",rr.layer,"10",p1.x,"20",p1.y,"11",p2.x,"21",p2.y);
-      }
-    }
-	    // ellipses: DXF supports ELLIPSE with major axis vector; include rotation
-	    for(var e=0;e<state.ellipses.length;e++){
-	      var el=state.ellipses[e]; if(!vis[el.layer]) continue;
-      var ang=el.rot||0;
-      // major axis vector along rotated x axis, length rx
-	      var mx=Math.cos(ang)*el.rx, my=Math.sin(ang)*el.rx;
-	      push("0","ELLIPSE","8",el.layer,"10",el.cx,"20",el.cy,"11",mx,"21",my,"40",(el.ry/Math.max(0.0001,el.rx)),"41",0,"42",6.283185307179586);
-	    }
+		    push("0","SECTION","2","HEADER","9","$ACADVER","1","AC1018","0","ENDSEC");
+		    push("0","SECTION","2","TABLES");
+		    pushLtypeTable(collectDxfLtypes());
+		    pushLayerTable();
+		    push("0","ENDSEC");
+		    push("0","SECTION","2","ENTITIES");
 
-	    // polylines
-	    for(var p=0;p<state.polylines.length;p++){
-	      var pl=state.polylines[p]; if(!vis[pl.layer]) continue;
-	      if(!pl.pts || pl.pts.length<2) continue;
-	      push("0","LWPOLYLINE","8",pl.layer,"90",pl.pts.length,"70",pl.closed?1:0);
-	      for(var pi=0;pi<pl.pts.length;pi++){
-	        var pt=pl.pts[pi];
-	        push("10",pt.x,"20",pt.y);
+	    for(var i=0;i<state.segments.length;i++){
+	      var s=state.segments[i]; if(!vis[s.layer]) continue;
+	      var sStyle=s.style||{};
+	      push("0","LINE");
+	      pushEntityCommon(s.layer, sStyle, sStyle.stroke||getLayerColor(s.layer), true);
+	      push("10",s.a.x,"20",s.a.y,"11",s.b.x,"21",s.b.y);
+	    }
+	    // rects exported as 4 lines (rotation approximated by corners)
+	    for(var r=0;r<state.rects.length;r++){
+	      var rr=state.rects[r]; if(!vis[rr.layer]) continue;
+	      var rrStyle=rr.style||{};
+	      var cs=getRectCorners(rr);
+	      for(var k=0;k<4;k++){
+	        var p1=cs[k], p2=cs[(k+1)%4];
+	        push("0","LINE");
+	        pushEntityCommon(rr.layer, rrStyle, rrStyle.stroke||getLayerColor(rr.layer), true);
+	        push("10",p1.x,"20",p1.y,"11",p2.x,"21",p2.y);
 	      }
 	    }
+		    // ellipses: DXF supports ELLIPSE with major axis vector; include rotation
+		    for(var e=0;e<state.ellipses.length;e++){
+		      var el=state.ellipses[e]; if(!vis[el.layer]) continue;
+		      var elStyle=el.style||{};
+	      var ang=el.rot||0;
+	      // major axis vector along rotated x axis, length rx
+		      var mx=Math.cos(ang)*el.rx, my=Math.sin(ang)*el.rx;
+		      push("0","ELLIPSE");
+		      pushEntityCommon(el.layer, elStyle, elStyle.stroke||getLayerColor(el.layer), true);
+		      push("10",el.cx,"20",el.cy,"11",mx,"21",my,"40",(el.ry/Math.max(0.0001,el.rx)),"41",0,"42",6.283185307179586);
+		    }
 
-	    // arcs
-	    for(var ai=0;ai<state.arcs.length;ai++){
-	      var ar=state.arcs[ai]; if(!vis[ar.layer]) continue;
-	      if(!isFinite(ar.cx)||!isFinite(ar.cy)||!isFinite(ar.r)||ar.r<=1e-8) continue;
-	      var sw=Math.abs(angleDiff(ar.a0, ar.a1, !!ar.ccw));
-	      if(sw<=1e-8) continue;
-	      if(sw>=Math.PI*2-1e-8){
-	        push("0","CIRCLE","8",ar.layer,"10",ar.cx,"20",ar.cy,"40",ar.r);
-	        continue;
+		    // polylines
+		    for(var p=0;p<state.polylines.length;p++){
+		      var pl=state.polylines[p]; if(!vis[pl.layer]) continue;
+		      if(!pl.pts || pl.pts.length<2) continue;
+		      var plStyle=pl.style||{};
+		      push("0","LWPOLYLINE");
+		      pushEntityCommon(pl.layer, plStyle, plStyle.stroke||getLayerColor(pl.layer), true);
+		      push("90",pl.pts.length,"70",pl.closed?1:0);
+		      for(var pi=0;pi<pl.pts.length;pi++){
+		        var pt=pl.pts[pi];
+		        push("10",pt.x,"20",pt.y);
+		      }
+		    }
+
+		    // arcs
+		    for(var ai=0;ai<state.arcs.length;ai++){
+		      var ar=state.arcs[ai]; if(!vis[ar.layer]) continue;
+		      if(!isFinite(ar.cx)||!isFinite(ar.cy)||!isFinite(ar.r)||ar.r<=1e-8) continue;
+		      var arStyle=ar.style||{};
+		      var sw=Math.abs(angleDiff(ar.a0, ar.a1, !!ar.ccw));
+		      if(sw<=1e-8) continue;
+		      if(sw>=Math.PI*2-1e-8){
+		        push("0","CIRCLE");
+		        pushEntityCommon(ar.layer, arStyle, arStyle.stroke||getLayerColor(ar.layer), true);
+		        push("10",ar.cx,"20",ar.cy,"40",ar.r);
+		        continue;
+		      }
+		      var a0=normDeg(ar.a0), a1=normDeg(ar.a1);
+		      var startDeg = ar.ccw ? a0 : a1;
+		      var endDeg   = ar.ccw ? a1 : a0;
+		      push("0","ARC");
+		      pushEntityCommon(ar.layer, arStyle, arStyle.stroke||getLayerColor(ar.layer), true);
+		      push("10",ar.cx,"20",ar.cy,"40",ar.r,"50",startDeg,"51",endDeg);
+		    }
+
+		    // dimensions fallback: lines + centered TEXT
+		    for(var d=0; d<state.dims.length; d++){
+	      var dd=state.dims[d]; if(!vis[dd.layer]) continue;
+	      var dStyle=dd.style||{stroke:'#111827',width:1,dashed:false};
+	      var dColor=dStyle.stroke||'#111827';
+	      var a=dd.a, b=dd.b;
+	      var vx=b.x-a.x, vy=b.y-a.y;
+	      var len=hypot(vx,vy); if(len<1e-6) continue;
+	      var nx=-vy/len, ny=vx/len;
+	      var off=dd.offsetMM||10;
+	      var a2={x:a.x+nx*off,y:a.y+ny*off};
+	      var b2={x:b.x+nx*off,y:b.y+ny*off};
+	      var dimLines=[[a,a2],[b,b2],[a2,b2]];
+	      for(var dl=0;dl<dimLines.length;dl++){
+	        push("0","LINE");
+	        pushEntityCommon(dd.layer, dStyle, dColor, true);
+	        push("10",dimLines[dl][0].x,"20",dimLines[dl][0].y,"11",dimLines[dl][1].x,"21",dimLines[dl][1].y);
 	      }
-	      var a0=normDeg(ar.a0), a1=normDeg(ar.a1);
-	      var startDeg = ar.ccw ? a0 : a1;
-	      var endDeg   = ar.ccw ? a1 : a0;
-	      push("0","ARC","8",ar.layer,"10",ar.cx,"20",ar.cy,"40",ar.r,"50",startDeg,"51",endDeg);
+	      var mid={x:(a2.x+b2.x)/2, y:(a2.y+b2.y)/2};
+	      pushAlignedTextEntity(dd.layer, fmt(len)+' mm', mid.x, mid.y, (dd.textMM||3), normDeg(Math.atan2(b2.y-a2.y,b2.x-a2.x)), 1, dColor);
 	    }
 
-	    // texts
-	    for(var t=0;t<state.texts.length;t++){
-	      var tt=state.texts[t]; if(!vis[tt.layer]) continue;
-	      var align=(tt.align==='center')?1:((tt.align==='right')?2:0);
-	      push("0","TEXT","8",tt.layer,"10",tt.x,"20",tt.y,"40",(tt.sizeMM||5),"1",dxfTextSafe(tt.text||''),"50",normDeg(tt.rot||0));
-	      if(align){
-	        push("72",align,"11",tt.x,"21",tt.y);
-	      }
-	    }
+		    // radial dimensions fallback: line + center marker + text
+		    for(var rd=0; rd<state.radDims.length; rd++){
+		      var rdd=state.radDims[rd]; if(!vis[rdd.layer] || !rdd.anchor) continue;
+		      var rdStyle=rdd.style||{stroke:'#111827',width:1,dashed:false};
+		      var rdColor=rdStyle.stroke||'#111827';
+		      push("0","LINE");
+		      pushEntityCommon(rdd.layer, rdStyle, rdColor, true);
+		      push("10",rdd.cx,"20",rdd.cy,"11",rdd.anchor.x,"21",rdd.anchor.y);
+		      push("0","CIRCLE");
+		      pushEntityCommon(rdd.layer, rdStyle, rdColor, true);
+		      push("10",rdd.cx,"20",rdd.cy,"40",0.75);
+		      var txr=(rdd.cx+rdd.anchor.x)/2, tyr=(rdd.cy+rdd.anchor.y)/2;
+		      pushAlignedTextEntity(rdd.layer, 'R '+fmt(rdd.r)+' mm', txr, tyr, (rdd.textMM||3), normDeg(Math.atan2(rdd.anchor.y-rdd.cy, rdd.anchor.x-rdd.cx)), 1, rdColor);
+		    }
 
-	    push("0","ENDSEC","0","EOF");
-	    downloadBlob(new Blob([dxf.join("\n")],{type:'application/dxf'}),'minicad.dxf');
-	  }
+		    // texts
+		    for(var t=0;t<state.texts.length;t++){
+		      var tt=state.texts[t]; if(!vis[tt.layer]) continue;
+		      var align=(tt.align==='center')?1:((tt.align==='right')?2:0);
+		      var txtColor=(tt.style && tt.style.fill) ? tt.style.fill : '#111827';
+		      pushAlignedTextEntity(tt.layer, tt.text||'', tt.x, tt.y, (tt.sizeMM||5), normDeg(tt.rot||0), align, txtColor);
+		    }
+
+		    push("0","ENDSEC","0","EOF");
+		    downloadBlob(new Blob([dxf.join("\n")],{type:'application/dxf'}),'minicad.dxf');
+		  }
 
 	  function computeWorldBounds(){
 	    var vis=visibleLayerSet();
@@ -528,7 +725,7 @@ canvas.addEventListener('lostpointercapture', function(e){
   }
 
   function exportSelectedPNG(){
-    if(!state.selection.length){ setStatus('Nessuna selezione'); return; }
+    if(!state.selection.length){ setStatus(window.t('status.noSelection')); return; }
 
     // bounds of all selected
     var minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
@@ -538,7 +735,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       minx=Math.min(minx,b.x); miny=Math.min(miny,b.y);
       maxx=Math.max(maxx,b.x+b.w); maxy=Math.max(maxy,b.y+b.h);
     }
-    if(minx>maxx || miny>maxy){ setStatus('Selezione non valida'); return; }
+    if(minx>maxx || miny>maxy){ setStatus(window.t('status.invalidSelection')); return; }
     var bb={x:minx,y:miny,w:maxx-minx,h:maxy-miny};
 
     var pxPerMM=Math.max(5,state.pxPerMM);
@@ -685,7 +882,7 @@ canvas.addEventListener('lostpointercapture', function(e){
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setStatus('PNG esportato');
+    setStatus(window.t('status.pngExported'));
   }
 
   ui.btnExportJSON.onclick=exportJSON;
@@ -700,10 +897,10 @@ canvas.addEventListener('lostpointercapture', function(e){
         var data=JSON.parse(reader.result);
         restore(data);
         pushHist();
-        setStatus('Import OK');
+        setStatus(window.t('status.importOk'));
       } catch(err){
         console.error(err);
-        setStatus('Errore import');
+        setStatus(window.t('status.importError'));
       }
     };
     reader.readAsText(file);
@@ -717,6 +914,7 @@ canvas.addEventListener('lostpointercapture', function(e){
   // ----- Sync UI fields to selection -----
   function syncPropsFromPrimary(){
     var p=primarySelection();
+    if(typeof syncPropsSectionsForTool==='function') syncPropsSectionsForTool(state.tool);
     if(!p){
       ui.btnDelete.disabled=true;
       ui.btnApplyStyle.disabled=true;
@@ -766,18 +964,21 @@ canvas.addEventListener('lostpointercapture', function(e){
     if(p.type==='ell'){ var e2=findById(state.ellipses,p.id); if(e2){ fillEligible=true; fillVal=(e2.style&&e2.style.fill)?e2.style.fill:null; } }
     if(p.type==='pline'){ var pl2=findById(state.polylines,p.id); if(pl2){ fillEligible=!!pl2.closed; fillVal=(pl2.closed && pl2.style && pl2.style.fill)?pl2.style.fill:null; } }
 
-    if(ui.chkFill && ui.objFill && ui.objFillHex){
-      ui.chkFill.disabled=!fillEligible;
-      ui.objFill.disabled=!fillEligible || !fillVal;
-      ui.objFillHex.disabled=!fillEligible || !fillVal;
-      ui.chkFill.checked=!!fillVal;
-      if(fillEligible){
-        ui.objFill.value=(fillVal||ui.objFill.value||'#FFD166');
-        ui.objFillHex.value=(ui.objFill.value||'#FFD166').toUpperCase();
-        var row=document.getElementById('fillRow');
-        if(row) row.style.opacity = ui.chkFill.checked ? '1' : '.45';
-      }
-    }
+	    if(ui.chkFill && ui.objFill && ui.objFillHex){
+	      ui.chkFill.disabled=!fillEligible;
+	      ui.objFill.disabled=!fillEligible || !fillVal;
+	      ui.objFillHex.disabled=!fillEligible || !fillVal;
+	      var fillSwatch=document.getElementById('fillSwatch');
+	      if(fillSwatch) fillSwatch.disabled=!fillEligible || !fillVal;
+	      ui.chkFill.checked=!!fillVal;
+	      if(fillEligible){
+	        ui.objFill.value=(fillVal||ui.objFill.value||'#FFD166');
+	        ui.objFillHex.value=(ui.objFill.value||'#FFD166').toUpperCase();
+	        try{ ui.objFill.dispatchEvent(new Event('input', {bubbles:true})); }catch(_){}
+	        var row=document.getElementById('fillRow');
+	        if(row) row.style.opacity = ui.chkFill.checked ? '1' : '.45';
+	      }
+	    }
 
     ui.selLayer.value=layer;
     ui.objRot.value=Math.round(rot);
@@ -793,7 +994,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 // ----- Init -----
   refreshUI();
   var as=loadAutosave();
-  if(as && confirm('Trovato autosave. Ripristinare?')){ restore(as); }
+  if(as && confirm(window.t('dialog.restoreAutosaveFound'))){ restore(as); }
   setTool('line');
   pushHist();
   draw();
