@@ -150,4 +150,6 @@ Created by **Marco RANZATO VIANELLO**
 
 If you build something with STEGO, feel free to mention it.
 
+https://buymeacoffee.com/ranzacoffee
+
 Dinosaurs would approve. 🦕
