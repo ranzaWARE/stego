@@ -183,7 +183,7 @@
 
       var del = document.createElement('button');
       del.type = 'button';
-      del.className = 'projDel';
+      del.className = 'iconBtnSm projDel';
       del.title = tr('project.delete', 'Elimina progetto');
       del.innerHTML = TRASH_ICON;
       del.addEventListener('click', async function (e) {

@@ -105,8 +105,11 @@ DXF da AutoCAD, LibreCAD, QCAD o DraftSight.
 Lo scheletro e il tema vengono dal design system **AUROR**: header con
 drawer di navigazione, dock strumenti, tela, inspector e barra di stato.
 I file `backend/public/css/tokens.css` e `css/ui.css` sono la copia di
-AUROR e non vanno modificati a mano: le personalizzazioni di STEGO stanno
-in `css/app.css`, che consuma solo token semantici.
+AUROR e non vanno modificati a mano. Bottoni, campi, schede, modali,
+etichette e avvisi sono i componenti canonici (`.aurorBtn`, `.aurorInput`,
+`.aurorSelect`, `.card`, `.aurorModal`, `.dsTag`, `.aurorNotice`); in
+`css/app.css` sta solo ciò che è specifico del CAD — dock strumenti,
+tela, inspector, barra di stato — e consuma soltanto token semantici.
 
 ### Colori e temi
 

@@ -32,6 +32,18 @@ SQLite. Distribuito come stack Docker dietro il Traefik del nodo.
   `StegoInk.withPaper(...)`. Griglia e righelli usano `StegoInk.grid()`.
 - **`css/tokens.css` e `css/ui.css` sono copie di AUROR**: si riallineano
   da `auror/`, non si modificano a mano.
+- **Si usano i componenti canonici, non se ne riscrivono di uguali.**
+  Bottone `.aurorBtn` (+ `.primary` / `.danger` / `.active`), campo
+  `.aurorInput`, menu `.aurorSelect`, icona in bottone `.btnIco`, bottone
+  icona di riga `.iconBtnSm`, etichette `.dsTag` e `.verTag`, schede
+  `.card` / `.cardHeader` / `.cardBody`, modali `.aurorModal` + `AurorModal`,
+  avvisi `.aurorNotice`, notifiche `AurorToast`. In `css/app.css` una classe
+  AUROR si può solo **specializzare nel contesto** (`.inspector .row`,
+  `.layerItem .iconBtnSm svg`), mai ridefinire nuda.
+- **Eccezioni accettate**, sul modello del `DECISIONS.md` di AUROR:
+  `--paper` e i tre soli `border-radius:999px` del selettore di colore
+  circolare (sono forme, non chrome); il menu contestuale della tela
+  (`.ctxMenu`), che non ha un componente corrispondente.
 - **`auror/` non va versionato** — vedi `.gitignore`.
 - Il formato di progetto salvato sul server è identico a quello del file
   `.json` esportato. Se cambia `snapshot()`, cambia anche il formato dei

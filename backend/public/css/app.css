@@ -40,13 +40,6 @@ body{
   color:var(--text);
 }
 a{color:inherit}
-.pill{
-  font-size:12px;
-  padding:6px 10px;
-  border:1px solid var(--border);
-  border-radius:var(--auror-r);
-  background:var(--surface-raised);
-}
 .langSelect{
   border:1px solid var(--border);
   background-color:var(--surface-raised);
@@ -68,45 +61,7 @@ a{color:inherit}
 .langSelect:hover{
   background:var(--surface);
 }
-.iconBtn{
-  border:1px solid var(--border);
-  background:var(--surface-raised);
-  padding:8px 12px;
-  border-radius:var(--auror-r);
-  cursor:pointer;
-}
-.iconBtn:hover{background:var(--surface)}
 .appMain{padding:14px 16px 18px;}
-.accentBar{
-  height:10px;
-  background:linear-gradient(90deg,var(--accent) 0%, var(--accent) 68%, var(--accent-tint) 68%, var(--accent-tint) 100%);
-  border-radius:var(--auror-r);
-  margin:10px 0 14px;
-}
-.wrap{
-  display:grid;
-  grid-template-columns:420px 1fr;
-  gap:16px;
-  height:calc(100vh - 60px - 32px);
-  min-height:640px;
-}
-.panel, .canvasCard{
-  background:var(--surface-raised);
-  border:1px solid var(--border);
-  border-radius:var(--auror-r);
-  box-shadow:var(--shadow-md);
-}
-.panel{
-  padding:14px;
-  overflow:auto;
-}
-.canvasCard{
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  overflow:hidden;
-}
 h1{
   font-size:16px;
   margin:0;
@@ -115,56 +70,8 @@ h1{
   justify-content:space-between;
 }
 .muted{color:var(--text-muted);font-size:12px;line-height:1.35;margin-top:6px}
-.sectionTitle{
-  margin-top:14px;
-  font-size:12px;
-  font-weight:700;
-  color:var(--text-secondary);
-  text-transform:uppercase;
-  letter-spacing:.06em;
-}
-.hr{height:1px;background:var(--border);margin:12px 0;}
-.row{display:flex;gap:8px;align-items:center;}
+.inspector .row{display:flex;gap:8px;align-items:center;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-
-/* --- Photoshop-like tool buttons --- */
-.toolBar{
-  display:grid;
-  grid-template-columns:repeat(6, 1fr);
-  gap:10px;
-  margin-top:8px;
-}
-.toolBtn{
-  height:52px;
-  padding:8px;
-  border-radius:var(--auror-r);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  font-weight:600;
-}
-.toolBtn .ico{
-  width:24px;
-  height:24px;
-  display:inline-grid;
-  place-items:center;
-  border-radius:var(--auror-r);
-  background:var(--surface-sunken);
-}
-.toolBtn .lbl{
-  font-size:12px;
-  line-height:1;
-}
-@media (max-width: 1280px){
-  .wrap{grid-template-columns:460px 1fr;}
-  .toolBar{grid-template-columns:repeat(4, 1fr);}
-}
-@media (max-width: 980px){
-  .wrap{grid-template-columns:1fr; height:auto;}
-  .toolBar{grid-template-columns:repeat(3, 1fr);}
-}
 
 /* Round color button + circular picker modal */
 .colorRow{display:flex; gap:10px; align-items:center;}
@@ -217,7 +124,6 @@ h1{
   display:flex;
   gap:10px;
 }
-.miniBtn{padding:10px 14px; border-radius:var(--auror-r);}
 .valueSlider{
   position:absolute;
   left:50%;
@@ -225,66 +131,11 @@ h1{
   bottom:22px;
   width:220px;
 }
-label{
+.appMain label{
   font-size:12px;
   color:var(--text-secondary);
   display:block;
   margin:10px 0 6px;
-}
-input,select{
-  width:100%;
-  padding:9px 10px;
-  border-radius:var(--auror-r);
-  border:1px solid var(--border);
-  background:var(--surface-raised);
-  color:var(--text);
-  outline:none;
-}
-input:focus,select:focus{box-shadow:var(--focus-ring); border-color:var(--accent-ring)}
-input[type="checkbox"]{width:auto}
-input[type="color"]{padding:0;height:38px}
-button{
-  border:1px solid var(--border);
-  background:var(--surface-raised);
-  color:var(--text);
-  padding:10px 10px;
-  border-radius:var(--auror-r);
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  white-space:nowrap;
-  line-height:1.1;
-  transition:transform .02s ease, background .12s ease, border-color .12s ease;
-}
-button:hover{background:var(--surface)}
-button:active{transform:translateY(1px)}
-button.primary{
-  background:var(--accent);
-  border-color:var(--accent-hover);
-  color:var(--text);
-  font-weight:600;
-}
-button.primary:hover{background:var(--accent-hover)}
-button.danger{
-  background:var(--surface-raised);
-  border-color:var(--danger-soft);
-  color:var(--danger);
-}
-button.active{
-  outline:none;
-  box-shadow:var(--focus-ring);
-  border-color:var(--accent-ring);
-}
-button:disabled{opacity:.5;cursor:not-allowed}
-.badge{
-  font-size:11px;
-  padding:4px 10px;
-  border:1px solid var(--border);
-  border-radius:var(--auror-r);
-  color:var(--text-secondary);
-  background:var(--surface-raised);
 }
 .layers{display:flex;flex-direction:column;gap:8px;}
 .layerItem{
@@ -294,24 +145,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   border-radius:var(--auror-r);
   background:var(--surface-raised);
 }
-.dot{width:10px;height:10px;border-radius:var(--auror-r);}
-.topbar{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:space-between;
-  padding-bottom:6px;
-  border-bottom:1px solid var(--border);
-}
-.kbd{
-  font-family:var(--auror-mono);
-  font-size:11px;
-  padding:4px 8px;
-  border:1px solid var(--border);
-  border-radius:var(--auror-r);
-  color:var(--text-secondary);
-  background:var(--surface-raised);
-}
+.layers .dot{width:10px;height:10px;border-radius:var(--auror-r);}
 .canvasWrap{flex:1;min-height:260px;overflow:hidden;border-radius:var(--auror-r);position:relative;}
 #cStatic, #c{
   position:absolute;
@@ -334,15 +168,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   cursor:crosshair;
   touch-action:none;
 }
-.status{font-size:12px;color:var(--text-secondary);font-weight:600;}
-.small{font-size:12px;color:var(--text-secondary);}
-.help{font-size:12px;color:var(--text-secondary);line-height:1.4;}
-.help b{color:var(--text);}
-.list{padding-left:16px;margin:8px 0 0 0;}
-.list li{margin:4px 0;}
 @media (max-width: 1040px){
-  .wrap{grid-template-columns:1fr;height:auto;min-height:auto;}
-  .canvasCard{height:auto;}
   .canvasWrap{height:62vh; min-height:320px;}
 }
 
@@ -371,14 +197,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
   box-shadow:var(--shadow-md);
   display:flex;flex-direction:column;overflow:hidden;
 }
-.stageTop{
-  padding:10px 12px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-}
-.stagePills{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.stageControls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
-.miniField{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted)}
-.miniField input{height:34px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px;background:var(--surface-raised)}
 .canvasWrap{flex:1;min-height:0;background:var(--paper)}
 .inspector{
   width:360px;flex:0 0 360px;min-height:0;overflow:auto;
@@ -390,15 +208,20 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .tabPanel[hidden]{display:none}
 .tab{flex:0 0 auto;border:0;background:transparent;color:var(--text-muted);padding:8px 10px;border-radius:var(--auror-r);cursor:pointer}
 .tab.active{color:var(--text);background:var(--accent-soft)}
-.cardSec{border:1px solid var(--border);border-radius:var(--auror-r);padding:12px;margin:10px 0;background:var(--surface-raised)}
-.secTitle{font-weight:700;margin-bottom:10px}
+/* Le sezioni dell'inspector sono Card di AUROR. Qui solo la
+   specializzazione al contesto: una colonna di dodici schede impilate
+   dentro un pannello già in rilievo non regge dodici ombre, e il passo
+   di 18px della Card sprecherebbe metà della larghezza utile. */
+.inspector .card{ box-shadow:none; margin:10px 0; }
+.inspector .cardHeader{ padding:10px 12px; }
+.inspector .cardBody{ padding:12px; }
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.row input, .row select{flex:1}
+.inspector .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.inspector .row .aurorInput, .inspector .row .aurorSelect{flex:1}
 .inspector label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted)}
-.inspector input, .inspector select{
-  height:36px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px;background:var(--surface-raised);color:var(--text)
-}
+/* I campi dell'inspector sono .aurorInput/.aurorSelect (ui.css): qui non
+   si ridisegnano, si dice solo come stanno nella colonna. */
+.inspector .aurorInput, .inspector .aurorSelect{ height:var(--auror-control-h); }
 .inline{flex-direction:row !important;align-items:center;gap:10px}
 .inline input{height:auto}
 .colorRow{display:flex;align-items:center;gap:10px}
@@ -417,8 +240,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
   -webkit-appearance:none;
 }
 .hexInput{font-family:var(--auror-mono)}
-.primary{background:var(--accent);border-color:var(--border);color:var(--text-on-accent)}
-.primary:hover{background:var(--accent-hover)}
 .statusbar{
   background:var(--surface-raised);border-top:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -427,12 +248,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .statusLeft,.statusRight{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:12px}
 .statusbar .sep{opacity:.5}
 .cmdBox{display:flex;align-items:center;gap:10px;min-width:420px;flex:1;justify-content:flex-end}
-.cmdBox input{
-  width:100%;max-width:520px;height:36px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px
-}
+.cmdBox .aurorInput{ max-width:520px; }
 .small{font-size:12px;color:var(--text-muted)}
-/* hide old legacy panel bits if present */
-.wrap,.panel,.accentBar{display:none !important}
 
 
 /* ---- Canvas context menu ---- */
@@ -483,19 +300,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .toolIcon.active{ color:var(--accent); }
 .toolIcon:hover{ color:var(--text); }
 
-/* ---- Monochrome icons in buttons/panels ---- */
-button .btnIco{
-  display:inline-flex;
-  width:20px;height:20px;
-  min-width:20px;
-  align-items:center;justify-content:center;
-  flex:0 0 auto;
-  overflow:visible;
-  color:currentColor;
-}
-button .btnIco svg{ width:20px;height:20px; display:block; overflow:visible; }
-button .btnTxt{ display:block; min-width:0; }
-.miniBtn{ display:inline-flex; align-items:center; justify-content:center; gap:0; }
+/* .btnIco vive in ui.css: qui solo il testo che gli sta accanto. */
+.aurorBtn .btnTxt{ display:block; min-width:0; }
 .ctxMenu button{
   display:flex;
   align-items:center;
@@ -514,7 +320,7 @@ button .btnTxt{ display:block; min-width:0; }
 .inspector .tabPanel{
   overflow-x:hidden;
 }
-.inspector .cardSec{
+.inspector .card{
   overflow-x:hidden;
 }
 
@@ -543,19 +349,8 @@ button .btnTxt{ display:block; min-width:0; }
   color:var(--text);
 }
 .layerItem.isActive .layerBtn{ background:var(--accent-soft); }
-.layerItem .iconBtn{
-  width:28px;height:28px;
-  padding:0;
-  border-radius:var(--auror-r);
-  border:1px solid var(--border-strong);
-  background:var(--surface-raised);
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  color:var(--text);
-}
-.layerItem .iconBtn svg{ width:14px;height:14px; display:block; overflow:visible; }
+/* .iconBtnSm arriva da ui.css: qui solo la misura dell'icona dentro. */
+.layerItem .iconBtnSm svg{ width:14px;height:14px; display:block; overflow:visible; }
 .layerItem.isHidden .layerBtn{ opacity:.55; }
 .layerItem.isLocked .layerBtn{ opacity:.75; }
 
@@ -595,13 +390,10 @@ button .btnTxt{ display:block; min-width:0; }
 }
 
 /* ---- Selection panel redesign ---- */
-#propsSelectionSec{
+#propsSelectionSec .cardBody{
   display:flex;
   flex-direction:column;
   gap:12px;
-}
-#propsSelectionSec .secTitle{
-  margin-bottom:0;
 }
 .selectionSummary{
   display:flex;
@@ -615,13 +407,15 @@ button .btnTxt{ display:block; min-width:0; }
   border-radius:var(--auror-r);
   background:var(--surface-sunken);
 }
-.selectionBlock{
+/* Sottoblocco dentro una Card: stesso ruolo del .sectionLabel di
+   admin.html, che AUROR tiene page-local. */
+.subBlock{
   border:1px solid var(--border);
   border-radius:var(--auror-r);
   background:var(--surface-sunken);
   padding:12px;
 }
-.selectionBlockTitle{
+.sectionLabel{
   font-size:11px;
   font-weight:700;
   letter-spacing:.06em;
@@ -676,11 +470,6 @@ button .btnTxt{ display:block; min-width:0; }
 #propsSelectionSec .selectionClipboardGrid button{
   min-height:40px;
 }
-#propsSelectionSec .miniBtn{
-  gap:8px;
-  padding:10px 10px;
-  border-radius:var(--auror-r);
-}
 @media (max-width: 520px){
   .selectionPrimaryActions,
   .selectionOrderGrid,
@@ -696,13 +485,13 @@ button .btnTxt{ display:block; min-width:0; }
    sta sopra un'area di lavoro a tutta altezza, quindi non è sticky e
    non deve rubare spazio alla tela.
    ========================================================= */
-.dsHeaderRail{ position:static; flex:0 0 auto; padding:10px 10px 0; }
-.dsHeaderRail::before{ display:none; }
+.cadRail{ position:static; flex:0 0 auto; padding:10px 10px 0; }
+.cadRail::before{ display:none; }
 .dsHeader .headerRight{ display:flex; align-items:center; gap:8px; min-width:0; }
 /* Le pastiglie di stato stanno a destra: il centro dell'header è della
    navigazione, che su schermo stretto diventa un drawer. */
 @media (max-width: 900px){
-  .dsHeader .pill{ display:none; }
+  .dsHeader .dsTag, .dsHeader .verTag{ display:none; }
 }
 
 /* Pastiglia utente cliccabile: apre il menu account */
@@ -750,12 +539,8 @@ button .btnTxt{ display:block; min-width:0; }
 .projMeta{ flex:1; min-width:0; }
 .projMeta .projName{ font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .projMeta .projWhen{ font-size:11px; color:var(--text-muted); font-family:var(--auror-mono); }
-.projItem .projDel{
-  flex:0 0 auto; width:28px; height:28px; padding:0;
-  display:grid; place-items:center;
-  border:1px solid var(--border); border-radius:var(--auror-r);
-  background:var(--surface-raised); color:var(--text-muted); cursor:pointer;
-}
+/* .iconBtnSm dà misura e cornice: qui solo il significato distruttivo. */
+.projItem .projDel{ flex:0 0 auto; }
 .projItem .projDel:hover{ color:var(--danger); border-color:var(--danger-soft); }
 .projItem .projDel svg{ width:14px; height:14px; }
 
@@ -784,8 +569,11 @@ button .btnTxt{ display:block; min-width:0; }
    che ridisegna su beforeprint (vedi StegoInk.bindPrint).
    ========================================================= */
 @media print{
+  /* In stampa il foglio è bianco anche per il CSS, non solo per ink.js:
+     le due cose devono dire la stessa cosa. */
+  :root{ --paper: #ffffff; }
   .dsHeaderRail, .toolDock, .inspector, .statusbar, .aurorToastStack{ display:none !important; }
-  body{ height:auto; background:#fff; }
+  body{ height:auto; background:var(--paper); }
   .appMain, .workspace{ padding:0; height:auto; display:block; }
   .stage{ border:0; box-shadow:none; border-radius:0; }
   .canvasWrap{ height:100vh; }

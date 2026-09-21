@@ -884,21 +884,21 @@ function drawPreview(){
         var right=document.createElement('div'); right.className='row';
 
         var visBtn=document.createElement('button');
-        visBtn.className='iconBtn';
+        visBtn.className='iconBtnSm';
         visBtn.title=window.t('layer.toggleVisibility.title');
         visBtn.innerHTML = (L.visible? '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg>' : '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 3l18 18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M2.5 12s3.5-7 9.5-7c2.2 0 4.1.9 5.6 2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M21.5 12s-3.5 7-9.5 7c-2.2 0-4.1-.9-5.6-2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>');
         visBtn.onclick=function(){ L.visible=!L.visible; refreshUI(); draw(); };
         right.appendChild(visBtn);
 
         var lockBtn=document.createElement('button');
-        lockBtn.className='iconBtn';
+        lockBtn.className='iconBtnSm';
         lockBtn.title=window.t('layer.toggleLock.title');
         lockBtn.innerHTML = (L.locked? '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 11V8a5 5 0 0 1 10 0v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"11\" width=\"12\" height=\"10\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M12 15v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>' : '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 11V8a5 5 0 0 1 9-3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><rect x=\"6\" y=\"11\" width=\"12\" height=\"10\" rx=\"2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><path d=\"M12 15v3\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>');
         lockBtn.onclick=function(){ L.locked=!L.locked; refreshUI(); draw(); };
         right.appendChild(lockBtn);
 
 	        var delBtn=document.createElement('button');
-	        delBtn.className='iconBtn';
+	        delBtn.className='iconBtnSm';
 	        delBtn.innerHTML='<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 3h6l1 2h4\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M6 7h12l-1 14H7L6 7z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M10 11v6M14 11v6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>';
         delBtn.title=window.t('layer.delete.title');
         delBtn.onclick=function(e){ e.stopPropagation(); deleteLayer(layerName); };

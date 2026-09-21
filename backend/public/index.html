@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<div class="dsHeaderRail">
+<div class="dsHeaderRail cadRail">
 <header class="dsHeader">
   <div class="dsBrand">
     <span class="dsBrandMark" aria-hidden="true">S</span>
@@ -29,15 +29,15 @@
   </div>
 
   <nav id="dsNav" data-i18n-aria-label="nav.aria">
-    <button type="button" id="navProjects" data-i18n="nav.projects">Progetti</button>
-    <button type="button" id="navSave" data-i18n="nav.save">Salva</button>
-    <button type="button" id="navSaveAs" data-i18n="nav.saveAs">Salva come…</button>
+    <button type="button" id="navProjects" data-i18n="nav.projects" class="aurorBtn">Progetti</button>
+    <button type="button" id="navSave" data-i18n="nav.save" class="aurorBtn">Salva</button>
+    <button type="button" id="navSaveAs" data-i18n="nav.saveAs" class="aurorBtn">Salva come…</button>
     <a href="admin.html" id="navAdmin" hidden data-i18n="nav.admin">Amministrazione</a>
   </nav>
 
   <div class="dsHeaderRight headerRight">
-    <span class="pill" id="uiVersionPill">CAD 2D</span>
-    <span class="pill" id="badgeTool">LINE</span>
+    <span class="verTag" id="uiVersionPill"><span class="dot" aria-hidden="true"></span>CAD 2D</span>
+    <span class="dsTag dsTag--mono" id="badgeTool">LINE</span>
     <select id="langSelect" class="langSelect" data-i18n-aria-label="header.language.label">
       <option value="it">IT</option>
       <option value="en">EN</option>
@@ -112,48 +112,52 @@
         <button class="tab" type="button" data-tab="io" data-i18n="tab.io">Export / Import</button>
       </div>
 	      <div class="tabPanel" id="panel-props">
-	      <section class="cardSec" id="propsHistorySec">
-	        <div class="secTitle" data-i18n="section.history">Storico</div>
+	      <section class="card" id="propsHistorySec">
+  <div class="cardHeader"><h3 data-i18n="section.history">Storico</h3></div>
+  <div class="cardBody">
 	        <div class="historyActions">
-	          <button id="btnUndo" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14H5V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14a8 8 0 1 1 2.3 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt">Undo</span></button>
-	          <button id="btnRedo" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14h4V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 14a8 8 0 1 0-2.3 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt">Redo</span></button>
-	          <button id="btnClear" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.clear">Pulisci</span></button>
+	          <button id="btnUndo" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14H5V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14a8 8 0 1 1 2.3 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt">Undo</span></button>
+	          <button id="btnRedo" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14h4V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 14a8 8 0 1 0-2.3 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt">Redo</span></button>
+	          <button id="btnClear" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.clear">Pulisci</span></button>
 	        </div>
-	      </section>
+	      
+  </div>
+</section>
 
-	<section class="cardSec" id="propsSelectionSec">
-	        <div class="secTitle" data-i18n="section.selection">Selezione</div>
+	<section class="card" id="propsSelectionSec">
+  <div class="cardHeader"><h3 data-i18n="section.selection">Selezione</h3></div>
+  <div class="cardBody">
 	        <div class="selectionSummary">
 	          <div class="muted" id="selInfo">Nessuna selezione</div>
 	        </div>
 
-	        <div class="selectionBlock">
-	          <div class="selectionBlockTitle" data-i18n="selection.geometry">Geometria</div>
+	        <div class="subBlock">
+	          <div class="sectionLabel" data-i18n="selection.geometry">Geometria</div>
 	          <div class="grid2 selectionGrid">
 	            <label><span data-i18n="prop.layer">Layer</span>
-	              <select id="selLayer"></select>
+	              <select id="selLayer" class="aurorSelect"></select>
 	            </label>
 	            <label><span data-i18n="prop.lineWidth">Spessore</span>
-	              <input id="objWidth" type="number" min="0" step="0.1" value="1">
+	              <input id="objWidth" type="number" min="0" step="0.1" value="1" class="aurorInput">
 	            </label>
 	            <label><span data-i18n="prop.dash">Dash</span>
-	              <input id="objDash" type="text" data-i18n-placeholder="prop.dashPlaceholder" placeholder="es: 6,4">
+	              <input id="objDash" type="text" data-i18n-placeholder="prop.dashPlaceholder" placeholder="es: 6,4" class="aurorInput">
 	            </label>
 	            <label><span data-i18n="prop.rotation">Rotazione (deg)</span>
-	              <input id="objRot" type="number" step="1" value="0">
+	              <input id="objRot" type="number" step="1" value="0" class="aurorInput">
 	            </label>
 	          </div>
 	        </div>
 
-	        <div class="selectionBlock">
-	          <div class="selectionBlockTitle" data-i18n="selection.appearance">Aspetto</div>
+	        <div class="subBlock">
+	          <div class="sectionLabel" data-i18n="selection.appearance">Aspetto</div>
 	          <div class="selectionAppearanceGrid">
 	            <div class="selectionColorField">
 	              <label><span data-i18n="prop.color">Colore</span></label>
 	              <div class="colorRow selectionColorRow">
 	                <button id="colorSwatch" class="colorSwatch" type="button" data-i18n-aria-label="prop.openColorPicker"></button>
 	                <input id="objColor" type="color" value="#111827" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-	                <input id="objColorHex" class="hexInput" type="text" value="#111827" maxlength="7">
+	                <input id="objColorHex" class="aurorInput hexInput" type="text" value="#111827" maxlength="7">
 	              </div>
 	            </div>
 		            <div class="selectionFillField">
@@ -161,68 +165,74 @@
 		              <div class="colorRow selectionColorRow" id="fillRow" style="opacity:.85">
 		                <button id="fillSwatch" class="colorSwatch" type="button" data-i18n-aria-label="prop.openColorPicker"></button>
 		                <input id="objFill" type="color" value="#ffd166" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
-		                <input id="objFillHex" class="hexInput" type="text" value="#FFD166" maxlength="7" placeholder="#RRGGBB">
+		                <input id="objFillHex" class="aurorInput hexInput" type="text" value="#FFD166" maxlength="7" placeholder="#RRGGBB">
 		              </div>
 		            </div>
 	          </div>
 	        </div>
 
-	        <div class="selectionBlock">
-	          <div class="selectionBlockTitle" data-i18n="selection.actions">Azioni</div>
+	        <div class="subBlock">
+	          <div class="sectionLabel" data-i18n="selection.actions">Azioni</div>
 	          <div class="selectionPrimaryActions">
-	            <button id="btnApplyStyle" class="primary" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.apply">Applica</span></button>
-	            <button id="btnDelete" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.delete">Elimina</span></button>
-	            <button id="btnClearSel" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.deselectShort">Deselez.</span></button>
+	            <button id="btnApplyStyle" class="aurorBtn primary" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.apply">Applica</span></button>
+	            <button id="btnDelete" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.delete">Elimina</span></button>
+	            <button id="btnClearSel" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.deselectShort">Deselez.</span></button>
 	          </div>
 	        </div>
 
-	        <div class="selectionBlock">
-	          <div class="selectionBlockTitle" data-i18n="selection.order">Ordine</div>
+	        <div class="subBlock">
+	          <div class="sectionLabel" data-i18n="selection.order">Ordine</div>
 	          <div class="selectionOrderGrid">
-	            <button id="btnSendBack" type="button" class="miniBtn" data-i18n-title="action.sendBack.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 13l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.sendBack">Indietro</span></button>
-	            <button id="btnBringFront" type="button" class="miniBtn" data-i18n-title="action.bringFront.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 11l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.bringFront">Avanti</span></button>
-	            <button id="btnToBack" type="button" class="miniBtn" data-i18n-title="action.toBack.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 5h10v2H7v8H5z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="action.toBack">In fondo</span></button>
-	            <button id="btnToFront" type="button" class="miniBtn" data-i18n-title="action.toFront.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h10v10H9z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="action.toFront">Primo piano</span></button>
+	            <button id="btnSendBack" type="button" class="aurorBtn" data-i18n-title="action.sendBack.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 13l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.sendBack">Indietro</span></button>
+	            <button id="btnBringFront" type="button" class="aurorBtn" data-i18n-title="action.bringFront.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 11l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="action.bringFront">Avanti</span></button>
+	            <button id="btnToBack" type="button" class="aurorBtn" data-i18n-title="action.toBack.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 5h10v2H7v8H5z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="action.toBack">In fondo</span></button>
+	            <button id="btnToFront" type="button" class="aurorBtn" data-i18n-title="action.toFront.title"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h10v10H9z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="action.toFront">Primo piano</span></button>
 	          </div>
 	        </div>
 
-	        <div class="selectionBlock">
-	          <div class="selectionBlockTitle" data-i18n="selection.clipboard">Clipboard</div>
+	        <div class="subBlock">
+	          <div class="sectionLabel" data-i18n="selection.clipboard">Clipboard</div>
 	          <div class="selectionClipboardGrid">
-	            <button id="btnCopy" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.copy">Copia</span></button>
-	            <button id="btnPaste" type="button"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.paste">Incolla</span></button>
+	            <button id="btnCopy" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.copy">Copia</span></button>
+	            <button id="btnPaste" type="button" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="action.paste">Incolla</span></button>
 	          </div>
 	        </div>
-	      </section>
+	      
+  </div>
+</section>
 
-      <section class="cardSec" id="propsDimensionSec">
-        <div class="secTitle" data-i18n="section.dimensions">Quote</div>
+      <section class="card" id="propsDimensionSec">
+  <div class="cardHeader"><h3 data-i18n="section.dimensions">Quote</h3></div>
+  <div class="cardBody">
         <div class="grid2">
           <label><span data-i18n="dimension.offset">Offset</span>
-            <input id="dimOffset" type="number" step="1" value="10">
+            <input id="dimOffset" type="number" step="1" value="10" class="aurorInput">
           </label>
           <label><span data-i18n="dimension.text">Testo</span>
-            <input id="dimText" type="text" placeholder="auto">
+            <input id="dimText" type="text" placeholder="auto" class="aurorInput">
           </label>
         </div>
         <div class="row">
-          <button id="btnApplyDim" class="primary" type="button" data-i18n="action.applyDimension">Applica quota</button>
-          <button id="btnPinDim" type="button" data-i18n="action.pin">Pin</button>
-          <button id="btnAddRadDim" type="button" data-i18n="action.radial">Radiale</button>
+          <button id="btnApplyDim" class="aurorBtn primary" type="button" data-i18n="action.applyDimension">Applica quota</button>
+          <button id="btnPinDim" type="button" data-i18n="action.pin" class="aurorBtn">Pin</button>
+          <button id="btnAddRadDim" type="button" data-i18n="action.radial" class="aurorBtn">Radiale</button>
         </div>
-      </section>
+      
+  </div>
+</section>
 
-      <section class="cardSec" id="propsTextSec">
-        <div class="secTitle" data-i18n="section.text">Testo</div>
+      <section class="card" id="propsTextSec">
+  <div class="cardHeader"><h3 data-i18n="section.text">Testo</h3></div>
+  <div class="cardBody">
         <label><span data-i18n="text.content">Contenuto</span>
-          <input id="textValue" type="text" data-i18n-placeholder="text.placeholder" placeholder="Testo">
+          <input id="textValue" type="text" data-i18n-placeholder="text.placeholder" placeholder="Testo" class="aurorInput">
         </label>
         <div class="grid2">
           <label><span data-i18n="text.size">Dimensione</span>
-            <input id="textSize" type="number" step="1" value="12">
+            <input id="textSize" type="number" step="1" value="12" class="aurorInput">
           </label>
           <label><span data-i18n="text.alignment">Allineamento</span>
-            <select id="textAlign">
+            <select id="textAlign" class="aurorSelect">
               <option value="left" data-i18n="text.align.left">Sinistra</option>
               <option value="center" data-i18n="text.align.center">Centro</option>
               <option value="right" data-i18n="text.align.right">Destra</option>
@@ -230,11 +240,11 @@
           </label>
         </div>
         <label><span data-i18n="text.spacing">Spaziatura (mm)</span>
-          <input id="textSpacing" type="number" step="0.1" value="0">
+          <input id="textSpacing" type="number" step="0.1" value="0" class="aurorInput">
         </label>
 
         <label><span data-i18n="text.font">Font</span>
-          <select id="textFont">
+          <select id="textFont" class="aurorSelect">
             <option value="Inter">Inter</option>
             <option value="Arial">Arial</option>
             <option value="Roboto">Roboto</option>
@@ -242,50 +252,58 @@
           </select>
         </label>
         <div class="row">
-          <button id="btnEditText" class="primary" type="button" data-i18n="action.edit">Modifica</button>
+          <button id="btnEditText" class="aurorBtn primary" type="button" data-i18n="action.edit">Modifica</button>
         </div>
-      </section>
+      
+  </div>
+</section>
 
       
 
-      <section class="cardSec" id="propsImageSec">
-        <div class="secTitle" data-i18n="section.images">Immagini</div>
+      <section class="card" id="propsImageSec">
+  <div class="cardHeader"><h3 data-i18n="section.images">Immagini</h3></div>
+  <div class="cardBody">
         <div class="row">
-          <button id="btnAddImage" class="primary" type="button" data-i18n="action.upload">Carica</button>
-          <button id="btnFitImage" type="button" data-i18n="action.fit">Adatta</button>
+          <button id="btnAddImage" class="aurorBtn primary" type="button" data-i18n="action.upload">Carica</button>
+          <button id="btnFitImage" type="button" data-i18n="action.fit" class="aurorBtn">Adatta</button>
           <input id="fileImage" type="file" accept="image/*" style="display:none">
         </div>
         <div class="row">
           <label class="inline"><input id="chkLockAspect" type="checkbox" checked> <span data-i18n="image.lockAspect">Lock aspect</span></label>
         </div>
-      </section>
+      
+  </div>
+</section>
 
 	      
 	      </div>
 
       <div class="tabPanel" id="panel-layer" hidden>
-<section class="cardSec">
-        <div class="secTitle" data-i18n="section.layers">Layer</div>
+<section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.layers">Layer</h3></div>
+  <div class="cardBody">
         <div class="row">
-          <input id="layerName" data-i18n-placeholder="layer.name.placeholder" placeholder="Nome layer">
-          <button id="btnAddLayer" class="primary" type="button" data-i18n="action.add">Aggiungi</button>
+          <input id="layerName" data-i18n-placeholder="layer.name.placeholder" placeholder="Nome layer" class="aurorInput">
+          <button id="btnAddLayer" class="aurorBtn primary" type="button" data-i18n="action.add">Aggiungi</button>
         </div>
         <div class="layers" id="layers"></div>
-      </section>
+      
+  </div>
+</section>
       </div>
 
       <div class="tabPanel" id="panel-snap" hidden>
 
-      <section class="cardSec">
-        <div class="secTitle" data-i18n="section.snapGrid">Snap e griglia</div>
-
+      <section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.snapGrid">Snap e griglia</h3></div>
+  <div class="cardBody">
         <div class="row">
           <label class="inline"><input id="chkSnap" type="checkbox" checked> Snap</label>
           <label class="inline"><input id="chkOrtho" type="checkbox"> Ortho</label>
         </div>
 
-        <div class="cardSec" style="margin:10px 0 0; border-style:dashed">
-          <div class="secTitle" style="font-size:13px;margin-bottom:8px" data-i18n="snap.types">Tipi di snap</div>
+        <div class="subBlock">
+          <div class="sectionLabel" data-i18n="snap.types">Tipi di snap</div>
           <div class="grid2">
             <label class="inline"><input id="snapGrid" type="checkbox"> <span data-i18n="snap.grid">Griglia</span></label>
             <label class="inline"><input id="snapEnd" type="checkbox" checked> <span data-i18n="snap.endpoint">Endpoint</span></label>
@@ -300,61 +318,72 @@
 
         <div class="grid2" style="margin-top:10px">
           <label><span data-i18n="grid.step">Griglia (mm)</span>
-            <input id="gridStep" type="number" min="0.1" step="0.1" value="1" step="0.01" min="0.01">
+            <input id="gridStep" type="number" min="0.1" step="0.1" value="1" step="0.01" min="0.01" class="aurorInput">
           </label>
           <label><span data-i18n="zoom.pxPerMm">Zoom (px/mm)</span>
-            <input id="zoom" type="number" min="0.2" step="0.2" value="5">
+            <input id="zoom" type="number" min="0.2" step="0.2" value="5" class="aurorInput">
           </label>
         </div>
-      </section>
+      
+  </div>
+</section>
 
       </div>
     
 
       <div class="tabPanel" id="panel-io" hidden>
 
-        <section class="cardSec">
-          <div class="secTitle" data-i18n="section.project">Progetto</div>
+        <section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.project">Progetto</h3></div>
+  <div class="cardBody">
           <div class="btnRow">
-            <button id="btnSaveProject" class="btn" type="button"><span class="btnIco">
+            <button id="btnSaveProject" class="aurorBtn" type="button"><span class="btnIco">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 4v6h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
             </span><span class="btnTxt" data-i18n="project.save">Salva progetto</span></button>
-            <button id="btnLoadProject" class="btn" type="button"><span class="btnIco">
+            <button id="btnLoadProject" class="aurorBtn" type="button"><span class="btnIco">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span><span class="btnTxt" data-i18n="project.load">Carica progetto</span></button>
             <input id="fileLoadProject" type="file" accept="application/json" hidden>
           </div>
           <div class="helpTxt" data-i18n="project.help">Salva/carica disegno completo (oggetti, layer, impostazioni).</div>
-        </section>
+        
+  </div>
+</section>
 
-        <section class="cardSec">
-          <div class="secTitle" data-i18n="section.autosave">Autosave</div>
+        <section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.autosave">Autosave</h3></div>
+  <div class="cardBody">
           <div class="btnRow">
-            <button id="btnSaveAutosave" class="btn" type="button"><span class="btnIco">
+            <button id="btnSaveAutosave" class="aurorBtn" type="button"><span class="btnIco">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 4v6h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
             </span><span class="btnTxt" data-i18n="action.saveAutosave">Salva autosave</span></button>
-            <button id="btnRestoreAutosave" class="btn" type="button"><span class="btnIco">
+            <button id="btnRestoreAutosave" class="aurorBtn" type="button"><span class="btnIco">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.4 9.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 5v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span><span class="btnTxt" data-i18n="action.restoreAutosave">Ripristina autosave</span></button>
           </div>
           <div class="helpTxt" data-i18n="autosave.help">Snapshot locale rapido del disegno corrente.</div>
-        </section>
+        
+  </div>
+</section>
 
-        <section class="cardSec">
-          <div class="secTitle" data-i18n="section.export">Export</div>
+        <section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.export">Export</h3></div>
+  <div class="cardBody">
           <div class="btnRow">
-            <button id="btnExportDXF" class="btn" type="button">DXF</button>
-            <button id="btnExportSVG" class="btn" type="button">SVG</button>
-            <button id="btnExportSelPNG" class="btn" type="button" data-i18n="export.pngSelection">PNG selezione</button>
+            <button id="btnExportDXF" class="aurorBtn" type="button">DXF</button>
+            <button id="btnExportSVG" class="aurorBtn" type="button">SVG</button>
+            <button id="btnExportSelPNG" class="aurorBtn" type="button" data-i18n="export.pngSelection">PNG selezione</button>
           </div>
           <div class="row" style="margin-top:10px;">
             <label class="inline"><input id="chkNoBg" type="checkbox"> <span data-i18n="export.transparentBg">PNG senza sfondo</span></label>
           </div>
-          <button id="btnExportJSON" type="button" style="display:none">JSON</button>
-          <button id="btnImportJSON" type="button" style="display:none">Import JSON</button>
+          <button id="btnExportJSON" type="button" style="display:none" class="aurorBtn">JSON</button>
+          <button id="btnImportJSON" type="button" style="display:none" class="aurorBtn">Import JSON</button>
           <input id="fileImport" type="file" accept="application/json" style="display:none">
 
-        </section>
+        
+  </div>
+</section>
 
       </div>
     </aside>
@@ -379,8 +408,8 @@
 
     <div class="cmdBox">
       <span class="small" data-i18n="command.label">Comando:</span>
-      <input id="cmd" data-i18n-placeholder="command.placeholder" placeholder="Es: 10,20  oppure  @50,0  (Invio = conferma punto)">
-      <button id="btnCancelCmd" type="button" data-i18n="action.cancel">Annulla</button>
+      <input id="cmd" data-i18n-placeholder="command.placeholder" placeholder="Es: 10,20  oppure  @50,0  (Invio = conferma punto)" class="aurorInput">
+      <button id="btnCancelCmd" type="button" data-i18n="action.cancel" class="aurorBtn">Annulla</button>
     </div>
   </footer>
 </main>
@@ -393,8 +422,8 @@
     </div>
     <input id="colorValue" class="valueSlider" type="range" min="0" max="100" value="100" data-i18n-aria-label="modal.brightness" />
     <div class="colorModalFooter">
-      <button id="btnColorCancel" class="miniBtn" type="button" data-i18n="action.cancel">Annulla</button>
-      <button id="btnColorOk" class="miniBtn primary" type="button">OK</button>
+      <button id="btnColorCancel" class="aurorBtn" type="button" data-i18n="action.cancel">Annulla</button>
+      <button id="btnColorOk" class="aurorBtn primary" type="button">OK</button>
     </div>
   </div>
 </div>
@@ -419,23 +448,23 @@
 
 <!-- Canvas context menu -->
 <div id="ctxMenu" class="ctxMenu" hidden>
-  <button type="button" data-act="delete"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.delete">Elimina</span></button>
-  <button type="button" data-act="copy"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.copy">Copia</span></button>
-  <button type="button" data-act="paste"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.paste">Incolla</span></button>
+  <button type="button" data-act="delete" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 7h12l-1 14H7L6 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.delete">Elimina</span></button>
+  <button type="button" data-act="copy" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="10" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.copy">Copia</span></button>
+  <button type="button" data-act="paste" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l1 2h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2l1-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.paste">Incolla</span></button>
   <div class="ctxSep" aria-hidden="true"></div>
-  <button type="button" data-act="back"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 13l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="ctx.back">Indietro</span></button>
-  <button type="button" data-act="forward"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 11l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="ctx.forward">Avanti</span></button>
-  <button type="button" data-act="toback"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 5h10v2H7v8H5z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="ctx.toBack">In fondo</span></button>
-  <button type="button" data-act="tofront"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h10v10H9z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="ctx.toFront">Primo piano</span></button>
+  <button type="button" data-act="back" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 13l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="ctx.back">Indietro</span></button>
+  <button type="button" data-act="forward" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M7 11l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="btnTxt" data-i18n="ctx.forward">Avanti</span></button>
+  <button type="button" data-act="toback" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 5h10v2H7v8H5z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="ctx.toBack">In fondo</span></button>
+  <button type="button" data-act="tofront" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h10v10H9z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="ctx.toFront">Primo piano</span></button>
   <div class="ctxSep" aria-hidden="true"></div>
-  <button type="button" data-act="clear"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.clear">Deseleziona</span></button>
+  <button type="button" data-act="clear" class="aurorBtn"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.clear">Deseleziona</span></button>
 </div>
 
 <!-- Archivio progetti (lato server) -->
 <div class="aurorModal aurorModal--wide" id="projModal" role="dialog" aria-modal="true" aria-labelledby="projModalTitle">
   <div class="modalHead">
     <h3 id="projModalTitle" data-i18n="project.modal.title">Progetti</h3>
-    <button class="iconBtn iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
+    <button class="iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
     </button>
   </div>
@@ -494,7 +523,7 @@
 <div class="aurorModal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
   <div class="modalHead">
     <h3 id="accountTitle" data-i18n="account.title">Account</h3>
-    <button class="iconBtn iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
+    <button class="iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
     </button>
   </div>
