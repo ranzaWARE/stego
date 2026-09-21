@@ -334,6 +334,20 @@
       <div class="tabPanel" id="panel-io" hidden>
 
         <section class="card">
+  <div class="cardHeader"><h3 data-i18n="section.importCad">Importa CAD</h3></div>
+  <div class="cardBody">
+          <div class="btnRow">
+            <button id="btnImportCad" class="aurorBtn primary" type="button"><span class="btnIco">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 4v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 10l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span><span class="btnTxt" data-i18n="import.choose">Scegli un file…</span></button>
+            <input id="fileImportCad" type="file" accept=".dxf,.dwg" hidden>
+          </div>
+          <div class="helpTxt" id="importHint" data-i18n="import.hint">Si può anche trascinare un file sulla tela. Il disegno importato si aggiunge a quello aperto e si annulla con Undo.</div>
+          <div class="aurorNotice" id="importReport" hidden></div>
+  </div>
+</section>
+
+        <section class="card">
   <div class="cardHeader"><h3 data-i18n="section.project">Progetto</h3></div>
   <div class="cardBody">
           <div class="btnRow">
@@ -443,6 +457,8 @@
 <script src="js/colorpicker.js" defer></script>
 <script src="js/auror-overlays.js" defer></script>
 <script src="js/api.js" defer></script>
+<script src="js/dxf-import.js" defer></script>
+<script src="js/cad-import.js" defer></script>
 <script src="js/projects.js" defer></script>
 <script src="js/app.js" defer></script>
 

@@ -10,7 +10,10 @@ let base = '';
 
 // Client minimo con barattolo dei cookie: le rotte sono tutte a sessione,
 // quindi senza cookie non si prova nulla di utile.
-function client() {
+let lastAdminCookie = '';
+function adminCookie() { return lastAdminCookie; }
+
+function client(isAdmin) {
   let cookie = '';
   return async function call(method, path, body) {
     const headers = { 'Accept': 'application/json' };
@@ -21,7 +24,10 @@ function client() {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const set = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
-    if (set.length) cookie = set.map(c => c.split(';')[0]).join('; ');
+    if (set.length) {
+      cookie = set.map(c => c.split(';')[0]).join('; ');
+      if (isAdmin) lastAdminCookie = cookie;
+    }
     let data = null;
     if ((res.headers.get('content-type') || '').startsWith('application/json')) {
       data = await res.json().catch(() => null);
@@ -34,7 +40,7 @@ function client() {
 await new Promise(r => server.listen(0, '127.0.0.1', r));
 base = 'http://127.0.0.1:' + server.address().port;
 
-const admin = client();
+const admin = client(true);
 
 await test('la configurazione pubblica è leggibile senza sessione', async () => {
   const r = await client()('GET', '/api/config');
@@ -166,6 +172,55 @@ await test('le impostazioni fuori elenco vengono ignorate', async () => {
 await test('l\'ultimo amministratore attivo non può essere degradato né eliminato', async () => {
   assert.strictEqual((await admin('PATCH', '/api/admin/users/admin', { isAdmin: false })).status, 400);
   assert.strictEqual((await admin('DELETE', '/api/admin/users/admin')).status, 400);
+});
+
+// ---- importazione CAD -------------------------------------------------
+await test('i formati importabili richiedono una sessione', async () => {
+  assert.strictEqual((await client()('GET', '/api/import/formats')).status, 401);
+  const r = await admin('GET', '/api/import/formats');
+  assert.strictEqual(r.status, 200);
+  assert.ok(Array.isArray(r.data.formats), 'formats deve essere un elenco');
+});
+
+await test('un DXF caricato torna indietro senza passare dal convertitore', async () => {
+  const dxf = ['0', 'SECTION', '2', 'ENTITIES', '0', 'LINE', '8', '0',
+               '10', '0', '20', '0', '11', '10', '21', '0',
+               '0', 'ENDSEC', '0', 'EOF'].join('\n');
+  const form = new FormData();
+  form.append('file', new Blob([dxf], { type: 'application/dxf' }), 'prova.dxf');
+  const res = await fetch(base + '/api/import/cad', {
+    method: 'POST', headers: { Cookie: adminCookie() }, body: form,
+  });
+  assert.strictEqual(res.status, 200);
+  const data = await res.json();
+  assert.ok(data.dxf.includes('LINE'));
+  assert.strictEqual(data.converter, null, 'un DXF non deve essere convertito');
+});
+
+await test('senza file la richiesta viene rifiutata', async () => {
+  const res = await fetch(base + '/api/import/cad', {
+    method: 'POST', headers: { Cookie: adminCookie() }, body: new FormData(),
+  });
+  assert.strictEqual(res.status, 400);
+});
+
+await test('un DWG senza convertitore lo dice, invece di rompersi', async () => {
+  const convert = require('../convert');
+  const conv = await convert.detect();
+  const form = new FormData();
+  form.append('file', new Blob([Buffer.from([0x41, 0x43, 0x31, 0x30])]), 'prova.dwg');
+  const res = await fetch(base + '/api/import/cad', {
+    method: 'POST', headers: { Cookie: adminCookie() }, body: form,
+  });
+  const data = await res.json();
+  if (!conv.kind) {
+    assert.strictEqual(res.status, 501, 'senza convertitore ci si aspetta 501');
+    assert.match(data.error, /convertitore/i);
+  } else {
+    // Con dwg2dxf presente, quattro byte non sono un DWG valido: deve
+    // fallire in modo pulito, non con un 500.
+    assert.ok(res.status === 422 || res.status === 504, 'atteso 422/504, trovato ' + res.status);
+  }
 });
 
 // ---- OIDC ------------------------------------------------------------

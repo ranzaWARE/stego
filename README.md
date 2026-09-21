@@ -16,7 +16,7 @@ E sì, si chiama come lo **Stegosauro**. Perché i dinosauri sono fighi.
 - **Break** (spezza con un click) e **Katana** (taglio a due punti)
 - layer, snap (endpoint, midpoint, centro, intersezione, perpendicolare,
   tangente), griglia, ortho
-- export DXF, SVG, PNG e JSON; import DXF e JSON
+- import DXF e DWG, export DXF, SVG, PNG e JSON
 - progetti salvati sul server, uno spazio per utente
 - tre temi: chiaro, scuro, e-ink
 
@@ -93,10 +93,45 @@ interscambiabili.
 
 JSON perché è facile da leggere, generare e convertire da altri formati.
 
-### Import DXF
+## Importare un disegno
 
-Entità supportate: `LINE`, `CIRCLE`, `ARC`, `LWPOLYLINE`. Basta un export
-DXF da AutoCAD, LibreCAD, QCAD o DraftSight.
+**Export / Import → Importa CAD**, oppure si trascina il file sulla tela.
+Quello che entra si aggiunge al disegno aperto e si annulla con Undo.
+
+| Formato | Come |
+|---|---|
+| **DXF** | Letto direttamente nel browser |
+| **DWG** | Convertito in DXF sul server, poi letto come sopra |
+
+Alla fine l'app dice cosa ha importato, layer per layer, e soprattutto
+**cosa ha lasciato fuori**: meglio saperlo subito che accorgersene dopo.
+
+### Cosa viene letto
+
+Linee, cerchi, archi, polilinee (anche vecchio stile e con tratti curvi),
+ellissi, testi e testi multilinea, blocchi — espansi con la loro
+posizione, rotazione e scala — e le quote, che diventano geometria.
+Le spline e gli archi di ellisse sono approssimati con polilinee. Layer,
+colori per indice e colori a 24 bit arrivano con il resto.
+
+Restano fuori: campiture, solidi, immagini raster incorporate e tutto ciò
+che è tridimensionale. Le quote importate sono disegni, non quote
+ricalcolabili.
+
+Le unità del file (`$INSUNITS`) vengono convertite in millimetri. Se il
+file non le dichiara si assumono millimetri e l'app lo segnala.
+
+### DWG
+
+Il container include `dwg2dxf` di **LibreDWG**, compilato durante la
+costruzione dell'immagine. Regge bene i DWG fino a R2000 e in modo meno
+prevedibile quelli più recenti: se un file non passa, la via più solida
+resta esportare un DXF dal programma che l'ha prodotto.
+
+Chi ha **ODA File Converter** può usarlo al suo posto — è più affidabile
+sui DWG recenti, ma è proprietario e non può essere distribuito
+nell'immagine: si installa a parte e si indica con `ODA_CONVERTER_PATH`.
+Con `CAD_CONVERT_CMD` si può collegare qualsiasi altro convertitore.
 
 ---
 

@@ -46,6 +46,11 @@ services:
       - OIDC_REDIRECT_URI=${OIDC_REDIRECT_URI:-}
       - OIDC_LABEL=${OIDC_LABEL:-SSO}
       - OIDC_TLS_REJECT_UNAUTHORIZED=${OIDC_TLS_REJECT_UNAUTHORIZED:-true}
+      # Conversione dei formati CAD binari: l'immagine include dwg2dxf,
+      # queste servono solo per sostituirlo con qualcos'altro.
+      - CAD_CONVERT_CMD=${CAD_CONVERT_CMD:-}
+      - ODA_CONVERTER_PATH=${ODA_CONVERTER_PATH:-}
+      - CAD_CONVERT_TIMEOUT_MS=${CAD_CONVERT_TIMEOUT_MS:-120000}
     labels:
       - traefik.enable=true
       - traefik.http.routers.stego.rule=Host(`${STEGO_HOST:-stego.app.local}`)

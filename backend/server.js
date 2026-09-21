@@ -8,8 +8,10 @@ const http    = require('http');
 const fs      = require('fs');
 const crypto  = require('crypto');
 const { v4: uuidv4 } = require('uuid');
-const db    = require('./db');
-const auth  = require('./auth');
+const multer  = require('multer');
+const db      = require('./db');
+const auth    = require('./auth');
+const convert = require('./convert');
 
 const app  = express();
 const PORT       = process.env.PORT || 3000;
@@ -55,10 +57,18 @@ app.use(session({
 }));
 
 // ── Rate limiting ─────────────────────────────────────────────
-const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Troppi tentativi, riprova tra 15 minuti' } });
-const apiLimiter   = rateLimit({ windowMs: 60 * 1000, max: 600 });
+const loginLimiter  = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Troppi tentativi, riprova tra 15 minuti' } });
+const apiLimiter    = rateLimit({ windowMs: 60 * 1000, max: 600 });
+// La conversione è l'unica cosa che costa CPU: qualche file al minuto
+// per utente è tanto, e senza limite un solo client la satura.
+const importLimiter = rateLimit({ windowMs: 60 * 1000, max: 20, message: { error: 'Troppe conversioni, riprova fra un minuto' } });
 app.use('/api/login', loginLimiter);
 app.use('/api/', apiLimiter);
+app.use('/api/import/cad', importLimiter);
+
+// I disegni binari vivono in memoria il tempo di scriverli su un file
+// temporaneo: non si conservano, quindi non serve uno storage su disco.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
 // I browser mandano Accept: text/html,…,*/* anche per una navigazione
 // normale, quindi req.accepts('json') non distingue nulla: si guarda il path.
@@ -264,6 +274,32 @@ app.post('/api/projects-import', requireAuth, (req, res) => {
     n++;
   }
   res.json({ ok: true, imported: n });
+});
+
+// ── Importazione CAD ──────────────────────────────────────────
+// Il DXF non passa mai di qui: lo legge il browser. Qui arriva solo ciò
+// che va convertito prima, cioè oggi il DWG.
+app.get('/api/import/formats', requireAuth, async (req, res) => {
+  const conv = await convert.detect();
+  res.json({ formats: convert.formats(conv), converter: conv.name || '' });
+});
+
+app.post('/api/import/cad', requireAuth, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Nessun file ricevuto' });
+  const name = req.file.originalname || '';
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  if (ext === 'dxf') {
+    // Non dovrebbe arrivare, ma se arriva si restituisce com'è invece di
+    // far fare al convertitore un giro inutile.
+    return res.json({ dxf: req.file.buffer.toString('utf8'), converter: null });
+  }
+  try {
+    const dxf = await convert.toDxf(req.file.buffer, name);
+    res.json({ dxf, converter: (await convert.detect()).name });
+  } catch (e) {
+    console.error('[import] conversione di', name, 'fallita:', e.message);
+    res.status(e.status || 500).json({ error: e.message });
+  }
 });
 
 // ── Amministrazione ───────────────────────────────────────────

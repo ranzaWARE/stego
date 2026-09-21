@@ -51,30 +51,23 @@ SQLite. Distribuito come stack Docker dietro il Traefik del nodo.
 
 ## TODO
 
-### Import DWG
+### Import CAD — cosa resta da fare
 
-Oggi si importa solo DXF (`LINE`, `CIRCLE`, `ARC`, `LWPOLYLINE`). Il DWG è
-un formato binario chiuso di Autodesk: non esiste un parser JS affidabile,
-quindi va convertito lato server.
+L'importazione c'è: `public/js/dxf-import.js` legge il DXF nel browser,
+`convert.js` converte i binari sul server. Quello che manca:
 
-Strada praticabile:
-
-1. `libredwg` nel container (pacchetto Alpine, `dwg2dxf`), nuova rotta
-   `POST /api/import/dwg` che riceve il file, converte in un file
-   temporaneo e restituisce il DXF al client, che lo dà all'importatore
-   già esistente.
-2. In alternativa, **ODA File Converter**: molto più affidabile su DWG
-   recenti, ma è un binario proprietario che non si può ridistribuire
-   nell'immagine. Al massimo lo si cerca a runtime e lo si usa se c'è,
-   con LibreDWG come ripiego.
-
-Limiti da mettere in conto prima di prometterlo a qualcuno:
-
-- LibreDWG regge bene i DWG fino a R2000, in modo discontinuo quelli più
-  recenti (R2018+ spesso fallisce);
-- l'importatore DXF attuale ignora blocchi, testi, spline e campiture: un
-  DWG reale arriverebbe monco anche a conversione riuscita. Per un import
-  utile va prima esteso l'importatore DXF.
+- **Entità non lette**: campiture (HATCH), solidi (SOLID, 3DFACE),
+  immagini raster (IMAGE), e tutto ciò che è 3D. Oggi vengono contate e
+  dichiarate nel resoconto, che è meglio del silenzio ma non è leggerle.
+- **Quote**: arrivano come geometria espandendo il loro blocco. Per farne
+  quote vive di STEGO andrebbero letti i punti di definizione (10/13/14)
+  e ricostruite con `addDim`.
+- **Tavolozza ACI**: ci sono i primi nove colori e i grigi finali, il
+  resto ricade sul colore del layer. La tavolozza completa è di 255 voci.
+- **OCS**: l'estrusione (codice 210) è ignorata. Un disegno fatto su un
+  piano di costruzione specchiato arriva specchiato.
+- **DWG recenti**: LibreDWG è discontinuo da R2018 in su. L'alternativa
+  è ODA File Converter, che però non si può mettere nell'immagine.
 
 ### Sicurezza della sessione
 
