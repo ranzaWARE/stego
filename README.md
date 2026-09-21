@@ -128,6 +128,30 @@ costruzione dell'immagine. Regge bene i DWG fino a R2000 e in modo meno
 prevedibile quelli più recenti: se un file non passa, la via più solida
 resta esportare un DXF dal programma che l'ha prodotto.
 
+#### Se la costruzione del convertitore fallisce
+
+La compilazione di LibreDWG **non blocca la pubblicazione**: se non
+riesce, l'immagine si costruisce lo stesso e l'app parte senza il
+supporto DWG, dicendolo nella pagina di importazione. Per vedere il
+motivo vero, con il log completo di quel solo pezzo:
+
+```bash
+docker build --target dwg --progress=plain ./backend
+```
+
+Le due cause tipiche:
+
+- **il nodo non raggiunge github.com** (proxy aziendale): si scarica il
+  tarball altrove e si usa `CAD_CONVERT_CMD`, oppure si costruisce
+  l'immagine su una macchina che ha rete e la si pubblica;
+- **memoria esaurita durante la compilazione**: i sorgenti generati di
+  LibreDWG sono enormi e con molti core in parallelo il compilatore viene
+  ucciso — dall'esterno si vede solo `exit code 1`. Si riduce il
+  parallelismo con `--build-arg DWG_JOBS=1`.
+
+Con `--build-arg DWG_REQUIRED=1` la costruzione fallisce invece di
+proseguire senza convertitore, utile in un'immagine che deve averlo.
+
 Chi ha **ODA File Converter** può usarlo al suo posto — è più affidabile
 sui DWG recenti, ma è proprietario e non può essere distribuito
 nell'immagine: si installa a parte e si indica con `ODA_CONVERTER_PATH`.
