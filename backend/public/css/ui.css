@@ -1,0 +1,824 @@
+/* =========================================================
+   AUROR — UI Component Layer  (css/ui.css)
+   The SINGLE shared component layer for every AUROR page.
+   Canon: design-system.html. Consumes ONLY semantic tokens
+   + named scales from tokens.css — never raw hex/rgb values.
+   Load order:  css/tokens.css  →  css/ui.css
+   ========================================================= */
+
+/* ---- Reset / base ---------------------------------------------------- */
+*{ box-sizing: border-box; }
+html, body{ margin: 0; padding: 0; }
+body{
+  font-family: var(--auror-font);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--auror-fs-14);
+  line-height: var(--auror-lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a{ color: inherit; }
+
+/* ---- Floating header (.dsHeader family) ------------------------------ */
+.dsHeaderRail{
+  position: sticky; top: 0; z-index: 50;
+  background: transparent;
+  padding: 10px 10px 16px;
+  pointer-events: none;
+}
+.dsHeaderRail::before{
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom,
+    var(--surface) 0%,
+    var(--surface) 60%,
+    color-mix(in srgb, var(--surface) 70%, transparent) 80%,
+    transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+.dsHeaderRail > *{ pointer-events: auto; }
+.dsHeader{
+  position: relative;
+  height: 48px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  gap: 12px;
+}
+.dsBrand{
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; letter-spacing: .3px; font-size: 15px;
+  color: var(--text); min-width: 0; flex-shrink: 0;
+}
+/* Brand mark — DARK on --text (canon decision), flips in both themes
+   using tokens only: dark fill / light glyph in light mode, and the
+   inverse in dark mode. No hardcoded white, no [data-theme] override.
+
+   Height is fixed; width is not. A one-letter mark stays a 28px square,
+   a longer name or a wide logo grows sideways and pushes the wordmark
+   right. Nothing ever scales the glyph down to fit. */
+.dsBrandMark{
+  height: 28px; min-width: 28px; width: auto;
+  box-sizing: border-box; padding: 0 7px;
+  border-radius: var(--auror-r);
+  background: var(--text);
+  color: var(--surface-raised);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; letter-spacing: -.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+/* A logo keeps its aspect ratio and sets the mark's width. It also drops the
+   dark plate: a transparent PNG would otherwise sit on a black tile. Add
+   .dsBrandMark--plate back if a logo genuinely needs the fill behind it. */
+.dsBrandMark:has(img){ padding: 0; background: none; }
+.dsBrandMark--plate:has(img){ background: var(--text); padding: 0 6px; }
+.dsBrandMark img{ height: 100%; width: auto; object-fit: contain; display: block; }
+
+/* Theme-following logo. Two ways, both driven by the mark's own colour:
+
+   1. Inline <svg> in the markup, with fill="currentColor" on the shapes.
+      Best when the logo is one colour and you can edit its source.
+   2. .dsBrandMark--ink + a --logo url(): the file is used as a mask, so only
+      its alpha matters and any format works, PNG included. The logo is then
+      painted in --text and flips with the theme for free.
+   A full-colour logo that must keep its own palette uses plain <img>. */
+.dsBrandMark svg{ height: 100%; width: auto; display: block; color: var(--text); }
+.dsBrandMark--ink{
+  background: none; padding: 0;
+  width: var(--logo-w, 96px);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+  background-color: var(--text);
+}
+.dsBrand .dsBrandWord{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Page name beside the brand: "AUROR / Settings". The slash is drawn, not
+   typed, so it holds its weight at any size and never gets selected with
+   the text. The page name is the lighter of the two — the brand is the
+   constant, the page is what changes. */
+.dsBrand .dsPage{
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0; font-weight: 500; color: var(--text-secondary);
+}
+.dsBrand .dsPage::before{
+  content: ""; width: 1px; height: 16px;
+  background: var(--border);
+  transform: rotate(18deg);
+  flex-shrink: 0;
+}
+.dsBrand .tag{
+  font-size: 11px; padding: 4px 8px; border-radius: var(--auror-r);
+  border: 1px solid var(--border); color: var(--text-muted);
+  background: var(--surface-raised); font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+/* The nav is a flex child, not an absolutely-centred overlay: out of flow
+   it cannot be squeezed by the clusters on either side, and a long tab set
+   runs straight under them. In flow it shrinks first and scrolls, and the
+   brand and the right-hand controls always keep their space. */
+.dsHeader nav{
+  flex: 1 1 auto; min-width: 0;
+  display: flex; gap: 2px; flex-wrap: nowrap; overflow-x: auto;
+  justify-content: center;
+  font-size: 12px;
+  scrollbar-width: none;
+}
+.dsHeader nav::-webkit-scrollbar{ display: none; }
+.dsHeader nav a,
+.dsHeader nav button{
+  font: inherit; border: none; background: transparent; cursor: pointer;
+  text-decoration: none;
+  color: var(--text-muted);
+  padding: 6px 10px; border-radius: var(--auror-r);
+  white-space: nowrap;
+  transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease;
+}
+.dsHeader nav a:hover,
+.dsHeader nav button:hover{ background: var(--surface); color: var(--text); }
+/* Current section. Set aria-current="page" on the active item — the state
+   is in the markup, so assistive tech gets it too, not just the eye. */
+.dsHeader nav a[aria-current="page"],
+.dsHeader nav button[aria-current="page"]{
+  color: var(--text); font-weight: 600;
+  background: var(--accent-soft);
+}
+.dsHeaderRight{
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  font-size: 12px; color: var(--text-muted);
+  flex-shrink: 0;
+}
+.verTag{
+  font-size: 11px; padding: 4px 8px;
+  border: 1px solid var(--border); border-radius: var(--auror-r);
+  background: var(--surface-raised); color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.verTag .dot{ width: 6px; height: 6px; border-radius: 2px; background: var(--accent); }
+
+/* ---- Header nav toggle (mobile) --------------------------------------
+   The centred nav can never fit a phone width, so below the breakpoint it
+   collapses into a drawer under the header, opened by .dsNavToggle.
+   The button is inert (display:none) on desktop — same markup everywhere. */
+.dsNavToggle{
+  display: none;
+  width: 32px; height: 32px;
+  align-items: center; justify-content: center;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  color: var(--text-secondary);
+  cursor: pointer; flex-shrink: 0;
+  transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease;
+}
+.dsNavToggle:hover{ background: var(--surface); color: var(--text); }
+.dsNavToggle:focus-visible{ box-shadow: var(--focus-ring); outline: none; }
+.dsNavToggle svg{ width: 16px; height: 16px; }
+.dsNavToggle .ic-close{ display: none; }
+.dsHeader[data-nav-open] .dsNavToggle .ic-close{ display: block; }
+.dsHeader[data-nav-open] .dsNavToggle .ic-menu{ display: none; }
+
+@media (max-width: 1024px){
+  .dsNavToggle{ display: inline-flex; }
+  .dsHeader nav{
+    position: absolute; left: 0; right: 0; top: calc(100% + 8px);
+    transform: none;
+    display: none;
+    flex-direction: column; gap: 2px;
+    overflow: visible;
+    padding: 8px;
+    font-size: 13px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    box-shadow: var(--shadow-md);
+  }
+  .dsHeader[data-nav-open] nav{ display: flex; }
+  .dsHeader nav a,
+  .dsHeader nav button{ padding: 10px 12px; text-align: left; width: 100%; }
+}
+@media (max-width: 480px){
+  .dsHeaderRail{ padding: 8px 8px 14px; }
+  .dsHeader{ padding: 0 10px; gap: 8px; }
+  .dsBrand .tag,
+  .dsBrand .dsPage,
+  .dsHeaderRight .verTag{ display: none; }
+}
+
+/* Header icon buttons — .themeToggle and the generic .iconBtn share one look */
+.themeToggle, .iconBtn{
+  width: 32px; height: 32px;
+  border-radius: var(--auror-r);
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  display: inline-grid; place-items: center;
+  cursor: pointer;
+  transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease, border-color var(--auror-dur-fast) ease;
+}
+.themeToggle:hover, .iconBtn:hover{ background: var(--surface-sunken); color: var(--text); }
+.themeToggle svg, .iconBtn svg{ width: 16px; height: 16px; }
+.iconBtn--accent{
+  background: var(--accent); border-color: var(--accent); color: var(--text-on-accent);
+}
+.iconBtn--accent:hover{ background: var(--accent-hover); border-color: var(--accent-hover); color: var(--text-on-accent); }
+/* Sun / moon / e-ink icon swap driven by theme — light > dark > eink */
+.themeToggle .ic-moon, .iconBtn .ic-moon,
+.themeToggle .ic-eink, .iconBtn .ic-eink{ display: none; }
+[data-theme="dark"] .themeToggle .ic-sun, [data-theme="dark"] .iconBtn .ic-sun{ display: none; }
+[data-theme="dark"] .themeToggle .ic-moon, [data-theme="dark"] .iconBtn .ic-moon{ display: block; }
+[data-theme="eink"] .themeToggle .ic-sun, [data-theme="eink"] .iconBtn .ic-sun{ display: none; }
+[data-theme="eink"] .themeToggle .ic-eink, [data-theme="eink"] .iconBtn .ic-eink{ display: block; }
+
+/* ---- E-ink overrides -------------------------------------------------
+   Every surface is white; separation comes from a 1px black outline. */
+[data-theme="eink"] .card,
+[data-theme="eink"] .dsHeader,
+[data-theme="eink"] .aurorBtn,
+[data-theme="eink"] .aurorInput,
+[data-theme="eink"] .aurorSelect,
+[data-theme="eink"] .themeToggle,
+[data-theme="eink"] .iconBtn,
+[data-theme="eink"] .iconBtnSm,
+[data-theme="eink"] .dsTag,
+[data-theme="eink"] .dsNavToggle,
+[data-theme="eink"] .badgeSm,
+[data-theme="eink"] .kbd{
+  background: #fff; border: 1px solid #000; box-shadow: none;
+}
+[data-theme="eink"] .aurorBtn.primary,
+[data-theme="eink"] .iconBtn--accent{ background: #000; color: #fff; border-color: #000; }
+[data-theme="eink"] .aurorBtn.primary:hover,
+[data-theme="eink"] .iconBtn--accent:hover{ background: #000; color: #fff; }
+[data-theme="eink"] .aurorBtn.active{ background: #000; color: #fff; }
+[data-theme="eink"] .aurorBtn.danger{ background: #fff; color: #000; border: 2px solid #000; }
+[data-theme="eink"] .aurorBtn:hover,
+[data-theme="eink"] .themeToggle:hover,
+[data-theme="eink"] .dsNavToggle:hover,
+[data-theme="eink"] .dsHeader nav a:hover,
+[data-theme="eink"] .dsHeader nav button:hover{ background: #ededed; }
+/* No amber to lean on: the current section inverts. */
+[data-theme="eink"] .dsHeader nav a[aria-current="page"],
+[data-theme="eink"] .dsHeader nav button[aria-current="page"]{ background: #000; color: #fff; }
+[data-theme="eink"] .iconBtn:hover{ background: #ededed; }
+/* The nav only needs an outline when it is a floating drawer; inline in the
+   header it is already inside the header's own box. */
+@media (max-width: 1024px){
+  [data-theme="eink"] .dsHeader nav{ background: #fff; border: 1px solid #000; }
+}
+[data-theme="eink"] .aurorBtn.disabled,
+[data-theme="eink"] .aurorBtn:disabled{ opacity: 1; color: #4a4a4a; border-style: dashed; }
+[data-theme="eink"] .cardHeader{ border-bottom: 1px solid #000; background: #fff; }
+
+/* ---- Card ------------------------------------------------------------ */
+.card{
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.cardHeader{
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+}
+.cardHeader h2, .cardHeader h3{ margin: 0; font-size: var(--auror-fs-14); font-weight: 700; }
+.cardHeader .small, .cardHeader .hint{ color: var(--text-muted); font-size: var(--auror-fs-12); }
+.cardBody{ padding: 18px; }
+
+/* ---- Buttons --------------------------------------------------------- */
+.aurorBtn{
+  border: 1px solid var(--border);
+  background: var(--surface-raised); color: var(--text);
+  padding: 10px 12px; border-radius: var(--auror-r);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; white-space: nowrap; line-height: 1.1;
+  transition: transform var(--auror-dur-fast) ease, background var(--auror-dur-base) ease, border-color var(--auror-dur-base) ease;
+  font-family: inherit; font-size: 13px;
+}
+.aurorBtn:hover{ background: var(--surface-sunken); }
+.aurorBtn:active{ transform: translateY(1px); }
+.aurorBtn > svg{ width: 16px; height: 16px; flex: 0 0 auto; }
+.aurorBtn.primary{
+  background: var(--accent);
+  border-color: var(--accent-hover);
+  color: var(--text-on-accent); font-weight: 600;
+}
+.aurorBtn.primary:hover{ background: var(--accent-hover); border-color: var(--accent-hover); }
+.aurorBtn.danger{
+  background: var(--surface-raised);
+  border-color: var(--danger-soft);
+  color: var(--danger);
+}
+.aurorBtn.danger:hover{ background: var(--danger-soft); }
+.aurorBtn.active{
+  box-shadow: var(--focus-ring);
+  border-color: var(--accent-ring);
+}
+.aurorBtn[disabled]{ opacity: .5; cursor: not-allowed; }
+
+.btnIco{
+  display: inline-flex; width: 20px; height: 20px;
+  align-items: center; justify-content: center;
+  color: currentColor;
+}
+.btnIco svg{ width: 20px; height: 20px; display: block; overflow: visible; }
+
+/* Small square icon button (layer actions, list rows) */
+.iconBtnSm{
+  width: 28px; height: 28px; padding: 0;
+  border-radius: var(--auror-r);
+  border: 1px solid var(--border);
+  background: var(--surface-raised); cursor: pointer;
+  display: grid; place-items: center;
+  color: var(--text-secondary);
+}
+.iconBtnSm:hover{ background: var(--surface); }
+.iconBtnSm svg{ width: 14px; height: 14px; }
+
+/* ---- Form rows and fields -------------------------------------------
+   Label, control and help as one unit. The help line holds its space so
+   a field never changes height when validation fires. */
+.row{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.row.three{ grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 700px){ .row, .row.three{ grid-template-columns: 1fr; } }
+.field{ display: flex; flex-direction: column; gap: 6px; }
+.field label{ font-size: 12px; font-weight: 600; color: var(--text-secondary); letter-spacing: .01em; }
+.field .help{ font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+textarea.aurorInput{ height: auto; padding: 8px 10px; line-height: var(--auror-lh-snug); resize: vertical; min-height: 80px; }
+
+/* ---- Number field with unit and stepper (.inputUnit) -----------------
+   The native spinner is tiny, appears on hover only, and sits wherever the
+   platform puts it — on top of a unit suffix. Replaced with two square
+   buttons in AUROR's own vocabulary, always visible, inside the input's
+   border. Behaviour in js/number-field.js. */
+.inputUnit{ position: relative; display: flex; align-items: center; }
+.inputUnit .aurorInput{ flex: 1; padding-right: 66px; }
+.inputUnit .aurorInput[type="number"]{ appearance: textfield; -moz-appearance: textfield; }
+.inputUnit .aurorInput[type="number"]::-webkit-outer-spin-button,
+.inputUnit .aurorInput[type="number"]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+.inputUnit .unit{
+  position: absolute; right: 34px;
+  font-size: 11px; color: var(--text-muted);
+  pointer-events: none;
+}
+.inputUnit .stepper{
+  position: absolute; right: 1px; top: 1px; bottom: 1px; width: 24px;
+  display: grid; grid-template-rows: 1fr 1fr;
+  border-left: 1px solid var(--border);
+  border-radius: 0 calc(var(--auror-r) - 1px) calc(var(--auror-r) - 1px) 0;
+  overflow: hidden;
+}
+.inputUnit .stepper button{
+  border: none; background: var(--surface); color: var(--text-secondary);
+  cursor: pointer; padding: 0;
+  display: grid; place-items: center;
+  transition: background var(--auror-dur-fast) ease, color var(--auror-dur-fast) ease;
+}
+.inputUnit .stepper button + button{ border-top: 1px solid var(--border); }
+.inputUnit .stepper button:hover{ background: var(--accent-soft); color: var(--text); }
+.inputUnit .stepper button:active{ background: var(--accent-ring); }
+.inputUnit .stepper svg{ width: 9px; height: 9px; }
+[data-theme="eink"] .inputUnit .stepper button{ background: #fff; color: #000; }
+[data-theme="eink"] .inputUnit .stepper button:hover{ background: #ededed; }
+
+/* ---- Inputs / selects ------------------------------------------------ */
+.aurorInput, .aurorSelect{
+  width: 100%;
+  height: var(--auror-control-h);
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  padding: 0 10px;
+  background: var(--surface-raised); color: var(--text);
+  font-family: inherit; font-size: 13px;
+  outline: none;
+  transition: border-color var(--auror-dur-base) var(--auror-ease), box-shadow var(--auror-dur-base) var(--auror-ease);
+}
+.aurorInput:focus, .aurorSelect:focus{
+  box-shadow: var(--focus-ring);
+  border-color: var(--accent-ring);
+}
+.aurorLabel{
+  font-size: 12px; color: var(--text-secondary);
+  display: block; margin: 0 0 6px;
+}
+
+/* ---- Tags / badges / keyboard keys ----------------------------------- */
+.dsTag{
+  font-size: 12px; padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: var(--auror-r);
+  background: var(--surface-raised); color: var(--text-secondary);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.dsTag--brand{ background: var(--accent-soft); border-color: var(--accent-ring); color: var(--text); font-weight: 600; }
+.dsTag--ghost{ background: transparent; }
+/* Coordinates and codes read as a tag like any other — only the digits
+   line up, which is what the mono is for. */
+.dsTag--mono{ font-family: var(--auror-mono); font-size: 11px; }
+.badgeSm{
+  font-size: 11px; padding: 4px 10px;
+  border: 1px solid var(--border); border-radius: var(--auror-r);
+  background: var(--surface-raised); color: var(--text-secondary);
+}
+/* ---- Stacked table (.stackTable) ------------------------------------
+   A wide table has no honest narrow form: six columns on a phone either
+   scroll sideways or crush. Below the breakpoint each row becomes a card
+   and every cell carries its own label, taken from data-label — so the
+   header row can go away without the values losing their meaning.
+   Add .stackTable next to the table's own class; cells need data-label. */
+@media (max-width: 760px){
+  .stackTable, .stackTable tbody, .stackTable tr, .stackTable td{ display: block; width: 100%; }
+  .stackTable thead{ display: none; }
+  .stackTable tr{
+    border: 1px solid var(--border);
+    border-radius: var(--auror-r);
+    padding: 12px;
+    margin-bottom: 10px;
+    background: var(--surface-raised);
+  }
+  .stackTable td{
+    border: none; padding: 5px 0;
+    /* Only the label is pushed apart. space-between here would treat every
+       child of the cell as a separate item and scatter a value's own parts
+       (dot + word, bar + figure) across the row. */
+    display: flex; align-items: center; gap: 6px;
+  }
+  .stackTable td::before{
+    content: attr(data-label);
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text-muted); flex-shrink: 0; margin-right: auto; padding-right: 12px;
+  }
+  /* Identity and actions are not label/value pairs — they run full width. */
+  .stackTable td[data-label=""]::before{ content: none; }
+  .stackTable td[data-label=""]{ display: block; }
+  .stackTable td:first-child{ padding: 0 0 10px; border-bottom: 1px solid var(--border-soft); margin-bottom: 6px; }
+  .stackTable td:last-child{ padding-top: 10px; }
+  .stackTable td:last-child > *{ justify-content: flex-end; }
+}
+
+/* ---- Inline code in prose — the mono face carries the distinction, so no
+   chip: a run of pills inside a sentence fights the text it explains.
+   .kbd stays for things that really are keys or discrete chips. */
+.codeInline{
+  font-family: var(--auror-mono);
+  font-size: .92em;
+  color: var(--text);
+}
+.kbd{
+  font-family: var(--auror-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  color: var(--text-secondary);
+  background: var(--surface-raised);
+}
+
+/* ---- Audio bar (.aurorAudioBar) --------------------------------------
+   Floating voice-capture strip. One shell, three states via [data-state]:
+   idle / recording / playback. It is a movable object, not a docked bar —
+   the user grabs it, parks it anywhere over the canvas, and narrows it
+   until only the transport is left. Everything past the controls degrades
+   away as width drops (container queries), so there is no broken state.
+
+   Markup contract:
+     <div class="aurorAudioBar" data-state="idle" style="left:..;top:..;width:..">
+       <span class="abGrip"></span>   drag handle
+       <button class="recBtn">        record / stop
+       <div class="abBody">           state rows
+       <span class="abResize"></span> width handle
+
+   Behaviour lives in js/audio-bar.js — CSS alone positions and sizes it. */
+.aurorAudioBar{
+  position: absolute;
+  display: flex; align-items: center; gap: 6px;
+  width: 460px; min-width: 132px; max-width: 100%;
+  padding: 5px 6px 5px 4px;
+  background: var(--inverse-surface);
+  color: var(--inverse-text);
+  border: 1px solid var(--inverse-border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-lg);
+  user-select: none;
+  container-type: inline-size;
+  z-index: 60;
+}
+.aurorAudioBar[data-dragging]{ cursor: grabbing; box-shadow: var(--shadow-lg); }
+
+/* Grip and width handle — the two ends of the bar. Same object, same
+   treatment: a continuous rule the pointer can take hold of. Only the axis
+   they act on differs, which the cursor says. */
+.aurorAudioBar .abGrip,
+.aurorAudioBar .abResize{
+  flex-shrink: 0; width: 11px; height: 22px;
+  color: var(--inverse-text-muted);
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 2px 100%; background-position: center;
+  background-repeat: no-repeat;
+  transition: color var(--auror-dur-base) var(--auror-ease);
+}
+.aurorAudioBar .abGrip:hover,
+.aurorAudioBar .abResize:hover{ color: var(--inverse-text); }
+.aurorAudioBar .abGrip{ cursor: grab; }
+.aurorAudioBar .abResize{ cursor: ew-resize; }
+.aurorAudioBar[data-dragging] .abGrip{ cursor: grabbing; }
+
+.aurorAudioBar .abBody{ flex: 1; min-width: 0; display: flex; align-items: center; }
+.aurorAudioBar .abIdle,
+.aurorAudioBar .abRec,
+.aurorAudioBar .abPlay{ display: none; min-width: 0; width: 100%; }
+.aurorAudioBar[data-state="idle"] .abIdle,
+.aurorAudioBar[data-state="recording"] .abRec,
+.aurorAudioBar[data-state="playback"] .abPlay{
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Record trigger — the only saturated element on the bar */
+.aurorAudioBar .recBtn{
+  width: 26px; height: 26px; flex-shrink: 0;
+  border: none; border-radius: var(--auror-r);
+  background: var(--record); color: var(--record-fg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background var(--auror-dur-base) var(--auror-ease);
+}
+.aurorAudioBar .recBtn svg{ width: 11px; height: 11px; fill: currentColor; }
+.aurorAudioBar[data-state="recording"] .recBtn{ animation: aurorRecPulse 1s infinite; }
+@keyframes aurorRecPulse{
+  0%,100%{ box-shadow: 0 0 0 0 color-mix(in srgb, var(--record) 60%, transparent); }
+  50%    { box-shadow: 0 0 0 5px color-mix(in srgb, var(--record) 0%, transparent); }
+}
+
+/* Transport buttons — one square chip in three sizes. The primary transport
+   of each state (play, pause) matches the record trigger; discard steps down
+   a size so it never reads as a peer of the thing it undoes. */
+.aurorAudioBar .abBtn{
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: none; border-radius: var(--auror-r);
+  background: color-mix(in srgb, var(--inverse-text) 13%, transparent);
+  color: var(--inverse-text);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background var(--auror-dur-base) var(--auror-ease),
+              color var(--auror-dur-base) var(--auror-ease);
+}
+.aurorAudioBar .abBtn:hover{ background: color-mix(in srgb, var(--inverse-text) 24%, transparent); }
+.aurorAudioBar .abBtn svg{ width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aurorAudioBar .abBtn--fill svg{ fill: currentColor; stroke: none; }
+/* Same footprint as .recBtn — the two sit side by side */
+.aurorAudioBar .abBtn--main{ width: 26px; height: 26px; }
+.aurorAudioBar .abBtn--main svg{ width: 13px; height: 13px; }
+.aurorAudioBar .abBtn--sm{ width: 20px; height: 20px; }
+.aurorAudioBar .abBtn--sm svg{ width: 11px; height: 11px; }
+/* Discard — a cross, not a bin: it dismisses the take rather than deleting
+   a file. Destructive, so it asks first. */
+.aurorAudioBar .abBtn--discard{ color: var(--inverse-text-muted); }
+.aurorAudioBar .abBtn--discard:hover,
+.aurorAudioBar[data-confirm] .abBtn--discard{ background: var(--record); color: var(--record-fg); }
+
+/* Confirm popover — rides above the bar so it moves with it. The default
+   placement here is the no-JS fallback; audio-bar.js re-places it (flipping
+   below, clamping sideways) so it can never be clipped by the canvas. */
+.aurorAudioBar .abConfirm{
+  position: absolute; bottom: calc(100% + 8px); right: 0;
+  display: none; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 10px; max-width: 260px;
+  background: var(--inverse-surface); color: var(--inverse-text);
+  border: 1px solid var(--inverse-border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-lg);
+}
+.aurorAudioBar[data-confirm] .abConfirm{ display: flex; }
+.aurorAudioBar .abConfirm span{ font-size: 11px; flex: 1 1 auto; min-width: 0; }
+.aurorAudioBar .abConfirmBtn{
+  font: inherit; font-size: 11px; line-height: 1;
+  padding: 5px 10px; cursor: pointer; white-space: nowrap;
+  border-radius: var(--auror-r);
+  border: 1px solid color-mix(in srgb, var(--inverse-text) 22%, transparent);
+  background: transparent; color: var(--inverse-text);
+  transition: background var(--auror-dur-base) var(--auror-ease);
+}
+.aurorAudioBar .abConfirmBtn:hover{ background: color-mix(in srgb, var(--inverse-text) 13%, transparent); }
+.aurorAudioBar .abConfirmBtn--discard{
+  background: var(--record); border-color: var(--record); color: var(--record-fg);
+  font-weight: 600;
+}
+.aurorAudioBar .abConfirmBtn--discard:hover{ background: var(--record); }
+
+.aurorAudioBar .abIdle{ font-size: 11px; color: var(--inverse-text-muted); }
+.aurorAudioBar .recDot{
+  width: 5px; height: 5px; flex-shrink: 0;
+  border-radius: 50%; background: var(--record);
+  animation: aurorRecBlink 1s infinite;
+}
+@keyframes aurorRecBlink{ 0%,100%{ opacity: 1 } 50%{ opacity: 0 } }
+.aurorAudioBar .recTime{
+  font-family: var(--auror-mono);
+  font-size: 11px; font-weight: 700; color: var(--record);
+  flex-shrink: 0;
+}
+.aurorAudioBar .abTime{
+  font-family: var(--auror-mono);
+  font-size: 11px; color: var(--inverse-text-muted);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* Waveform well \u2014 hosts a <canvas>, with an absolute scrub head.
+   No fill or radius of its own: the waveform sits directly on the bar. */
+.aurorAudioBar .abWave{
+  flex: 1; height: 22px; min-width: 0;
+  position: relative; overflow: hidden; cursor: pointer;
+}
+.aurorAudioBar .abWave canvas{ width: 100%; height: 100%; display: block; }
+.aurorAudioBar .abScrub{
+  position: absolute; top: 0; height: 100%; width: 2px;
+  background: var(--record); pointer-events: none;
+}
+
+/* Shrink order, driven by the bar's own width — labels go first, then the
+   waveform, then the grip; the transport never leaves. */
+@container (max-width: 340px){
+  .aurorAudioBar .abTime{ display: none; }
+  .aurorAudioBar .abIdle{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@container (max-width: 240px){
+  .aurorAudioBar .abWave{ display: none; }
+  .aurorAudioBar .abTime{ display: block; }
+}
+@container (max-width: 170px){
+  .aurorAudioBar .abIdle,
+  .aurorAudioBar .abTime{ display: none; }
+  .aurorAudioBar .abGrip{ width: 8px; }
+}
+
+/* E-ink: solid black shell, white controls — the red carries no meaning
+   on a greyscale panel, so state falls to the blinking dot and the label. */
+[data-theme="eink"] .aurorAudioBar{ box-shadow: none; }
+[data-theme="eink"] .aurorAudioBar .recBtn,
+[data-theme="eink"] .aurorAudioBar .abBtn{ background: #fff; color: #000; }
+[data-theme="eink"] .aurorAudioBar .abBtn:hover{ background: #ededed; }
+[data-theme="eink"] .aurorAudioBar .abBtn--discard{ background: #fff; color: #000; border: 1px solid #000; }
+[data-theme="eink"] .aurorAudioBar .abBtn--discard:hover,
+[data-theme="eink"] .aurorAudioBar[data-confirm] .abBtn--discard{ background: #000; color: #fff; border-color: #fff; }
+[data-theme="eink"] .aurorAudioBar .abConfirm{ box-shadow: none; }
+[data-theme="eink"] .aurorAudioBar .abConfirmBtn{ background: #fff; color: #000; border-color: #fff; }
+[data-theme="eink"] .aurorAudioBar .abConfirmBtn:hover{ background: #ededed; }
+[data-theme="eink"] .aurorAudioBar .abConfirmBtn--discard{ background: #000; color: #fff; border: 2px solid #fff; }
+[data-theme="eink"] .aurorAudioBar .recDot,
+[data-theme="eink"] .aurorAudioBar .abScrub{ background: #fff; }
+[data-theme="eink"] .aurorAudioBar .recTime{ color: #fff; }
+
+/* ---- Modal (.aurorModal) ---------------------------------------------
+   A dialog is a question the app cannot proceed without. It owns the
+   screen: scrim over everything, focus inside, Esc and scrim-click out
+   unless the caller marks it [data-locked]. Behaviour in js/overlays.js.
+
+     <div class="aurorScrim" data-modal="id"></div>
+     <div class="aurorModal" id="id" role="dialog" aria-modal="true"> ... */
+.aurorScrim{
+  position: fixed; inset: 0; z-index: 200;
+  background: color-mix(in srgb, var(--auror-ink) 45%, transparent);
+  display: none;
+}
+.aurorScrim[data-open]{ display: block; }
+.aurorModal{
+  position: fixed; z-index: 201;
+  left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: none; flex-direction: column;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.aurorModal[data-open]{ display: flex; }
+.aurorModal--wide{ width: min(720px, calc(100vw - 32px)); }
+.aurorModal .modalHead{
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.aurorModal .modalHead h3{ margin: 0; font-size: 15px; font-weight: 600; flex: 1; }
+.aurorModal .modalHead p{ margin: 4px 0 0; font-size: 12px; color: var(--text-secondary); }
+.aurorModal .modalBody{ padding: 16px; overflow: auto; font-size: 13px; }
+.aurorModal .modalFoot{
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-soft);
+  background: var(--surface);
+}
+@media (max-width: 560px){
+  /* On a phone a centred card wastes the bottom half of the screen and puts
+     the buttons under the thumb's reach. The dialog docks to the bottom. */
+  .aurorModal{
+    top: auto; bottom: 0; left: 0; transform: none;
+    width: 100%; max-width: none;
+    border-radius: var(--auror-r) var(--auror-r) 0 0;
+    border-bottom: none;
+    max-height: 88vh;
+  }
+  .aurorModal .modalFoot{ padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); }
+  .aurorModal .modalFoot .aurorBtn{ flex: 1; justify-content: center; }
+}
+
+/* ---- Toast (.aurorToast) ---------------------------------------------
+   Confirmation of something already done. It never asks, never blocks,
+   and never carries the only copy of an error — anything the user must
+   act on belongs in the page. Stack lives bottom-right, bottom-centre on
+   a phone where the corner is hard to see. */
+.aurorToastStack{
+  position: fixed; z-index: 210;
+  right: 16px; bottom: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.aurorToast{
+  pointer-events: auto;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 220px; max-width: min(380px, calc(100vw - 32px));
+  padding: 10px 12px;
+  font-size: 13px;
+  background: var(--inverse-surface); color: var(--inverse-text);
+  border: 1px solid var(--inverse-border);
+  border-radius: var(--auror-r);
+  box-shadow: var(--shadow-lg);
+  animation: aurorToastIn var(--auror-dur-base) var(--auror-ease);
+}
+@keyframes aurorToastIn{ from{ opacity: 0; transform: translateY(6px) } to{ opacity: 1; transform: none } }
+.aurorToast[data-leaving]{ opacity: 0; transform: translateY(6px); transition: opacity var(--auror-dur-base) var(--auror-ease), transform var(--auror-dur-base) var(--auror-ease); }
+.aurorToast svg{ width: 15px; height: 15px; flex-shrink: 0; }
+.aurorToast .toastMsg{ flex: 1; min-width: 0; }
+.aurorToast .toastAct{
+  font: inherit; font-size: 12px; font-weight: 600;
+  background: none; border: none; cursor: pointer;
+  color: var(--inverse-text); text-decoration: underline; padding: 0;
+  flex-shrink: 0;
+}
+.aurorToast--success svg{ color: var(--success); }
+.aurorToast--danger svg{ color: var(--danger); }
+@media (max-width: 560px){
+  .aurorToastStack{ left: 16px; right: 16px; bottom: 16px; align-items: stretch; }
+  .aurorToast{ max-width: none; }
+}
+
+/* ---- Notice (.aurorNotice) -------------------------------------------
+   In-page message, tied to the thing it is about. Solid tone with white
+   text: a notice has to be seen before it is read, and the four tones are
+   told apart at a glance by fill rather than by a hairline. */
+.aurorNotice{
+  display: flex; gap: 10px;
+  padding: 12px;
+  font-size: 13px; line-height: 1.5;
+  border: none;
+  border-radius: var(--auror-r);
+  background: var(--text-secondary);
+  color: #fff;
+}
+.aurorNotice svg{ width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: currentColor; }
+.aurorNotice strong{ display: block; color: #fff; font-weight: 700; margin-bottom: 2px; }
+.aurorNotice a{ color: #fff; text-decoration: underline; }
+.aurorNotice--info{ background: var(--info); }
+.aurorNotice--success{ background: var(--success); }
+.aurorNotice--warn{ background: var(--warn); }
+.aurorNotice--danger{ background: var(--danger); }
+
+/* ---- Empty state (.aurorEmpty) ---------------------------------------
+   Shown where content would be, not in place of the whole screen. It says
+   what is missing and offers the one action that fixes it — an empty
+   state with no way out is just a dead end with better manners. */
+.aurorEmpty{
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 10px;
+  padding: 40px 20px;
+  border: 1px dashed var(--border);
+  border-radius: var(--auror-r);
+  color: var(--text-secondary);
+}
+.aurorEmpty svg{ width: 28px; height: 28px; color: var(--text-muted); }
+.aurorEmpty h4{ margin: 0; font-size: 14px; font-weight: 600; color: var(--text); }
+.aurorEmpty p{ margin: 0; font-size: 13px; max-width: 42ch; text-wrap: pretty; }
+.aurorEmpty--inline{ padding: 24px 16px; border: none; }
+
+/* E-ink: overlays lose their shadows and lean on the border instead. */
+[data-theme="eink"] .aurorScrim{ background: color-mix(in srgb, #000 35%, transparent); }
+[data-theme="eink"] .aurorModal,
+[data-theme="eink"] .aurorToast{ box-shadow: none; border-width: 2px; }
+[data-theme="eink"] .aurorToast{ background: #000; color: #fff; border-color: #000; }
+[data-theme="eink"] .aurorToast svg{ color: #fff; }
+[data-theme="eink"] .aurorNotice{ background: #fff; color: #000; border: 2px solid #000; }
+[data-theme="eink"] .aurorNotice strong{ color: #000; }
+[data-theme="eink"] .aurorNotice a{ color: #000; }

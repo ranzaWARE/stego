@@ -1,0 +1,19 @@
+# Design system di riferimento: sorgente di verità per scheletro e tema,
+# ma non fa parte del prodotto e non va versionato qui.
+auror/
+
+node_modules/
+package-lock.json
+
+# Configurazione locale con i segreti
+.env
+
+# Dati runtime (DB, certificati, backup)
+backend/data/
+backend/certs/
+*.db
+*.db-wal
+*.db-shm
+
+*.log
+.DS_Store

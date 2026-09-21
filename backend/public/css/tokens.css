@@ -1,0 +1,415 @@
+/* =========================================================
+   AUROR — Design Tokens  (css/tokens.css)
+   Extracted + extended from /css/ui.css in acme/auror
+   ========================================================= */
+
+/* ---- Type faces ------------------------------------------------------
+   Space Grotesk carries the whole interface: a grotesque with enough
+   character to belong to a surveying tool rather than to every SaaS
+   dashboard. Space Mono is its monospaced sibling — one family, so the
+   figures in a status bar read as part of the same voice.
+   Both SIL Open Font License; see fonts/*-OFL.txt. */
+@font-face{
+  font-family: "Space Grotesk";
+  src: url("../fonts/SpaceGrotesk%5Bwght%5D.ttf") format("truetype-variations"),
+       url("../fonts/SpaceGrotesk%5Bwght%5D.ttf") format("truetype");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: "Space Mono";
+  src: url("../fonts/SpaceMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: "Space Mono";
+  src: url("../fonts/SpaceMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root{
+  /* ---- Brand ---- */
+  --auror-brand:        #f5a000;   /* primary amber */
+  --auror-brand-dark:   #d98c00;
+  --auror-brand-soft:   rgba(245,160,0,.16);
+  --auror-brand-tint:   rgba(245,160,0,.08);
+  --auror-brand-ring:   rgba(245,160,0,.55);
+
+  /* Secondary palette — extension to support layers/categories
+     Drawn from common CAD layer colors, harmonized to brand */
+  --auror-bone:         #f3ead8;   /* warm "fossil" neutral */
+  --auror-fern:         #5b8c5a;   /* layer green */
+  --auror-river:        #2f6f9f;   /* layer blue */
+  --auror-clay:         #b15a3c;   /* layer terracotta */
+  --auror-amethyst:     #6b4f9c;   /* layer violet */
+  --auror-record:       #c0392b;   /* recording red — distinct from --danger,
+                                      which means "destructive action" */
+
+  /* ---- Surfaces ---- */
+  --auror-bg:           #f3f5f7;
+  --auror-canvas:       #fafafa;   /* drawing surface */
+  --auror-card:         #ffffff;
+  --auror-line:         #e5e7eb;
+  --auror-line-strong:  rgba(17,24,39,.12);
+  --auror-line-soft:    rgba(17,24,39,.08);
+  --auror-grid:         rgba(17,24,39,.06);   /* canvas grid lines */
+  --auror-grid-strong:  rgba(17,24,39,.18);   /* sample drawings on canvas */
+
+  /* ---- Ink ---- */
+  --auror-ink:          #111827;
+  --auror-ink-2:        #374151;
+  --auror-muted:        #5d6472;   /* one step darker than a neutral grey:
+                                      Space Grotesk has a lower x-height than
+                                      Inter, so 11px meta needs the contrast
+                                      back rather than a bigger size */
+
+  /* ---- State ---- */
+  --auror-success:      #15803d;
+  --auror-warn:         #b45309;
+  --auror-danger:       #b91c1c;
+  --auror-danger-soft:  #fecaca;
+  --auror-info:         #1d4ed8;
+
+  /* ---- Radius ----
+     Single radius for the whole system. No pills, no varied corners. */
+  --auror-r:            10px;
+  /* Legacy aliases — all map to the single radius for backward compat */
+  --auror-r-sm:         10px;
+  --auror-r-md:         10px;
+  --auror-r-lg:         10px;
+  --auror-r-xl:         10px;
+  --auror-r-pill:       10px;
+
+  /* ---- Shadow ---- */
+  --auror-shadow-sm:    0 6px 14px rgba(17,24,39,.10);
+  --auror-shadow-md:    0 10px 24px rgba(17,24,39,.08);
+  --auror-shadow-lg:    0 12px 30px rgba(17,24,39,.18);
+  --auror-focus:        0 0 0 3px rgba(245,160,0,.25);
+
+  /* ---- Spacing (4-base) ---- */
+  --auror-s-1:          4px;
+  --auror-s-2:          8px;
+  --auror-s-3:          10px;
+  --auror-s-4:          12px;
+  --auror-s-5:          14px;
+  --auror-s-6:          16px;
+  --auror-s-8:          24px;
+  --auror-s-10:         32px;
+  --auror-s-12:         48px;
+
+  /* ---- Type ---- */
+  --auror-font:  "Space Grotesk", sans-serif;
+  --auror-mono:  "Space Mono", ui-monospace, monospace;   /* @kind font */
+
+  --auror-fs-11: 11px;   /* badges */
+  --auror-fs-12: 12px;   /* small / labels / kbd */
+  --auror-fs-13: 13px;   /* dense body */
+  --auror-fs-14: 14px;   /* body */
+  --auror-fs-16: 16px;   /* h3 */
+  --auror-fs-20: 20px;   /* h2 */
+  --auror-fs-28: 28px;   /* h1 */
+  --auror-fs-40: 40px;   /* display */
+
+  --auror-lh-tight: 1.1;    /* @kind font */
+  --auror-lh-snug:  1.35;   /* @kind font */
+  --auror-lh-body:  1.5;    /* @kind font */
+
+  /* ---- Motion ---- */
+  --auror-dur-fast: 80ms;    /* @kind other */
+  --auror-dur-base: 120ms;   /* @kind other */
+  --auror-dur-slow: 220ms;   /* @kind other */
+  --auror-ease:     cubic-bezier(.2,.7,.2,1);   /* @kind other */
+
+  /* ---- Sizing ---- */
+  --auror-control-h:   36px;       /* default input/button */
+  --auror-control-h-sm: 28px;      /* layer iconBtn */
+  --auror-tool-h:      44px;       /* dock tool */
+  --auror-header-h:    60px;
+
+  /* =========================================================
+     SEMANTIC LAYER — components consume these, not the raw values.
+     Light theme defaults; dark overrides below.
+     ========================================================= */
+
+  /* Surfaces */
+  --surface:            var(--auror-bg);          /* page rail / app shell */
+  --surface-raised:     var(--auror-card);        /* cards, header, panels */
+  --surface-sunken:     #eef1f4;                  /* inset wells, code blocks */
+  --surface-canvas:     var(--auror-canvas);      /* drawing area */
+  --surface-overlay:    rgba(17,24,39,.45);       /* modal scrim */
+
+  /* Borders */
+  --border:             var(--auror-line);
+  --border-soft:        var(--auror-line-soft);
+  --border-strong:      var(--auror-line-strong);
+
+  /* Text */
+  --text:               var(--auror-ink);         /* primary copy */
+  --text-strong:        #000;                     /* maximum contrast */
+  --text-secondary:     var(--auror-ink-2);       /* dense body, button labels */
+  --text-muted:         var(--auror-muted);       /* meta, helper, captions */
+  --text-on-accent:     var(--auror-ink);         /* sits on amber */
+  --text-on-inverse:    #fff;                     /* sits on dark sb */
+
+  /* Accent */
+  --accent:             var(--auror-brand);
+  --accent-hover:       var(--auror-brand-dark);
+  --accent-soft:        var(--auror-brand-soft);
+  --accent-tint:        var(--auror-brand-tint);
+  --accent-ring:        var(--auror-brand-ring);
+
+  /* Status */
+  --success:            var(--auror-success);
+  --warn:               var(--auror-warn);
+  --danger:             var(--auror-danger);
+  --danger-soft:        var(--auror-danger-soft);
+  --info:               var(--auror-info);
+
+  /* Capture — live voice recording. Not a status: it marks a running
+     capture, so it stays saturated in every theme. */
+  --record:             var(--auror-record);
+  --record-fg:          #ffffff;
+
+  /* Effects */
+  --shadow-sm:          var(--auror-shadow-sm);
+  --shadow-md:          var(--auror-shadow-md);
+  --shadow-lg:          var(--auror-shadow-lg);
+  --focus-ring:         var(--auror-focus);
+
+  /* Inverse / dark sidebar (always dark in both themes) */
+  --inverse-surface:    #0f1923;
+  --inverse-border:     rgba(255,255,255,.06);
+  --inverse-text:       #e8e8f0;
+  --inverse-text-muted: rgba(255,255,255,.35);
+
+  color-scheme: light;
+}
+
+/* =========================================================
+   AUROR Switch — single source of truth.
+   Used in design-system.html (Components) and settings.html.
+   Markup:
+     <label class="aurorSwitch">
+       <input type="checkbox">
+       <span class="track"><span class="thumb"></span></span>
+       <span>Label</span>           // optional, only when inline next to text
+     </label>
+   ========================================================= */
+.aurorSwitch{
+  position: relative;
+  display: inline-flex; align-items: center; gap: 10px;
+  cursor: pointer; user-select: none;
+  font-size: 12px; color: var(--text-secondary);
+}
+.aurorSwitch input{
+  position: absolute; opacity: 0; pointer-events: none;
+  width: 0; height: 0;
+}
+.aurorSwitch .track{
+  box-sizing: border-box;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  position: relative;
+  transition:
+    background var(--auror-dur-base) var(--auror-ease),
+    border-color var(--auror-dur-base) var(--auror-ease);
+}
+.aurorSwitch .thumb{
+  box-sizing: border-box;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  background: var(--text-muted);
+  /* Travel is a transform, not a change of `left`. Layout offsets are
+     rounded per element, so at fractional device-pixel ratios the 3px gap
+     survived on some rows and collapsed on others; a transform keeps
+     subpixel precision and every switch on the page resolves the same way.
+     It also means the thumb has ONE layout position, checked or not. */
+  transform: translateX(0);
+  transition:
+    transform var(--auror-dur-base) var(--auror-ease),
+    background var(--auror-dur-base) var(--auror-ease);
+}
+.aurorSwitch input:checked + .track{
+  background: var(--accent-soft);
+  border-color: var(--accent-ring);
+}
+.aurorSwitch input:checked + .track .thumb{
+  /* 44 track − 2 border − 16 thumb − 6 gaps */
+  transform: translateX(20px);
+  background: var(--accent);
+}
+.aurorSwitch:hover .track{ border-color: var(--text-secondary); }
+.aurorSwitch input:focus-visible + .track{
+  box-shadow: var(--focus-ring);
+}
+
+/* =========================================================
+   DARK THEME — set <html data-theme="dark"> to activate
+   ========================================================= */
+[data-theme="dark"]{
+  /* Reposition raw tokens that need a different value in dark */
+  --auror-bg:           #181c22;
+  --auror-card:         #23272e;
+  --auror-canvas:       #1c2028;
+  --auror-line:         rgba(255,255,255,.08);
+  --auror-line-strong:  rgba(255,255,255,.18);
+  --auror-line-soft:    rgba(255,255,255,.05);
+
+  --auror-ink:          #e0e4ea;
+  --auror-ink-2:        #c4cbd4;
+  --auror-muted:        #99a2af;
+  --auror-grid:         rgba(255,255,255,.07);
+  --auror-grid-strong:  rgba(255,255,255,.55);
+
+  --auror-shadow-sm:    0 2px 14px rgba(0,0,0,.45);
+  --auror-shadow-md:    0 8px 24px rgba(0,0,0,.5);
+  --auror-shadow-lg:    0 16px 36px rgba(0,0,0,.55);
+  --auror-focus:        0 0 0 3px rgba(245,160,0,.4);
+
+  /* Re-derive semantic surfaces */
+  --surface:            #15191f;
+  --surface-raised:     var(--auror-card);
+  --surface-sunken:     #1c2028;
+  --surface-canvas:     #2a2f37;        /* lighter than shell so the page shows */
+  --surface-overlay:    rgba(0,0,0,.6);
+
+  /* Brand soft/tint — re-tinted for dark */
+  --accent-soft:        rgba(245,160,0,.18);
+  --accent-tint:        rgba(245,160,0,.10);
+  --accent-ring:        rgba(245,160,0,.55);
+
+  /* Inverse stays dark — same values, but borders pop a little more */
+  --inverse-surface:    #0a121a;
+  --inverse-border:     rgba(255,255,255,.08);
+
+  color-scheme: dark;
+}
+
+/* =========================================================
+   E-INK THEME — set <html data-theme="eink"> to activate
+   Pure white ground, black outlines, no shadow, no colour.
+   Greys limited to a few steps e-ink panels can actually render.
+   ========================================================= */
+[data-theme="eink"]{
+  /* Brand collapses to ink */
+  --auror-brand:        #000;
+  --auror-brand-dark:   #000;
+  --auror-brand-soft:   #ffffff;
+  --auror-brand-tint:   #ffffff;
+  --auror-brand-ring:   #000;
+
+  --auror-bone:         #ffffff;
+  --auror-fern:         #000;
+  --auror-river:        #000;
+  --auror-clay:         #000;
+  --auror-amethyst:     #000;
+
+  /* Surfaces — everything white */
+  --auror-bg:           #ffffff;
+  --auror-canvas:       #ffffff;
+  --auror-card:         #ffffff;
+  --auror-line:         #000;
+  --auror-line-strong:  #000;
+  --auror-line-soft:    #000;
+  --auror-grid:         #d4d4d4;
+  --auror-grid-strong:  #000;
+
+  --auror-ink:          #000;
+  --auror-ink-2:        #000;
+  --auror-muted:        #4a4a4a;
+
+  /* Status reads as ink; meaning carries through label + icon, not hue */
+  --auror-success:      #000;
+  --auror-warn:         #000;
+  --auror-danger:       #000;
+  --auror-danger-soft:  #ffffff;
+  --auror-info:         #000;
+
+  /* No shadows — e-ink cannot render soft gradients */
+  --auror-shadow-sm:    none;
+  --auror-shadow-md:    none;
+  --auror-shadow-lg:    none;
+  --auror-focus:        0 0 0 2px #000;
+
+  --surface:            #ffffff;
+  --surface-raised:     #ffffff;
+  --surface-sunken:     #ededed;   /* hover / well — only grey in the system */
+  --surface-canvas:     #ffffff;
+  --surface-overlay:    rgba(0,0,0,.35);
+
+  --border:             #000;
+  --border-soft:        #000;
+  --border-strong:      #000;
+
+  --text:               #000;
+  --text-strong:        #000;
+  --text-secondary:     #000;
+  --text-muted:         #4a4a4a;
+  --text-on-accent:     #ffffff;
+  --text-on-inverse:    #ffffff;
+
+  --accent:             #000;
+  --accent-hover:       #000;
+  --accent-soft:        #ffffff;
+  --accent-tint:        #ffffff;
+  --accent-ring:        #000;
+
+  --success:            #000;
+  --warn:               #000;
+  --danger:             #000;
+  --danger-soft:        #ffffff;
+  --info:               #000;
+
+  --record:             #000;
+  --record-fg:          #ffffff;
+
+  --inverse-surface:    #000;
+  --inverse-border:     #ffffff;
+  --inverse-text:       #ffffff;
+  --inverse-text-muted: rgba(255,255,255,.75);
+
+  color-scheme: light;
+}
+
+/* Panel refresh is slow: no transitions, no animation */
+[data-theme="eink"] *,
+[data-theme="eink"] *::before,
+[data-theme="eink"] *::after{
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Switch in e-ink: outlined track, solid ink thumb when on.
+   State is also spelled out with I / O — the thumb covers the inactive
+   letter, so the visible glyph is always the current state. */
+[data-theme="eink"] .aurorSwitch .track{ background: #fff; border-color: #000; }
+/* Deeper inset than the base switch: the solid thumb sits on a white track,
+   so the gap is the only thing separating two hard edges. 4px, radius 3
+   (7 − 4). Travel stays a transform, same as the base switch. */
+[data-theme="eink"] .aurorSwitch .thumb{
+  background: #fff; border: 1px solid #000;
+  top: 4px; left: 4px; width: 14px; height: 14px; border-radius: 3px;
+}
+[data-theme="eink"] .aurorSwitch input:checked + .track .thumb{ transform: translateX(20px); }
+[data-theme="eink"] .aurorSwitch input:checked + .track{ background: #fff; border-color: #000; }
+[data-theme="eink"] .aurorSwitch input:checked + .track .thumb{ background: #000; }
+[data-theme="eink"] .aurorSwitch .track::before,
+[data-theme="eink"] .aurorSwitch .track::after{
+  position: absolute; top: 0; bottom: 0; width: 23px;
+  display: flex; align-items: center; justify-content: center;
+  font: 700 11px/1 var(--auror-font);
+  color: #000;
+}
+[data-theme="eink"] .aurorSwitch .track::before{ content: "I"; left: 0; }
+[data-theme="eink"] .aurorSwitch .track::after{ content: "O"; left: 19px; }

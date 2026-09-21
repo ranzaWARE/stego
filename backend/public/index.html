@@ -4,30 +4,60 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>STEGO</title>
+<script>
+  // Il tema va applicato prima del primo paint, altrimenti in tema scuro
+  // si vede il lampo chiaro della pagina prima che il CSS entri in funzione.
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark' || t === 'eink') document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
+<!-- AUROR: token → componenti → livello applicativo STEGO -->
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ui.css">
-
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<header class="appHeader">
-  <div class="brand" aria-label="Brand applicazione">
-    <span class="brandFallback">
-      <span class="brandMark" aria-hidden="true"></span>
-      <span>STEGO</span>
-    </span>
-    <img id="brandLogo" class="brandLogo" alt="" hidden />
+<div class="dsHeaderRail">
+<header class="dsHeader">
+  <div class="dsBrand">
+    <span class="dsBrandMark" aria-hidden="true">S</span>
+    <span class="dsBrandWord" id="brandWord">STEGO</span>
   </div>
-  <div class="headerMid">
-<span class="pill" id="uiVersionPill">Standalone</span>
-<span class="pill" id="badgeTool">LINE</span>
-  </div>
-  <div class="headerRight">
-<select id="langSelect" class="langSelect" data-i18n-aria-label="header.language.label">
-  <option value="it">IT</option>
-  <option value="en">EN</option>
-</select>
-<span class="pill" id="uiUserPill">Utente</span>
+
+  <nav id="dsNav" data-i18n-aria-label="nav.aria">
+    <button type="button" id="navProjects" data-i18n="nav.projects">Progetti</button>
+    <button type="button" id="navSave" data-i18n="nav.save">Salva</button>
+    <button type="button" id="navSaveAs" data-i18n="nav.saveAs">Salva come…</button>
+    <a href="admin.html" id="navAdmin" hidden data-i18n="nav.admin">Amministrazione</a>
+  </nav>
+
+  <div class="dsHeaderRight headerRight">
+    <span class="pill" id="uiVersionPill">CAD 2D</span>
+    <span class="pill" id="badgeTool">LINE</span>
+    <select id="langSelect" class="langSelect" data-i18n-aria-label="header.language.label">
+      <option value="it">IT</option>
+      <option value="en">EN</option>
+    </select>
+    <button class="themeToggle" type="button" id="themeToggle" data-i18n-title="header.theme.title" title="Tema chiaro / scuro / e-ink" data-i18n-aria-label="header.theme.title">
+      <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+      <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+      <svg class="ic ic-eink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path></svg>
+    </button>
+    <button class="userPill" type="button" id="uiUserPill" data-i18n-title="header.account.title" title="Account">
+      <span class="userDot" id="userInitial" aria-hidden="true">?</span>
+      <span id="userName">Utente</span>
+    </button>
+    <button class="dsNavToggle" type="button" id="navToggle" data-i18n-aria-label="nav.menu" aria-label="Menu" aria-expanded="false" aria-controls="dsNav">
+      <svg class="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
   </div>
 </header>
+</div>
 <main class="appMain">
   <div class="workspace">
     <aside class="toolDock" data-i18n-aria-label="tooldock.aria">
@@ -326,9 +356,8 @@
 
         </section>
 
-    </div>
-</div>
-</aside>
+      </div>
+    </aside>
   </div>
 
   <footer class="statusbar">
@@ -339,6 +368,10 @@
     </div>
 
     <div class="statusRight">
+      <span id="projName" data-i18n="project.none">Nessun progetto</span>
+      <span class="sep">|</span>
+      <span id="saveState" class="saveState" data-state="idle"></span>
+      <span class="sep">|</span>
       <span id="snap">Snap: on</span>
       <span class="sep">|</span>
       <span id="zoomLbl">Zoom: 1</span>
@@ -367,6 +400,7 @@
 </div>
 
 <script src="js/i18n.js" defer></script>
+<script src="js/ink.js" defer></script>
 <script src="js/core.js" defer></script>
 <script src="js/snap.js" defer></script>
 <script src="js/geometry.js" defer></script>
@@ -375,44 +409,13 @@
 <script src="js/draw.js" defer></script>
 <script src="js/ui_logic.js" defer></script>
 <script src="js/events_init.js" defer></script>
-<script src="js/ui_userpill.js" defer></script>
 <script src="js/ui_tabs.js" defer></script>
 <script src="js/extras.js" defer></script>
 <script src="js/colorpicker.js" defer></script>
-<script defer>
-  (function(){
-    var header = document.querySelector('.appHeader');
-    var logo = document.getElementById('brandLogo');
-    if (!header || !logo) return;
-
-    var candidates = [
-      'assets/logo',
-      'assets/logo.svg',
-      'assets/logo.png',
-      'assets/logo.webp',
-      'assets/logo.jpg',
-      'assets/logo.jpeg',
-      'assets/logo.gif'
-    ];
-    var index = 0;
-
-    function loadNextLogo(){
-      if (index >= candidates.length) return;
-
-      var src = candidates[index++];
-      var probe = new Image();
-      probe.onload = function(){
-        logo.src = src;
-        logo.hidden = false;
-        header.classList.add('hasCustomLogo');
-      };
-      probe.onerror = loadNextLogo;
-      probe.src = src;
-    }
-
-    loadNextLogo();
-  })();
-</script>
+<script src="js/auror-overlays.js" defer></script>
+<script src="js/api.js" defer></script>
+<script src="js/projects.js" defer></script>
+<script src="js/app.js" defer></script>
 
 <!-- Canvas context menu -->
 <div id="ctxMenu" class="ctxMenu" hidden>
@@ -426,6 +429,85 @@
   <button type="button" data-act="tofront"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 9h10v10H9z" fill="currentColor" opacity=".25"/></svg></span><span class="btnTxt" data-i18n="ctx.toFront">Primo piano</span></button>
   <div class="ctxSep" aria-hidden="true"></div>
   <button type="button" data-act="clear"><span class="btnIco"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="btnTxt" data-i18n="ctx.clear">Deseleziona</span></button>
+</div>
+
+<!-- Archivio progetti (lato server) -->
+<div class="aurorModal aurorModal--wide" id="projModal" role="dialog" aria-modal="true" aria-labelledby="projModalTitle">
+  <div class="modalHead">
+    <h3 id="projModalTitle" data-i18n="project.modal.title">Progetti</h3>
+    <button class="iconBtn iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+  <div class="modalBody">
+    <div class="projList" id="projList"></div>
+    <div class="emptyProj" id="projEmpty" hidden data-i18n="project.modal.empty">Nessun progetto salvato sul server.</div>
+  </div>
+  <div class="modalFoot">
+    <button class="aurorBtn" type="button" id="btnProjExport" data-i18n="project.modal.export">Esporta tutti</button>
+    <button class="aurorBtn" type="button" id="btnProjImport" data-i18n="project.modal.import">Importa</button>
+    <input type="file" id="fileProjImport" accept="application/json" hidden>
+    <button class="aurorBtn primary" type="button" id="btnProjNew" data-i18n="project.modal.new">Nuovo</button>
+  </div>
+</div>
+
+<!-- Salva come -->
+<div class="aurorModal" id="saveAsModal" role="dialog" aria-modal="true" aria-labelledby="saveAsTitle">
+  <div class="modalHead"><h3 id="saveAsTitle" data-i18n="project.saveAs.title">Salva progetto come</h3></div>
+  <div class="modalBody">
+    <div class="field">
+      <label for="saveAsName" data-i18n="project.saveAs.name">Nome del progetto</label>
+      <input class="aurorInput" type="text" id="saveAsName" maxlength="120" placeholder="Rilievo capannone B">
+    </div>
+  </div>
+  <div class="modalFoot">
+    <button class="aurorBtn" type="button" data-modal-close data-i18n="action.cancel">Annulla</button>
+    <button class="aurorBtn primary" type="button" id="btnSaveAsOk" data-i18n="action.save">Salva</button>
+  </div>
+</div>
+
+<!-- Cambio password obbligatorio: data-locked, niente Esc né scrim -->
+<div class="aurorModal" id="pwdModal" role="dialog" aria-modal="true" data-locked aria-labelledby="pwdTitle">
+  <div class="modalHead"><h3 id="pwdTitle" data-i18n="password.title">Cambia la password</h3></div>
+  <div class="modalBody">
+    <p data-i18n="password.intro">La password iniziale va cambiata prima di usare l'applicazione.</p>
+    <div class="aurorNotice aurorNotice--danger" id="pwdError" hidden></div>
+    <div class="field">
+      <label for="pwdCurrent" data-i18n="password.current">Password attuale</label>
+      <input class="aurorInput" type="password" id="pwdCurrent" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label for="pwdNext" data-i18n="password.next">Nuova password (almeno 8 caratteri)</label>
+      <input class="aurorInput" type="password" id="pwdNext" autocomplete="new-password">
+    </div>
+    <div class="field">
+      <label for="pwdRepeat" data-i18n="password.repeat">Ripeti la nuova password</label>
+      <input class="aurorInput" type="password" id="pwdRepeat" autocomplete="new-password">
+    </div>
+  </div>
+  <div class="modalFoot">
+    <button class="aurorBtn primary" type="button" id="btnPwdSave" data-i18n="action.save">Salva</button>
+  </div>
+</div>
+
+<!-- Menu account -->
+<div class="aurorModal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+  <div class="modalHead">
+    <h3 id="accountTitle" data-i18n="account.title">Account</h3>
+    <button class="iconBtn iconBtnSm" type="button" data-modal-close data-i18n-aria-label="action.close" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+  <div class="modalBody">
+    <div class="card"><div class="cardBody">
+      <div><strong id="accountName">—</strong></div>
+      <div class="small" id="accountSource">—</div>
+    </div></div>
+  </div>
+  <div class="modalFoot">
+    <button class="aurorBtn" type="button" id="btnChangePwd" data-i18n="account.changePassword">Cambia password</button>
+    <button class="aurorBtn primary" type="button" id="btnLogout" data-i18n="account.logout">Esci</button>
+  </div>
 </div>
 
 </body>

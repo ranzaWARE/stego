@@ -3,7 +3,8 @@
     var cv=(ctx && ctx.canvas) ? ctx.canvas : canvas;
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,cv.width,cv.height);
-    ctx.fillStyle='#ffffff';
+    // Il foglio segue il tema (o il bianco, se si sta esportando/stampando)
+    ctx.fillStyle=StegoInk.paper();
     ctx.fillRect(0,0,cv.width,cv.height);
   }
 
@@ -62,7 +63,7 @@
 
     ctx.save();
     ctx.setTransform(1,0,0,1,0,0);
-    ctx.strokeStyle='rgba(0,0,0,0.06)';
+    ctx.strokeStyle=StegoInk.grid(0.06);
     ctx.lineWidth=1;
 
     var offsetX=(-state.panMM.x*state.pxPerMM)%drawStepPx;
@@ -80,7 +81,7 @@
     // Major grid (x10) a bit stronger if visible
     var majorPx = drawStepPx*10;
     if(majorPx >= 12){
-      ctx.strokeStyle='rgba(0,0,0,0.10)';
+      ctx.strokeStyle=StegoInk.grid(0.10);
       var ox=(-state.panMM.x*state.pxPerMM)%majorPx;
       var oy=(-state.panMM.y*state.pxPerMM)%majorPx;
       if(ox<0) ox+=majorPx;
@@ -98,7 +99,7 @@
 
 
   function applyStrokeStyle(style){
-    ctx.strokeStyle=(style && style.stroke) ? style.stroke : '#111827';
+    ctx.strokeStyle=StegoInk.ink((style && style.stroke) ? style.stroke : null);
     ctx.lineWidth=((style && style.width) ? style.width : 1) * (state.pxPerMM/5);
     var dash = dashPatternForStyle(style);
     ctx.setLineDash(dash.length ? dash : []);
@@ -173,7 +174,7 @@
       ctx.translate(p.x,p.y);
       ctx.rotate(t.rot||0);
       ctx.font=sizePx+'px '+(t.font||'Arial');
-      ctx.fillStyle=(t.style && t.style.fill)?t.style.fill:'#111827';
+      ctx.fillStyle=StegoInk.ink((t.style && t.style.fill) ? t.style.fill : null);
       ctx.textAlign=t.align||'left';
       ctx.textBaseline='alphabetic';
       var spacingPx=(t.spacingMM||0)*state.pxPerMM;
@@ -233,7 +234,7 @@
         ctx.lineTo(pj.x,pj.y);
       }
       if(pl.closed) ctx.closePath();
-      if(pl.closed && pl.style && pl.style.fill){ ctx.save(); ctx.fillStyle=pl.style.fill; ctx.fill(); ctx.restore(); }
+      if(pl.closed && pl.style && pl.style.fill){ ctx.save(); ctx.fillStyle=StegoInk.ink(pl.style.fill); ctx.fill(); ctx.restore(); }
       ctx.stroke();
       if(isSelected({type:'pline',id:pl.id})){
         ctx.save(); ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(59,130,246,.85)'; ctx.lineWidth=2; ctx.stroke(); ctx.restore();
@@ -266,7 +267,7 @@
   function drawRadDims(){
     var vis=visibleLayerSet();
     ctx.save();
-    ctx.fillStyle='#111827'; ctx.strokeStyle='#111827'; ctx.lineWidth=1;
+    ctx.fillStyle=StegoInk.defaultInk(); ctx.strokeStyle=StegoInk.defaultInk(); ctx.lineWidth=1;
     for(var i=0;i<state.radDims.length;i++){
       var d=state.radDims[i]; if(!vis[d.layer]) continue;
       var sc=worldToScreen({x:d.cx,y:d.cy}), sa=worldToScreen(d.anchor);
@@ -296,7 +297,7 @@
       ctx.beginPath();
       applyStrokeStyle(r.style||{});
       ctx.rect(-r.w*state.pxPerMM/2, -r.h*state.pxPerMM/2, r.w*state.pxPerMM, r.h*state.pxPerMM);
-      if(r.style && r.style.fill){ ctx.save(); ctx.fillStyle=r.style.fill; ctx.fill(); ctx.restore(); }
+      if(r.style && r.style.fill){ ctx.save(); ctx.fillStyle=StegoInk.ink(r.style.fill); ctx.fill(); ctx.restore(); }
       ctx.stroke();
       ctx.restore();
 
@@ -328,7 +329,7 @@
       ctx.beginPath();
       applyStrokeStyle(e.style||{});
       ctx.ellipse(0,0,e.rx*state.pxPerMM,e.ry*state.pxPerMM,0,0,Math.PI*2);
-      if(e.style && e.style.fill){ ctx.save(); ctx.fillStyle=e.style.fill; ctx.fill(); ctx.restore(); }
+      if(e.style && e.style.fill){ ctx.save(); ctx.fillStyle=StegoInk.ink(e.style.fill); ctx.fill(); ctx.restore(); }
       ctx.stroke();
       ctx.restore();
 
@@ -357,8 +358,8 @@
   function drawDims(){
     var vis=visibleLayerSet();
     ctx.save();
-    ctx.fillStyle='#111827';
-    ctx.strokeStyle='#111827';
+    ctx.fillStyle=StegoInk.defaultInk();
+    ctx.strokeStyle=StegoInk.defaultInk();
     ctx.lineWidth=1;
 
     for(var i=0;i<state.dims.length;i++){

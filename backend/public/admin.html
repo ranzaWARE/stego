@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>STEGO — Amministrazione</title>
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark' || t === 'eink') document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/ui.css" />
+<style>
+  /* Pagina di amministrazione: impaginazione a colonne di schede.
+     Componenti e colori arrivano da AUROR. */
+  body{ min-height:100vh; }
+  .wrap{ max-width:980px; margin:0 auto; padding:0 16px 48px; display:grid; gap:16px; }
+  .sectionLabel{
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-muted); margin:0 0 10px;
+  }
+  .sectionLabel + .sectionLabel{ margin-top:18px; }
+  .cardBody .sep{ border:0; border-top:1px solid var(--border-soft); margin:20px 0; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:640px){ .grid2{ grid-template-columns:1fr; } }
+  .actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th, td{ text-align:left; padding:8px 10px; border-bottom:1px solid var(--border-soft); }
+  th{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); font-weight:700; }
+  td .rowActions{ display:flex; gap:6px; justify-content:flex-end; }
+  .mono{ font-family:var(--auror-mono); font-size:12px; color:var(--text-muted); }
+
+  .statGrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media (max-width:640px){ .statGrid{ grid-template-columns:1fr; } }
+  .stat{
+    border:1px solid var(--border); border-radius:var(--auror-r);
+    padding:14px; background:var(--surface);
+  }
+  .stat .n{ font-family:var(--auror-mono); font-size:var(--auror-fs-28); font-weight:700; color:var(--text); }
+  .stat .k{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="dsHeaderRail">
+  <header class="dsHeader">
+    <div class="dsBrand">
+      <span class="dsBrandMark" id="brandMark">S</span>
+      <span class="dsBrandWord" id="brandWord">STEGO</span>
+    </div>
+    <nav id="dsNav">
+      <a href="/">Torna al disegno</a>
+    </nav>
+    <div class="dsHeaderRight">
+      <span class="verTag"><span class="dot"></span>Amministrazione</span>
+      <button class="themeToggle" type="button" id="themeToggle" aria-label="Tema chiaro / scuro / e-ink" title="Tema chiaro / scuro / e-ink">
+        <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+        <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+        <svg class="ic ic-eink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path></svg>
+      </button>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+
+  <!-- Utenti -->
+  <section class="card">
+    <div class="cardHeader">
+      <h3>Utenti</h3>
+      <span class="small" id="userCount"></span>
+    </div>
+    <div class="cardBody">
+      <table>
+        <thead>
+          <tr><th>Utente</th><th>Nome</th><th>Origine</th><th>Ultimo accesso</th><th></th></tr>
+        </thead>
+        <tbody id="userRows"></tbody>
+      </table>
+
+      <hr class="sep">
+      <div class="sectionLabel">Nuovo utente locale</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="newUser">Username</label>
+          <input class="aurorInput" type="text" id="newUser" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="newName">Nome visualizzato</label>
+          <input class="aurorInput" type="text" id="newName" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="newPwd">Password iniziale (min. 8 caratteri)</label>
+          <input class="aurorInput" type="password" id="newPwd" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="newAdmin">Ruolo</label>
+          <select class="aurorSelect" id="newAdmin">
+            <option value="0">Utente</option>
+            <option value="1">Amministratore</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="aurorBtn primary" type="button" id="btnAddUser">Crea utente</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LDAP -->
+  <section class="card">
+    <div class="cardHeader">
+      <h3>LDAP / Active Directory</h3>
+      <span class="small">Gli account locali restano sempre utilizzabili</span>
+    </div>
+    <div class="cardBody">
+      <div class="grid2">
+        <div class="field">
+          <label for="ldapEnabled">Stato</label>
+          <select class="aurorSelect" id="ldapEnabled">
+            <option value="false">Disattivo</option>
+            <option value="true">Attivo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ldapUrl">URL del server LDAP</label>
+          <input class="aurorInput" type="text" id="ldapUrl" placeholder="ldap://ldap.example.local:389">
+        </div>
+        <div class="field">
+          <label for="ldapBindDn">Bind DN (service account)</label>
+          <input class="aurorInput" type="text" id="ldapBindDn" placeholder="CN=svc_stego,OU=ServiceAccounts,DC=example,DC=local">
+        </div>
+        <div class="field">
+          <label for="ldapBindPass">Password del service account</label>
+          <input class="aurorInput" type="password" id="ldapBindPass" autocomplete="off">
+          <div class="help">Lasciala com'è per non cambiarla.</div>
+        </div>
+        <div class="field">
+          <label for="ldapBase">Base di ricerca</label>
+          <input class="aurorInput" type="text" id="ldapBase" placeholder="DC=example,DC=local">
+        </div>
+        <div class="field">
+          <label for="ldapFilter">Filtro di ricerca</label>
+          <input class="aurorInput" type="text" id="ldapFilter" placeholder="(sAMAccountName={{username}})">
+        </div>
+        <div class="field">
+          <label for="ldapTls">Certificato TLS</label>
+          <select class="aurorSelect" id="ldapTls">
+            <option value="false">Accetta self-signed</option>
+            <option value="true">Verifica (richiede CA valida)</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="sep">
+      <div class="sectionLabel">Prova con un utente reale</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="testUser">Utente</label>
+          <input class="aurorInput" type="text" id="testUser" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="testPwd">Password</label>
+          <input class="aurorInput" type="password" id="testPwd" autocomplete="off">
+        </div>
+      </div>
+      <div class="aurorNotice" id="ldapResult" hidden></div>
+      <div class="actions">
+        <button class="aurorBtn primary" type="button" id="btnSaveLdap">Salva impostazioni</button>
+        <button class="aurorBtn" type="button" id="btnTestLdap">Prova connessione</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- OIDC -->
+  <section class="card">
+    <div class="cardHeader">
+      <h3>OIDC / SSO</h3>
+      <span class="small">Keycloak, Authentik, Zitadel e compatibili</span>
+    </div>
+    <div class="cardBody">
+      <div class="grid2">
+        <div class="field">
+          <label for="oidcEnabled">Stato</label>
+          <select class="aurorSelect" id="oidcEnabled">
+            <option value="false">Disattivo</option>
+            <option value="true">Attivo</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="oidcLabel">Etichetta del pulsante</label>
+          <input class="aurorInput" type="text" id="oidcLabel" placeholder="SSO">
+        </div>
+        <div class="field">
+          <label for="oidcIssuer">Issuer</label>
+          <input class="aurorInput" type="text" id="oidcIssuer" placeholder="https://id.example.local/realms/master">
+          <div class="help">Gli endpoint si leggono da <span class="mono">/.well-known/openid-configuration</span>.</div>
+        </div>
+        <div class="field">
+          <label for="oidcClientId">Client ID</label>
+          <input class="aurorInput" type="text" id="oidcClientId" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="oidcSecret">Client secret</label>
+          <input class="aurorInput" type="password" id="oidcSecret" autocomplete="off">
+          <div class="help">Lascialo com'è per non cambiarlo. Vuoto = client pubblico (solo PKCE).</div>
+        </div>
+        <div class="field">
+          <label for="oidcRedirect">Redirect URI</label>
+          <input class="aurorInput" type="text" id="oidcRedirect" placeholder="ricavato dalla richiesta">
+          <div class="help">Deve combaciare con quello registrato sul provider.</div>
+        </div>
+        <div class="field">
+          <label for="oidcTls">Certificato TLS del provider</label>
+          <select class="aurorSelect" id="oidcTls">
+            <option value="true">Verifica (consigliato)</option>
+            <option value="false">Non verificare</option>
+          </select>
+        </div>
+      </div>
+      <div class="aurorNotice" id="oidcResult" hidden></div>
+      <div class="actions">
+        <button class="aurorBtn primary" type="button" id="btnSaveOidc">Salva impostazioni</button>
+        <button class="aurorBtn" type="button" id="btnTestOidc">Prova discovery</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marchio -->
+  <section class="card">
+    <div class="cardHeader"><h3>Marchio</h3></div>
+    <div class="cardBody">
+      <div class="grid2">
+        <div class="field">
+          <label for="brandName">Nome applicazione</label>
+          <input class="aurorInput" type="text" id="brandName" maxlength="24">
+          <div class="help">Compare nell'header di ogni pagina. L'iniziale diventa il segno.</div>
+        </div>
+        <div class="field">
+          <label>Anteprima</label>
+          <div class="dsBrand" style="height:38px">
+            <span class="dsBrandMark" id="brandPreviewMark">S</span>
+            <span class="dsBrandWord" id="brandPreviewWord">STEGO</span>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="aurorBtn primary" type="button" id="btnSaveBrand">Salva</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistiche -->
+  <section class="card">
+    <div class="cardHeader"><h3>Archivio</h3></div>
+    <div class="cardBody">
+      <div class="statGrid">
+        <div class="stat"><div class="n" id="statUsers">—</div><div class="k">Utenti</div></div>
+        <div class="stat"><div class="n" id="statProjects">—</div><div class="k">Progetti</div></div>
+        <div class="stat"><div class="n" id="statBytes">—</div><div class="k">Disegni su disco</div></div>
+      </div>
+      <hr class="sep">
+      <table>
+        <thead><tr><th>Utente</th><th>Progetti</th><th>Spazio</th><th>Ultimo accesso</th></tr></thead>
+        <tbody id="statRows"></tbody>
+      </table>
+      <div class="help" style="margin-top:12px">
+        Il backup del database gira ogni notte dentro il container e conserva gli ultimi 30.
+        Il volume da salvare è <span class="mono">stego_data</span>.
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auror-overlays.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  function toast(msg, tone){ AurorToast.show({ message: msg, tone: tone || 'neutral' }); }
+
+  // ---- Tema ----
+  (function(){
+    var btn = $('themeToggle'), order = ['light','dark','eink'];
+    btn.addEventListener('click', function(){
+      var cur = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = order[(order.indexOf(cur) + 1) % order.length];
+      if(next === 'light') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', next);
+      try{ localStorage.setItem('auror-theme', next); }catch(e){}
+    });
+  })();
+
+  function fmtBytes(n){
+    if(!n) return '0 B';
+    var u = ['B','kB','MB','GB'], i = 0;
+    while(n >= 1024 && i < u.length - 1){ n /= 1024; i++; }
+    return (i ? n.toFixed(1) : n) + ' ' + u[i];
+  }
+  function fmtWhen(iso){
+    if(!iso) return '—';
+    var d = new Date(iso.replace(' ','T') + (iso.endsWith('Z') ? '' : 'Z'));
+    return isNaN(d) ? iso : d.toLocaleString();
+  }
+
+  // ---- Utenti ----
+  async function loadUsers(){
+    var users = await StegoApi.get('/api/admin/users');
+    $('userCount').textContent = users.length + (users.length === 1 ? ' utente' : ' utenti');
+    var tb = $('userRows');
+    tb.innerHTML = '';
+    users.forEach(function(u){
+      var tr = document.createElement('tr');
+
+      var tdUser = document.createElement('td');
+      tdUser.innerHTML = '<span class="mono"></span>' + (u.is_admin ? ' <span class="dsTag dsTag--brand">admin</span>' : '') +
+                         (u.is_active ? '' : ' <span class="dsTag">disattivo</span>');
+      tdUser.querySelector('.mono').textContent = u.username;
+
+      var tdName = document.createElement('td');
+      tdName.textContent = u.display_name || '—';
+
+      var tdSrc = document.createElement('td');
+      tdSrc.textContent = u.source === 'ldap' ? 'LDAP' : 'locale';
+
+      var tdWhen = document.createElement('td');
+      tdWhen.className = 'mono';
+      tdWhen.textContent = fmtWhen(u.last_login);
+
+      var tdAct = document.createElement('td');
+      var box = document.createElement('div');
+      box.className = 'rowActions';
+
+      var bAdmin = document.createElement('button');
+      bAdmin.className = 'aurorBtn';
+      bAdmin.type = 'button';
+      bAdmin.textContent = u.is_admin ? 'Togli admin' : 'Rendi admin';
+      bAdmin.addEventListener('click', function(){ patch(u.username, { isAdmin: !u.is_admin }); });
+
+      var bActive = document.createElement('button');
+      bActive.className = 'aurorBtn';
+      bActive.type = 'button';
+      bActive.textContent = u.is_active ? 'Disattiva' : 'Attiva';
+      bActive.addEventListener('click', function(){ patch(u.username, { isActive: !u.is_active }); });
+
+      var bPwd = document.createElement('button');
+      bPwd.className = 'aurorBtn';
+      bPwd.type = 'button';
+      bPwd.textContent = 'Reset password';
+      bPwd.disabled = u.source !== 'local';
+      bPwd.addEventListener('click', async function(){
+        var pwd = prompt('Nuova password per ' + u.username + ' (min. 8 caratteri).\nDovrà cambiarla al primo accesso.');
+        if(!pwd) return;
+        try{
+          await StegoApi.post('/api/admin/users/' + encodeURIComponent(u.username) + '/reset-password', { password: pwd });
+          toast('Password reimpostata', 'success');
+        }catch(e){ toast(e.message, 'danger'); }
+      });
+
+      var bDel = document.createElement('button');
+      bDel.className = 'aurorBtn danger';
+      bDel.type = 'button';
+      bDel.textContent = 'Elimina';
+      bDel.addEventListener('click', async function(){
+        if(!confirm('Eliminare l\'utente ' + u.username + '? I suoi progetti restano nel database ma non saranno più raggiungibili.')) return;
+        try{
+          await StegoApi.del('/api/admin/users/' + encodeURIComponent(u.username));
+          toast('Utente eliminato', 'success');
+          loadUsers(); loadStats();
+        }catch(e){ toast(e.message, 'danger'); }
+      });
+
+      [bAdmin, bActive, bPwd, bDel].forEach(function(b){ box.appendChild(b); });
+      tdAct.appendChild(box);
+      [tdUser, tdName, tdSrc, tdWhen, tdAct].forEach(function(td){ tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  }
+
+  async function patch(username, body){
+    try{
+      await StegoApi.patch('/api/admin/users/' + encodeURIComponent(username), body);
+      loadUsers();
+    }catch(e){ toast(e.message, 'danger'); }
+  }
+
+  $('btnAddUser').addEventListener('click', async function(){
+    try{
+      await StegoApi.post('/api/admin/users', {
+        username: $('newUser').value.trim(),
+        displayName: $('newName').value.trim(),
+        password: $('newPwd').value,
+        isAdmin: $('newAdmin').value === '1',
+      });
+      $('newUser').value = $('newName').value = $('newPwd').value = '';
+      toast('Utente creato', 'success');
+      loadUsers(); loadStats();
+    }catch(e){ toast(e.message, 'danger'); }
+  });
+
+  // ---- Impostazioni ----
+  async function loadSettings(){
+    var s = await StegoApi.get('/api/admin/settings');
+    $('ldapEnabled').value = s.ldap_enabled || 'false';
+    $('ldapUrl').value     = s.ldap_url || '';
+    $('ldapBindDn').value  = s.ldap_bind_dn || '';
+    $('ldapBindPass').value= s.ldap_bind_pass || '';
+    $('ldapBase').value    = s.ldap_search_base || '';
+    $('ldapFilter').value  = s.ldap_search_filter || '';
+    $('ldapTls').value     = s.ldap_tls_reject || 'false';
+    $('oidcEnabled').value = s.oidc_enabled || 'false';
+    $('oidcLabel').value   = s.oidc_label || '';
+    $('oidcIssuer').value  = s.oidc_issuer || '';
+    $('oidcClientId').value= s.oidc_client_id || '';
+    $('oidcSecret').value  = s.oidc_client_secret || '';
+    $('oidcRedirect').value= s.oidc_redirect_uri || '';
+    $('oidcTls').value     = s.oidc_tls_reject || 'true';
+    var brand = s.brand_name || 'STEGO';
+    $('brandName').value = brand;
+    previewBrand(brand);
+  }
+
+  function previewBrand(name){
+    $('brandPreviewWord').textContent = name || 'STEGO';
+    $('brandPreviewMark').textContent = ((name || 'S')[0] || 'S').toUpperCase();
+  }
+  $('brandName').addEventListener('input', function(){ previewBrand(this.value); });
+
+  $('btnSaveBrand').addEventListener('click', async function(){
+    try{
+      await StegoApi.post('/api/admin/settings', { brand_name: $('brandName').value.trim() || 'STEGO' });
+      toast('Marchio aggiornato', 'success');
+    }catch(e){ toast(e.message, 'danger'); }
+  });
+
+  $('btnSaveLdap').addEventListener('click', async function(){
+    try{
+      await StegoApi.post('/api/admin/settings', {
+        ldap_enabled: $('ldapEnabled').value,
+        ldap_url: $('ldapUrl').value.trim(),
+        ldap_bind_dn: $('ldapBindDn').value.trim(),
+        ldap_bind_pass: $('ldapBindPass').value,
+        ldap_search_base: $('ldapBase').value.trim(),
+        ldap_search_filter: $('ldapFilter').value.trim(),
+        ldap_tls_reject: $('ldapTls').value,
+      });
+      toast('Impostazioni LDAP salvate', 'success');
+      loadSettings();
+    }catch(e){ toast(e.message, 'danger'); }
+  });
+
+  $('btnSaveOidc').addEventListener('click', async function(){
+    try{
+      await StegoApi.post('/api/admin/settings', {
+        oidc_enabled: $('oidcEnabled').value,
+        oidc_label: $('oidcLabel').value.trim(),
+        oidc_issuer: $('oidcIssuer').value.trim(),
+        oidc_client_id: $('oidcClientId').value.trim(),
+        oidc_client_secret: $('oidcSecret').value,
+        oidc_redirect_uri: $('oidcRedirect').value.trim(),
+        oidc_tls_reject: $('oidcTls').value,
+      });
+      toast('Impostazioni OIDC salvate', 'success');
+      loadSettings();
+    }catch(e){ toast(e.message, 'danger'); }
+  });
+
+  $('btnTestOidc').addEventListener('click', async function(){
+    var box = $('oidcResult');
+    box.hidden = false;
+    box.className = 'aurorNotice';
+    box.textContent = 'Prova in corso…';
+    try{
+      var r = await StegoApi.get('/api/admin/oidc-test');
+      box.className = 'aurorNotice aurorNotice--success';
+      box.textContent = 'Provider raggiunto. Redirect URI in uso: ' + r.redirect_uri;
+    }catch(e){
+      box.className = 'aurorNotice aurorNotice--danger';
+      box.textContent = e.message;
+    }
+  });
+
+  $('btnTestLdap').addEventListener('click', async function(){
+    var box = $('ldapResult');
+    box.hidden = false;
+    box.className = 'aurorNotice';
+    box.textContent = 'Prova in corso…';
+    try{
+      var r = await StegoApi.post('/api/admin/ldap-test', {
+        username: $('testUser').value.trim(),
+        password: $('testPwd').value,
+      });
+      box.className = 'aurorNotice aurorNotice--success';
+      box.textContent = 'Autenticazione riuscita: ' + (r.user.displayName || r.user.username);
+    }catch(e){
+      box.className = 'aurorNotice aurorNotice--danger';
+      box.textContent = e.message;
+    }
+  });
+
+  // ---- Statistiche ----
+  async function loadStats(){
+    var s = await StegoApi.get('/api/admin/stats');
+    $('statUsers').textContent = s.users;
+    $('statProjects').textContent = s.projects;
+    $('statBytes').textContent = fmtBytes(s.bytes);
+    var tb = $('statRows');
+    tb.innerHTML = '';
+    s.perUser.forEach(function(r){
+      var tr = document.createElement('tr');
+      [r.display_name || r.username, r.projects, fmtBytes(r.bytes), fmtWhen(r.last_login)].forEach(function(v, i){
+        var td = document.createElement('td');
+        if(i > 0) td.className = 'mono';
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  // ---- Config pubblica (marchio nell'header) ----
+  StegoApi.get('/api/config').then(function(cfg){
+    if(cfg.brand){
+      $('brandWord').textContent = cfg.brand;
+      $('brandMark').textContent = (cfg.brand[0]||'S').toUpperCase();
+    }
+  }).catch(function(){});
+
+  loadUsers().catch(function(e){ toast(e.message, 'danger'); });
+  loadSettings().catch(function(e){ toast(e.message, 'danger'); });
+  loadStats().catch(function(e){ toast(e.message, 'danger'); });
+})();
+</script>
+</body>
+</html>

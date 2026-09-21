@@ -1,0 +1,24 @@
+# Sviluppo locale: porta pubblicata sull'host e sorgente montato live.
+# Niente proxy davanti, niente TLS — il browser consente tutto su localhost.
+services:
+  stego:
+    build:
+      context: ./backend
+      target: development
+    container_name: stego-dev
+    restart: "no"
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./backend:/app        # sorgente montato live → nodemon vede le modifiche
+      - /app/node_modules     # preserva i moduli compilati nell'immagine
+      - stego_dev_data:/app/data
+    environment:
+      - NODE_ENV=development
+      - DB_PATH=/app/data/stego.db
+      - SESSION_SECRET=dev-secret-non-per-prod
+      - TRUST_PROXY=0
+      - LDAP_ENABLED=false
+
+volumes:
+  stego_dev_data:

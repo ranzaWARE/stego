@@ -155,7 +155,7 @@ function drawEntityByRef(ref){
     }
     if(pl.closed) ctx.closePath();
     if(pl.closed && pl.style && pl.style.fill){
-      ctx.save(); ctx.fillStyle=pl.style.fill; ctx.fill(); ctx.restore();
+      ctx.save(); ctx.fillStyle=StegoInk.ink(pl.style.fill); ctx.fill(); ctx.restore();
     }
     ctx.stroke();
     if(isSelected({type:'pline',id:pl.id})){
@@ -183,7 +183,7 @@ function drawEntityByRef(ref){
     ctx.rotate(r.rot||0);
     if(r.style && r.style.fill){
       ctx.save();
-      ctx.fillStyle=r.style.fill;
+      ctx.fillStyle=StegoInk.ink(r.style.fill);
       ctx.fillRect(-r.w*state.pxPerMM/2,-r.h*state.pxPerMM/2,r.w*state.pxPerMM,r.h*state.pxPerMM);
       ctx.restore();
     }
@@ -204,7 +204,7 @@ function drawEntityByRef(ref){
     ctx.translate(c.x,c.y);
     ctx.rotate(e.rot||0);
     if(e.style && e.style.fill){
-      ctx.save(); ctx.fillStyle=e.style.fill;
+      ctx.save(); ctx.fillStyle=StegoInk.ink(e.style.fill);
       ctx.beginPath(); ctx.ellipse(0,0,e.rx*state.pxPerMM,e.ry*state.pxPerMM,0,0,Math.PI*2); ctx.fill();
       ctx.restore();
     }
@@ -263,7 +263,7 @@ function drawEntityByRef(ref){
 	    ctx.font=sizePx+'px '+(t.font||'Arial');
 	    ctx.textAlign=t.align||'left';
 	    ctx.textBaseline='alphabetic';
-	    ctx.fillStyle=(t.style && t.style.fill) ? t.style.fill : '#111827';
+	    ctx.fillStyle=StegoInk.ink((t.style && t.style.fill) ? t.style.fill : null);
 	    var txt=(t.text||'').toString();
 	    var spacingMM = (typeof t.spacingMM==='number') ? t.spacingMM : ((typeof t.letterSpacingMM==='number') ? t.letterSpacingMM : 0);
 	    var lsPx=spacingMM*state.pxPerMM;

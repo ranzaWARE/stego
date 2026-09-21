@@ -1,0 +1,792 @@
+/* =========================================================
+   STEGO — livello applicativo sopra AUROR
+   Ordine di caricamento: css/tokens.css → css/ui.css → css/app.css
+   Qui vivono solo le parti specifiche del CAD (dock strumenti, tela,
+   inspector, barra di stato). I colori arrivano dai token semantici
+   di AUROR: nessun hex qui dentro, con una sola eccezione dichiarata
+   più sotto (--paper).
+   ========================================================= */
+
+:root{
+  /* Il foglio da disegno non è una superficie dell'interfaccia: è carta,
+     e cambia col tema. I colori degli oggetti restano quelli scelti
+     dall'utente: è js/ink.js a ribaltare in fase di resa solo quelli che
+     sul foglio corrente non si vedrebbero (bianco su bianco, nero su
+     tela scura), e a rimetterli su bianco quando si esporta o si stampa.
+     Unica eccezione alla regola "nessun hex fuori da tokens.css": il
+     foglio non è un token AUROR, è il supporto del disegno. */
+  --paper: #ffffff;
+}
+:root[data-theme="dark"]{
+  /* Un filo più scuro della tela AUROR, così il foglio si stacca dal
+     bordo della cornice invece di confondersi con essa. */
+  --paper: #191d23;
+}
+/* In e-ink il foglio resta bianco: è tutto il senso di quel tema. */
+:root[data-theme="eink"]{ --paper: #ffffff; }
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  /* colonna piena: header (rail AUROR) + area di lavoro + barra di stato.
+     Prima l'altezza dell'area era un calc() sull'altezza dell'header —
+     con il rail flottante di AUROR quel numero non esiste più. */
+  min-height:100vh;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  font-family:var(--auror-font);
+  background:var(--surface);
+  color:var(--text);
+}
+a{color:inherit}
+.pill{
+  font-size:12px;
+  padding:6px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-raised);
+}
+.langSelect{
+  border:1px solid var(--border);
+  background-color:var(--surface-raised);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position:right 10px center;
+  background-repeat:no-repeat;
+  background-size:10px 10px;
+  color:var(--text-secondary);
+  border-radius:var(--auror-r);
+  padding:6px 30px 6px 10px;
+  font-size:12px;
+  font-family:inherit;
+  line-height:normal;
+  cursor:pointer;
+  box-sizing:border-box;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.langSelect:hover{
+  background:var(--surface);
+}
+.iconBtn{
+  border:1px solid var(--border);
+  background:var(--surface-raised);
+  padding:8px 12px;
+  border-radius:var(--auror-r);
+  cursor:pointer;
+}
+.iconBtn:hover{background:var(--surface)}
+.appMain{padding:14px 16px 18px;}
+.accentBar{
+  height:10px;
+  background:linear-gradient(90deg,var(--accent) 0%, var(--accent) 68%, var(--accent-tint) 68%, var(--accent-tint) 100%);
+  border-radius:var(--auror-r);
+  margin:10px 0 14px;
+}
+.wrap{
+  display:grid;
+  grid-template-columns:420px 1fr;
+  gap:16px;
+  height:calc(100vh - 60px - 32px);
+  min-height:640px;
+}
+.panel, .canvasCard{
+  background:var(--surface-raised);
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  box-shadow:var(--shadow-md);
+}
+.panel{
+  padding:14px;
+  overflow:auto;
+}
+.canvasCard{
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:hidden;
+}
+h1{
+  font-size:16px;
+  margin:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.muted{color:var(--text-muted);font-size:12px;line-height:1.35;margin-top:6px}
+.sectionTitle{
+  margin-top:14px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.hr{height:1px;background:var(--border);margin:12px 0;}
+.row{display:flex;gap:8px;align-items:center;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+/* --- Photoshop-like tool buttons --- */
+.toolBar{
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:10px;
+  margin-top:8px;
+}
+.toolBtn{
+  height:52px;
+  padding:8px;
+  border-radius:var(--auror-r);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-weight:600;
+}
+.toolBtn .ico{
+  width:24px;
+  height:24px;
+  display:inline-grid;
+  place-items:center;
+  border-radius:var(--auror-r);
+  background:var(--surface-sunken);
+}
+.toolBtn .lbl{
+  font-size:12px;
+  line-height:1;
+}
+@media (max-width: 1280px){
+  .wrap{grid-template-columns:460px 1fr;}
+  .toolBar{grid-template-columns:repeat(4, 1fr);}
+}
+@media (max-width: 980px){
+  .wrap{grid-template-columns:1fr; height:auto;}
+  .toolBar{grid-template-columns:repeat(3, 1fr);}
+}
+
+/* Round color button + circular picker modal */
+.colorRow{display:flex; gap:10px; align-items:center;}
+.colorSwatch{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--text);
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+}
+.colorSwatch:focus{outline:none; box-shadow:var(--focus-ring);}
+.modalBackdrop{
+  position:fixed;
+  inset:0;
+  background:var(--surface-overlay);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modalBackdrop.open{display:flex;}
+.colorModal{
+  width:320px;
+  height:320px;
+  border-radius:999px;
+  background:var(--surface-raised);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-md);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+.colorModalInner{
+  width:260px;
+  height:260px;
+  border-radius:999px;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:var(--surface-raised);
+}
+.colorModalFooter{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:-48px;
+  display:flex;
+  gap:10px;
+}
+.miniBtn{padding:10px 14px; border-radius:var(--auror-r);}
+.valueSlider{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:22px;
+  width:220px;
+}
+label{
+  font-size:12px;
+  color:var(--text-secondary);
+  display:block;
+  margin:10px 0 6px;
+}
+input,select{
+  width:100%;
+  padding:9px 10px;
+  border-radius:var(--auror-r);
+  border:1px solid var(--border);
+  background:var(--surface-raised);
+  color:var(--text);
+  outline:none;
+}
+input:focus,select:focus{box-shadow:var(--focus-ring); border-color:var(--accent-ring)}
+input[type="checkbox"]{width:auto}
+input[type="color"]{padding:0;height:38px}
+button{
+  border:1px solid var(--border);
+  background:var(--surface-raised);
+  color:var(--text);
+  padding:10px 10px;
+  border-radius:var(--auror-r);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  white-space:nowrap;
+  line-height:1.1;
+  transition:transform .02s ease, background .12s ease, border-color .12s ease;
+}
+button:hover{background:var(--surface)}
+button:active{transform:translateY(1px)}
+button.primary{
+  background:var(--accent);
+  border-color:var(--accent-hover);
+  color:var(--text);
+  font-weight:600;
+}
+button.primary:hover{background:var(--accent-hover)}
+button.danger{
+  background:var(--surface-raised);
+  border-color:var(--danger-soft);
+  color:var(--danger);
+}
+button.active{
+  outline:none;
+  box-shadow:var(--focus-ring);
+  border-color:var(--accent-ring);
+}
+button:disabled{opacity:.5;cursor:not-allowed}
+.badge{
+  font-size:11px;
+  padding:4px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  color:var(--text-secondary);
+  background:var(--surface-raised);
+}
+.layers{display:flex;flex-direction:column;gap:8px;}
+.layerItem{
+  display:flex;gap:8px;align-items:center;justify-content:space-between;
+  padding:8px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-raised);
+}
+.dot{width:10px;height:10px;border-radius:var(--auror-r);}
+.topbar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+.kbd{
+  font-family:var(--auror-mono);
+  font-size:11px;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  color:var(--text-secondary);
+  background:var(--surface-raised);
+}
+.canvasWrap{flex:1;min-height:260px;overflow:hidden;border-radius:var(--auror-r);position:relative;}
+#cStatic, #c{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  border-radius:var(--auror-r);
+  user-select:none;
+  -webkit-user-select:none;
+}
+#cStatic{
+  background:var(--paper);
+  border:1px solid var(--border);
+  pointer-events:none;
+}
+#c{
+  background:transparent;
+  border:0;
+  cursor:crosshair;
+  touch-action:none;
+}
+.status{font-size:12px;color:var(--text-secondary);font-weight:600;}
+.small{font-size:12px;color:var(--text-secondary);}
+.help{font-size:12px;color:var(--text-secondary);line-height:1.4;}
+.help b{color:var(--text);}
+.list{padding-left:16px;margin:8px 0 0 0;}
+.list li{margin:4px 0;}
+@media (max-width: 1040px){
+  .wrap{grid-template-columns:1fr;height:auto;min-height:auto;}
+  .canvasCard{height:auto;}
+  .canvasWrap{height:62vh; min-height:320px;}
+}
+
+/* --- Layout v3: dock sinistra + inspector destra --- */
+.appMain{padding:0;display:flex;flex-direction:column;flex:1;min-height:0}
+.workspace{flex:1;display:flex;gap:16px;padding:16px;min-height:0}
+.toolDock{
+  width:64px;flex:0 0 64px;
+  background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--auror-r);
+  box-shadow:var(--shadow-md);
+  padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.toolIcon{
+  width:44px;height:44px;border-radius:var(--auror-r);border:1px solid var(--border);
+  background:var(--surface-sunken);color:var(--text);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;line-height:1;
+  transition:transform .08s ease, background .15s ease, box-shadow .15s ease;
+}
+.toolIcon:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.toolIcon.active{background:var(--accent-soft);border-color:var(--accent-ring)}
+.toolSep{width:36px;height:1px;background:var(--border);margin:4px 0}
+.stage{
+  flex:1;min-width:320px;min-height:0;
+  background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--auror-r);
+  box-shadow:var(--shadow-md);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.stageTop{
+  padding:10px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.stagePills{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stageControls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.miniField{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted)}
+.miniField input{height:34px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px;background:var(--surface-raised)}
+.canvasWrap{flex:1;min-height:0;background:var(--paper)}
+.inspector{
+  width:360px;flex:0 0 360px;min-height:0;overflow:auto;
+  background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--auror-r);
+  box-shadow:var(--shadow-md);
+  padding:14px;
+}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:12px}
+.tabPanel[hidden]{display:none}
+.tab{flex:0 0 auto;border:0;background:transparent;color:var(--text-muted);padding:8px 10px;border-radius:var(--auror-r);cursor:pointer}
+.tab.active{color:var(--text);background:var(--accent-soft)}
+.cardSec{border:1px solid var(--border);border-radius:var(--auror-r);padding:12px;margin:10px 0;background:var(--surface-raised)}
+.secTitle{font-weight:700;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.row input, .row select{flex:1}
+.inspector label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-muted)}
+.inspector input, .inspector select{
+  height:36px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px;background:var(--surface-raised);color:var(--text)
+}
+.inline{flex-direction:row !important;align-items:center;gap:10px}
+.inline input{height:auto}
+.colorRow{display:flex;align-items:center;gap:10px}
+.colorSwatch{
+  width:36px;
+  height:36px;
+  min-width:36px;
+  min-height:36px;
+  flex:0 0 36px;
+  padding:0;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--text);
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.hexInput{font-family:var(--auror-mono)}
+.primary{background:var(--accent);border-color:var(--border);color:var(--text-on-accent)}
+.primary:hover{background:var(--accent-hover)}
+.statusbar{
+  background:var(--surface-raised);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 14px;
+}
+.statusLeft,.statusRight{display:flex;align-items:center;gap:10px;color:var(--text-muted);font-size:12px}
+.statusbar .sep{opacity:.5}
+.cmdBox{display:flex;align-items:center;gap:10px;min-width:420px;flex:1;justify-content:flex-end}
+.cmdBox input{
+  width:100%;max-width:520px;height:36px;border:1px solid var(--border);border-radius:var(--auror-r);padding:0 10px
+}
+.small{font-size:12px;color:var(--text-muted)}
+/* hide old legacy panel bits if present */
+.wrap,.panel,.accentBar{display:none !important}
+
+
+/* ---- Canvas context menu ---- */
+.ctxMenu{
+  position:fixed;
+  z-index:9999;
+  min-width:170px;
+  background:var(--surface-raised);
+  border:1px solid var(--border-strong);
+  border-radius:var(--auror-r);
+  box-shadow:var(--shadow-lg);
+  padding:6px;
+  user-select:none;
+}
+.ctxMenu button{
+  width:100%;
+  text-align:left;
+  border:0;
+  background:transparent;
+  padding:8px 10px;
+  border-radius:var(--auror-r);
+  font-size:13px;
+  color:var(--text);
+  cursor:pointer;
+}
+.ctxMenu button:hover{
+  background:var(--surface-sunken);
+}
+.ctxMenu button[disabled]{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.ctxSep{
+  height:1px;
+  margin:6px 6px;
+  background:var(--border-strong);
+}
+
+/* ---- Monochrome CAD icons ---- */
+.toolIcon svg{
+  width:20px;height:20px;
+  display:block;
+  overflow:visible;
+  color:var(--text);
+}
+.toolIcon span{ display:none !important; } /* legacy glyphs off */
+.toolIcon{ color:var(--text); }
+.toolIcon.active{ color:var(--accent); }
+.toolIcon:hover{ color:var(--text); }
+
+/* ---- Monochrome icons in buttons/panels ---- */
+button .btnIco{
+  display:inline-flex;
+  width:20px;height:20px;
+  min-width:20px;
+  align-items:center;justify-content:center;
+  flex:0 0 auto;
+  overflow:visible;
+  color:currentColor;
+}
+button .btnIco svg{ width:20px;height:20px; display:block; overflow:visible; }
+button .btnTxt{ display:block; min-width:0; }
+.miniBtn{ display:inline-flex; align-items:center; justify-content:center; gap:0; }
+.ctxMenu button{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
+.ctxMenu button .btnTxt{
+  text-align:left;
+}
+
+
+/* ---- Wider right inspector to avoid horizontal scrolling ---- */
+.inspector{
+  width:420px;
+  min-width:420px;
+}
+.inspector .tabPanel{
+  overflow-x:hidden;
+}
+.inspector .cardSec{
+  overflow-x:hidden;
+}
+
+/* ---- Layer tab (redesign, keeps existing JS hooks) ---- */
+.layerItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 10px;
+  border:1px solid var(--border-strong);
+  border-radius:var(--auror-r);
+  background:var(--surface-raised);
+  margin-top:10px;
+}
+.layerItem .row{ display:flex; align-items:center; gap:8px; }
+.layerItem .layerBtn{
+  border:0;
+  background:transparent;
+  font-weight:600;
+  font-size:13px;
+  text-align:left;
+  padding:7px 10px;
+  border-radius:var(--auror-r);
+  cursor:pointer;
+  color:var(--text);
+}
+.layerItem.isActive .layerBtn{ background:var(--accent-soft); }
+.layerItem .iconBtn{
+  width:28px;height:28px;
+  padding:0;
+  border-radius:var(--auror-r);
+  border:1px solid var(--border-strong);
+  background:var(--surface-raised);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  color:var(--text);
+}
+.layerItem .iconBtn svg{ width:14px;height:14px; display:block; overflow:visible; }
+.layerItem.isHidden .layerBtn{ opacity:.55; }
+.layerItem.isLocked .layerBtn{ opacity:.75; }
+
+#propsHistorySec .historyActions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  margin-top:10px;
+  padding-bottom:2px;
+}
+#propsHistorySec .historyActions button{
+  flex:0 0 auto;
+  min-height:36px;
+  padding:10px 12px;
+  gap:8px;
+}
+#propsHistorySec .historyActions button .btnIco,
+#propsHistorySec .historyActions button .btnIco svg{
+  width:20px;
+  height:20px;
+  min-width:20px;
+}
+
+/* ---- Export/Import layout ---- */
+.btnRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+}
+.helpTxt{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--text-muted);
+}
+
+/* ---- Selection panel redesign ---- */
+#propsSelectionSec{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+#propsSelectionSec .secTitle{
+  margin-bottom:0;
+}
+.selectionSummary{
+  display:flex;
+  align-items:center;
+  min-height:28px;
+}
+#selInfo{
+  margin-top:0;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-sunken);
+}
+.selectionBlock{
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-sunken);
+  padding:12px;
+}
+.selectionBlockTitle{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:10px;
+}
+.selectionGrid{
+  gap:12px;
+}
+.selectionGrid label,
+.selectionColorField label{
+  margin:0;
+}
+.selectionAppearanceGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+.selectionColorField,
+.selectionFillField{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.selectionColorRow{
+  gap:12px;
+}
+.selectionColorRow input[type="text"]{
+  flex:1 1 auto;
+}
+.selectionFillToggle{
+  justify-content:flex-start;
+  margin:0;
+}
+.selectionPrimaryActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+#btnApplyStyle{
+  grid-column:1 / -1;
+}
+.selectionOrderGrid,
+.selectionClipboardGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+#propsSelectionSec .selectionPrimaryActions button,
+#propsSelectionSec .selectionOrderGrid button,
+#propsSelectionSec .selectionClipboardGrid button{
+  min-height:40px;
+}
+#propsSelectionSec .miniBtn{
+  gap:8px;
+  padding:10px 10px;
+  border-radius:var(--auror-r);
+}
+@media (max-width: 520px){
+  .selectionPrimaryActions,
+  .selectionOrderGrid,
+  .selectionClipboardGrid,
+  .selectionGrid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* =========================================================
+   Header AUROR nel CAD
+   Il rail flottante di AUROR è pensato per pagine che scorrono; qui
+   sta sopra un'area di lavoro a tutta altezza, quindi non è sticky e
+   non deve rubare spazio alla tela.
+   ========================================================= */
+.dsHeaderRail{ position:static; flex:0 0 auto; padding:10px 10px 0; }
+.dsHeaderRail::before{ display:none; }
+.dsHeader .headerRight{ display:flex; align-items:center; gap:8px; min-width:0; }
+/* Le pastiglie di stato stanno a destra: il centro dell'header è della
+   navigazione, che su schermo stretto diventa un drawer. */
+@media (max-width: 900px){
+  .dsHeader .pill{ display:none; }
+}
+
+/* Pastiglia utente cliccabile: apre il menu account */
+.userPill{
+  display:inline-flex; align-items:center; gap:8px;
+  height:var(--auror-control-h-sm);
+  padding:0 10px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-raised);
+  color:var(--text-secondary);
+  font-family:inherit; font-size:12px; cursor:pointer;
+}
+.userPill:hover{ background:var(--surface); }
+.userPill .userDot{
+  width:18px; height:18px; border-radius:var(--auror-r);
+  background:var(--text); color:var(--surface-raised);
+  display:grid; place-items:center; font-size:10px; font-weight:700;
+}
+
+/* =========================================================
+   Progetti (archivio lato server)
+   ========================================================= */
+.projList{ display:flex; flex-direction:column; gap:8px; }
+.projItem{
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:var(--auror-r);
+  background:var(--surface-raised);
+}
+.projItem:hover{ background:var(--surface); }
+.projOpen{
+  flex:1; min-width:0;
+  display:flex; align-items:center; gap:12px;
+  border:0; background:transparent; padding:0;
+  font-family:inherit; color:var(--text); text-align:left; cursor:pointer;
+}
+.projItem[aria-current="true"]{ border-color:var(--accent-ring); background:var(--accent-tint); }
+.projThumb{
+  width:56px; height:40px; flex:0 0 56px;
+  border:1px solid var(--border-soft); border-radius:var(--auror-r);
+  background:var(--paper); object-fit:contain;
+}
+.projMeta{ flex:1; min-width:0; }
+.projMeta .projName{ font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.projMeta .projWhen{ font-size:11px; color:var(--text-muted); font-family:var(--auror-mono); }
+.projItem .projDel{
+  flex:0 0 auto; width:28px; height:28px; padding:0;
+  display:grid; place-items:center;
+  border:1px solid var(--border); border-radius:var(--auror-r);
+  background:var(--surface-raised); color:var(--text-muted); cursor:pointer;
+}
+.projItem .projDel:hover{ color:var(--danger); border-color:var(--danger-soft); }
+.projItem .projDel svg{ width:14px; height:14px; }
+
+/* Il modale dei progetti riusa .aurorModal: qui solo l'altezza utile. */
+#projModal .modalBody{ max-height:min(60vh, 520px); }
+#projModal .emptyProj{
+  padding:24px 8px; text-align:center; color:var(--text-muted); font-size:13px;
+}
+
+/* Il modale del cambio password è bloccante: niente scrim cliccabile,
+   niente Esc (data-locked), perché finché la password non cambia l'app
+   non è utilizzabile comunque. */
+#pwdModal .modalBody p{ margin:0 0 12px; color:var(--text-secondary); }
+
+/* Barra di stato: il progetto aperto e lo stato di salvataggio */
+.saveState{ font-family:var(--auror-mono); font-size:11px; color:var(--text-muted); }
+.saveState[data-state="dirty"]{ color:var(--warn); }
+.saveState[data-state="saving"]{ color:var(--text-secondary); }
+.saveState[data-state="saved"]{ color:var(--success); }
+
+
+/* =========================================================
+   Stampa
+   Si manda in stampa il disegno, non l'applicazione: via il guscio,
+   la tela prende il foglio. I colori li rimette su bianco js/ink.js,
+   che ridisegna su beforeprint (vedi StegoInk.bindPrint).
+   ========================================================= */
+@media print{
+  .dsHeaderRail, .toolDock, .inspector, .statusbar, .aurorToastStack{ display:none !important; }
+  body{ height:auto; background:#fff; }
+  .appMain, .workspace{ padding:0; height:auto; display:block; }
+  .stage{ border:0; box-shadow:none; border-radius:0; }
+  .canvasWrap{ height:100vh; }
+}

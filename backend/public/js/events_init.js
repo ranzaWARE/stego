@@ -294,6 +294,11 @@ canvas.addEventListener('lostpointercapture', function(e){
     function x(v){ return (v-box.x+pad); }
     function y(v){ return (v-box.y+pad); }
 
+    // L'SVG finisce su fondo bianco: i colori vanno adattati a quello,
+    // non al tema con cui si sta guardando lo schermo.
+    function pen(c){ return StegoInk.onPaper(c || '#111827', StegoInk.EXPORT_PAPER); }
+    function penFill(c){ return c ? pen(c) : 'none'; }
+
     var svg=[];
     svg.push('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">');
     if(!state.exportNoBg) svg.push('<rect width="100%" height="100%" fill="white"/>');
@@ -304,7 +309,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var st=s.style||{};
       var dashArr=dashPatternForStyle(st);
       var dash=dashArr.length ? ' stroke-dasharray="'+dashArr.join(' ')+'"' : '';
-      svg.push('<line x1="'+x(s.a.x)+'" y1="'+y(s.a.y)+'" x2="'+x(s.b.x)+'" y2="'+y(s.b.y)+'" stroke="'+(st.stroke||'#111827')+'" stroke-width="'+(st.width||1)+'" fill="none"'+dash+'/>');
+      svg.push('<line x1="'+x(s.a.x)+'" y1="'+y(s.a.y)+'" x2="'+x(s.b.x)+'" y2="'+y(s.b.y)+'" stroke="'+pen(st.stroke)+'" stroke-width="'+(st.width||1)+'" fill="none"'+dash+'/>');
     }
 
     // rects as <rect> with transform
@@ -315,7 +320,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var dash2=dashArr2.length ? ' stroke-dasharray="'+dashArr2.join(' ')+'"' : '';
       var rotDeg=deg(rr.rot||0);
       var rx=x(rr.cx), ry=y(rr.cy);
-	      svg.push('<rect x="'+(rx-rr.w/2)+'" y="'+(ry-rr.h/2)+'" width="'+rr.w+'" height="'+rr.h+'" fill="'+(st2.fill||'none')+'" stroke="'+(st2.stroke||'#111827')+'" stroke-width="'+(st2.width||1)+'"'+dash2+' transform="rotate('+rotDeg+' '+rx+' '+ry+')" />');
+	      svg.push('<rect x="'+(rx-rr.w/2)+'" y="'+(ry-rr.h/2)+'" width="'+rr.w+'" height="'+rr.h+'" fill="'+penFill(st2.fill)+'" stroke="'+pen(st2.stroke)+'" stroke-width="'+(st2.width||1)+'"'+dash2+' transform="rotate('+rotDeg+' '+rx+' '+ry+')" />');
     }
 
 	    // ellipses with transform
@@ -326,7 +331,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var dash3=dashArr3.length ? ' stroke-dasharray="'+dashArr3.join(' ')+'"' : '';
       var rotDeg2=deg(el.rot||0);
       var ex=x(el.cx), ey=y(el.cy);
-		      svg.push('<ellipse cx="'+ex+'" cy="'+ey+'" rx="'+el.rx+'" ry="'+el.ry+'" fill="'+(st3.fill||'none')+'" stroke="'+(st3.stroke||'#111827')+'" stroke-width="'+(st3.width||1)+'"'+dash3+' transform="rotate('+rotDeg2+' '+ex+' '+ey+')" />');
+		      svg.push('<ellipse cx="'+ex+'" cy="'+ey+'" rx="'+el.rx+'" ry="'+el.ry+'" fill="'+penFill(st3.fill)+'" stroke="'+pen(st3.stroke)+'" stroke-width="'+(st3.width||1)+'"'+dash3+' transform="rotate('+rotDeg2+' '+ex+' '+ey+')" />');
 	    }
 
 	    // polylines
@@ -339,10 +344,10 @@ canvas.addEventListener('lostpointercapture', function(e){
 	      var pts=[];
 	      for(var pi=0;pi<pl.pts.length;pi++) pts.push(x(pl.pts[pi].x)+','+y(pl.pts[pi].y));
 	      if(pl.closed){
-	        var fillP=(stp.fill||'none');
-	        svg.push('<polygon points="'+pts.join(' ')+'" fill="'+fillP+'" stroke="'+(stp.stroke||'#111827')+'" stroke-width="'+(stp.width||1)+'"'+dashP+' />');
+	        var fillP=penFill(stp.fill);
+	        svg.push('<polygon points="'+pts.join(' ')+'" fill="'+fillP+'" stroke="'+pen(stp.stroke)+'" stroke-width="'+(stp.width||1)+'"'+dashP+' />');
 	      } else {
-	        svg.push('<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+(stp.stroke||'#111827')+'" stroke-width="'+(stp.width||1)+'"'+dashP+' />');
+	        svg.push('<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+pen(stp.stroke)+'" stroke-width="'+(stp.width||1)+'"'+dashP+' />');
 	      }
 	    }
 
@@ -356,7 +361,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 	      var sweep=Math.abs(angleDiff(aa.a0, aa.a1, !!aa.ccw));
 	      if(sweep<=1e-8) continue;
 	      if(sweep>=Math.PI*2-1e-8){
-	        svg.push('<circle cx="'+x(aa.cx)+'" cy="'+y(aa.cy)+'" r="'+aa.r+'" fill="none" stroke="'+(sta.stroke||'#111827')+'" stroke-width="'+(sta.width||1)+'"'+dashA+' />');
+	        svg.push('<circle cx="'+x(aa.cx)+'" cy="'+y(aa.cy)+'" r="'+aa.r+'" fill="none" stroke="'+pen(sta.stroke)+'" stroke-width="'+(sta.width||1)+'"'+dashA+' />');
 	        continue;
 	      }
 	      var sx=x(aa.cx + Math.cos(aa.a0)*aa.r), sy=y(aa.cy + Math.sin(aa.a0)*aa.r);
@@ -365,7 +370,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 		      // In SVG screen coordinates, sweep-flag 0=CCW and 1=CW.
 		      var sf = aa.ccw ? 0 : 1;
 	      var dPath='M '+sx+' '+sy+' A '+aa.r+' '+aa.r+' 0 '+laf+' '+sf+' '+ex2+' '+ey2;
-	      svg.push('<path d="'+dPath+'" fill="none" stroke="'+(sta.stroke||'#111827')+'" stroke-width="'+(sta.width||1)+'"'+dashA+' />');
+	      svg.push('<path d="'+dPath+'" fill="none" stroke="'+pen(sta.stroke)+'" stroke-width="'+(sta.width||1)+'"'+dashA+' />');
 	    }
 
 	    // images are NOT embedded by default in SVG (to keep it simple)
@@ -375,7 +380,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 	      var dStyleSvg=dd.style||{};
 	      var dDashSvg=dashPatternForStyle(dStyleSvg);
 	      var dDashAttr=dDashSvg.length ? ' stroke-dasharray="'+dDashSvg.join(' ')+'"' : '';
-	      var dStroke=(dStyleSvg.stroke||'#111827');
+	      var dStroke=pen(dStyleSvg.stroke);
 	      var dWidth=(dStyleSvg.width||1);
 	      var a=dd.a, b=dd.b;
 	      var vx=b.x-a.x, vy=b.y-a.y;
@@ -398,7 +403,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 		      var rdStyleSvg=rdd.style||{};
 		      var rdDashSvg=dashPatternForStyle(rdStyleSvg);
 		      var rdDashAttr=rdDashSvg.length ? ' stroke-dasharray="'+rdDashSvg.join(' ')+'"' : '';
-		      var rdStroke=(rdStyleSvg.stroke||'#111827');
+		      var rdStroke=pen(rdStyleSvg.stroke);
 		      var rdWidth=(rdStyleSvg.width||1);
 		      svg.push('<line x1="'+x(rdd.cx)+'" y1="'+y(rdd.cy)+'" x2="'+x(rdd.anchor.x)+'" y2="'+y(rdd.anchor.y)+'" stroke="'+rdStroke+'" stroke-width="'+rdWidth+'"'+rdDashAttr+'/>');
 		      svg.push('<circle cx="'+x(rdd.cx)+'" cy="'+y(rdd.cy)+'" r="1.2" fill="'+rdStroke+'"/>');
@@ -409,7 +414,7 @@ canvas.addEventListener('lostpointercapture', function(e){
 	    // texts
 	    for(var t=0;t<state.texts.length;t++){
 	      var tt=state.texts[t]; if(!vis[tt.layer]) continue;
-	      var fill=(tt.style && tt.style.fill)?tt.style.fill:'#111827';
+	      var fill=pen(tt.style && tt.style.fill);
 	      var tx=(tt.x-box.x+pad);
 	      var ty=(tt.y-box.y+pad);
 	      var rot=(tt.rot||0)*180/Math.PI;
@@ -756,8 +761,11 @@ canvas.addEventListener('lostpointercapture', function(e){
     }
 
     function w2s(p){ return { x:(p.x-(bb.x-padMM))*pxPerMM, y:(p.y-(bb.y-padMM))*pxPerMM }; }
+    // Anche col fondo trasparente l'immagine finisce quasi sempre su
+    // bianco: i colori si adattano a quello.
+    function pngPen(c){ return StegoInk.onPaper(c || '#111827', StegoInk.EXPORT_PAPER); }
     function applyStroke(style){
-      octx.strokeStyle=(style&&style.stroke)?style.stroke:'#111827';
+      octx.strokeStyle=pngPen(style && style.stroke);
       octx.lineWidth=((style&&style.width)?style.width:1)*(pxPerMM/5);
       var dash = dashPatternForStyle(style);
       octx.setLineDash(dash.length ? dash : []);
@@ -788,7 +796,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       octx.rotate(tt.rot||0);
       var sizePx=(tt.sizeMM||5)*pxPerMM;
       octx.font=sizePx+'px '+(tt.font||'Arial');
-      octx.fillStyle=(tt.style && tt.style.fill)?tt.style.fill:'#111827';
+      octx.fillStyle=pngPen(tt.style && tt.style.fill);
       octx.textAlign=tt.align||'left';
       octx.textBaseline='alphabetic';
       octx.fillText(tt.text||'',0,0);
@@ -839,7 +847,7 @@ canvas.addEventListener('lostpointercapture', function(e){
       var sa=w2s(p1), sb=w2s(p2), s0=w2s(a2), s1=w2s(b2);
 
       octx.save();
-      octx.fillStyle='#111827'; octx.strokeStyle='#111827'; octx.lineWidth=1;
+      octx.fillStyle=pngPen(null); octx.strokeStyle=pngPen(null); octx.lineWidth=1;
 
       octx.beginPath();
       octx.moveTo(s0.x,s0.y); octx.lineTo(sa.x,sa.y);

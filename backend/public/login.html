@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>STEGO — Accedi</title>
+<script>
+  // Tema prima del primo paint: altrimenti si vede il lampo chiaro.
+  (function(){
+    try{
+      var t = localStorage.getItem('auror-theme');
+      if(!t){ t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      if(t === 'dark' || t === 'eink') document.documentElement.setAttribute('data-theme', t);
+    }catch(e){}
+  })();
+</script>
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/ui.css" />
+<style>
+  /* Pagina di login: colonna centrata. Tutto il resto viene da AUROR. */
+  body{ min-height:100vh; display:flex; flex-direction:column; }
+  a{ color:var(--accent); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+
+  .topRail{
+    position:absolute; top:0; left:0; right:0;
+    padding:16px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .pageWrap{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    padding:80px 20px 40px;
+  }
+  .loginCard{
+    width:100%; max-width:420px;
+    background:var(--surface-raised);
+    border:1px solid var(--border);
+    border-radius:var(--auror-r);
+    box-shadow:var(--shadow-md);
+    padding:32px 28px 24px;
+  }
+  .loginCard .aurorBtn{ width:100%; padding:11px 14px; font-size:14px; }
+  .cardHead{ text-align:center; margin-bottom:24px; }
+  .cardHead .bigMark{
+    width:48px; height:48px; border-radius:var(--auror-r);
+    background:var(--text); color:var(--surface-raised);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:22px; letter-spacing:-.02em;
+    margin-bottom:14px;
+  }
+  .cardHead h1{ margin:0 0 4px; font-size:22px; font-weight:700; letter-spacing:-.01em; color:var(--text); }
+  .cardHead .sub{ margin:0; color:var(--text-muted); font-size:13px; }
+
+  .methods{
+    display:flex; gap:4px;
+    background:var(--surface-sunken);
+    border-radius:var(--auror-r);
+    padding:4px; margin-bottom:20px;
+  }
+  .methodBtn{
+    flex:1; background:transparent; border:none;
+    padding:8px 10px; border-radius:6px;
+    font-family:inherit; font-size:12px; font-weight:600;
+    color:var(--text-muted); cursor:pointer;
+    transition:background var(--auror-dur-base) var(--auror-ease), color var(--auror-dur-base) var(--auror-ease);
+  }
+  .methodBtn:hover{ color:var(--text); }
+  .methodBtn.active{ background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm); }
+
+  .formPane{ display:none; }
+  .formPane.active{ display:block; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:6px; }
+
+  .infoNote{
+    background:var(--surface-sunken);
+    border:1px solid var(--border-soft);
+    border-radius:var(--auror-r);
+    padding:12px 14px; font-size:12px;
+    color:var(--text-secondary); margin-bottom:16px; line-height:1.5;
+  }
+  .infoNote strong{ color:var(--text); font-weight:600; }
+
+  .err{
+    display:none;
+    background:var(--danger-soft);
+    border:1px solid var(--danger-soft);
+    color:var(--danger);
+    border-radius:var(--auror-r);
+    padding:8px 12px; font-size:12px; margin-bottom:14px;
+  }
+  .err.show{ display:block; }
+
+  .footer{ text-align:center; margin-top:18px; font-size:12px; color:var(--text-muted); }
+  .versionBar{ text-align:center; padding:16px; font-size:11px; color:var(--text-muted); font-family:var(--auror-mono); }
+</style>
+</head>
+<body>
+
+<div class="topRail">
+  <div class="dsBrand">
+    <span class="dsBrandMark" id="brandMark">S</span>
+    <span class="dsBrandWord" id="brandWord">STEGO</span>
+  </div>
+  <button class="themeToggle" type="button" id="themeToggle" aria-label="Tema chiaro / scuro / e-ink" title="Tema chiaro / scuro / e-ink">
+    <svg class="ic ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+    <svg class="ic ic-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 12.5A9 9 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"></path></svg>
+    <svg class="ic ic-eink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path></svg>
+  </button>
+</div>
+
+<div class="pageWrap">
+  <div class="loginCard">
+
+    <div class="cardHead">
+      <div class="bigMark" id="bigBrandMark">S</div>
+      <h1 id="loginTitle">Accedi a STEGO</h1>
+      <p class="sub">CAD 2D — disegni e progetti restano sul server.</p>
+    </div>
+
+    <!-- I tab compaiono solo per i metodi davvero configurati -->
+    <div class="methods" role="tablist" id="methods" hidden>
+      <button class="methodBtn" data-method="oidc" type="button" id="tabOidc" hidden>SSO</button>
+      <button class="methodBtn active" data-method="local" type="button">Locale</button>
+      <button class="methodBtn" data-method="ldap" type="button" id="tabLdap" hidden>LDAP</button>
+    </div>
+
+    <div class="err" id="errBanner"></div>
+
+    <form class="formPane active" id="form-local" autocomplete="on">
+      <div class="field">
+        <label for="localUser">Utente</label>
+        <input class="aurorInput" type="text" id="localUser" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="localPwd">Password</label>
+        <input class="aurorInput" type="password" id="localPwd" autocomplete="current-password" required>
+      </div>
+      <button class="aurorBtn primary" type="submit">Accedi</button>
+    </form>
+
+    <form class="formPane" id="form-oidc">
+      <div class="infoNote">
+        Accesso con l'identità del provider configurato.
+        <strong>Provider:</strong> <span id="oidcLabel">—</span>
+      </div>
+      <button class="aurorBtn primary" type="submit">Continua con <span id="oidcLabelBtn">SSO</span></button>
+    </form>
+
+    <form class="formPane" id="form-ldap" autocomplete="on">
+      <div class="infoNote">
+        Autenticazione contro la directory LDAP.
+        <strong>Server:</strong> <span id="ldapServer">—</span>
+      </div>
+      <div class="field">
+        <label for="ldapUser">Utente della directory</label>
+        <input class="aurorInput" type="text" id="ldapUser" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="ldapPwd">Password</label>
+        <input class="aurorInput" type="password" id="ldapPwd" autocomplete="current-password">
+      </div>
+      <button class="aurorBtn primary" type="submit">Accedi via LDAP</button>
+    </form>
+
+    <div class="footer">Serve un account? Chiedi a un amministratore.</div>
+  </div>
+</div>
+
+<div class="versionBar">STEGO <span id="ver">—</span></div>
+
+<script src="js/api.js"></script>
+<script>
+  (function(){
+    var $ = function(id){ return document.getElementById(id); };
+
+    // ---- Tema (chiave condivisa con il resto dell'app) ----
+    (function(){
+      var btn = $('themeToggle'), order = ['light','dark','eink'];
+      btn.addEventListener('click', function(){
+        var cur = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = order[(order.indexOf(cur) + 1) % order.length];
+        if(next === 'light') document.documentElement.removeAttribute('data-theme');
+        else document.documentElement.setAttribute('data-theme', next);
+        try{ localStorage.setItem('auror-theme', next); }catch(e){}
+      });
+    })();
+
+    // ---- Tab dei metodi ----
+    var method = 'local';
+    document.querySelectorAll('.methodBtn').forEach(function(b){
+      b.addEventListener('click', function(){
+        document.querySelectorAll('.methodBtn').forEach(function(x){ x.classList.remove('active'); });
+        document.querySelectorAll('.formPane').forEach(function(p){ p.classList.remove('active'); });
+        b.classList.add('active');
+        method = b.getAttribute('data-method');
+        $('form-' + method).classList.add('active');
+        $('errBanner').classList.remove('show');
+      });
+    });
+
+    function fail(msg){
+      var el = $('errBanner');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    async function login(username, password){
+      if(!username || !password) return fail('Inserisci utente e password.');
+      try{
+        await StegoApi.post('/api/login', { username: username, password: password, method: method });
+        // `next` arriva dal redirect dell'app: si accetta solo un percorso
+        // interno, altrimenti diventa un open redirect verso l'esterno.
+        var next = new URLSearchParams(location.search).get('next') || '/';
+        if(!/^\/[^/\\]/.test(next)) next = '/';
+        location.href = next;
+      }catch(e){
+        fail(e.message || 'Credenziali non valide.');
+      }
+    }
+
+    $('form-oidc').addEventListener('submit', async function(e){
+      e.preventDefault();
+      try{
+        // Il provider va raggiunto con una navigazione vera, non in fetch:
+        // la pagina di login dell'IdP deve comparire nel browser.
+        var r = await StegoApi.get('/api/oidc/start');
+        location.href = r.redirect;
+      }catch(err){ fail(err.message || 'SSO non disponibile.'); }
+    });
+
+    $('form-local').addEventListener('submit', function(e){
+      e.preventDefault();
+      login($('localUser').value.trim(), $('localPwd').value);
+    });
+    $('form-ldap').addEventListener('submit', function(e){
+      e.preventDefault();
+      login($('ldapUser').value.trim(), $('ldapPwd').value);
+    });
+
+    // ---- Errori rimandati indietro dal callback OIDC ----
+    // Si mostrano dopo aver scelto il tab: il cambio tab pulisce il
+    // banner, quindi scriverlo prima vorrebbe dire non vederlo mai.
+    var pendingError = {
+      oidc:  'Accesso SSO non riuscito. Riprova o usa un account locale.',
+      state: 'Sessione scaduta durante l\'accesso SSO. Riprova.',
+    }[new URLSearchParams(location.search).get('error')];
+
+    // ---- Config pubblica: marchio, versione, metodi ----
+    StegoApi.get('/api/config').then(function(cfg){
+      if(cfg.brand){
+        $('brandWord').textContent = cfg.brand;
+        $('brandMark').textContent = (cfg.brand[0]||'S').toUpperCase();
+        $('bigBrandMark').textContent = (cfg.brand[0]||'S').toUpperCase();
+        $('loginTitle').textContent = 'Accedi a ' + cfg.brand;
+        document.title = cfg.brand + ' — Accedi';
+      }
+      if(cfg.version) $('ver').textContent = cfg.version;
+      if(cfg.ldap_enabled){
+        $('methods').hidden = false;
+        $('tabLdap').hidden = false;
+        $('ldapServer').textContent = cfg.ldap_server || 'directory LDAP';
+      }
+      if(cfg.oidc_enabled){
+        $('methods').hidden = false;
+        $('tabOidc').hidden = false;
+        $('oidcLabel').textContent = cfg.oidc_label || 'SSO';
+        $('oidcLabelBtn').textContent = cfg.oidc_label || 'SSO';
+        // Con l'SSO attivo è quello il percorso normale: si apre lì, ma
+        // il tab locale resta a un click per l'amministratore.
+        $('tabOidc').click();
+      }
+      if(pendingError) fail(pendingError);
+    }).catch(function(){ /* il login funziona lo stesso */ });
+  })();
+</script>
+</body>
+</html>

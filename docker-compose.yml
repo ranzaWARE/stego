@@ -1,0 +1,68 @@
+# Stack per Portainer (Stacks > Add stack > Repository), esposto dal Traefik
+# del nodo tramite il provider Docker: nessuna porta pubblicata sull'host.
+# Il certificato è il wildcard *.app.local del TLS store di default di Traefik,
+# quindi l'app parla HTTP sulla 3000 e il TLS lo termina Traefik.
+#
+# Variabili (Environment variables dello stack in Portainer):
+#   SESSION_SECRET   obbligatoria — `openssl rand -hex 32`
+#   STEGO_HOST       nome dell'app, predefinito stego.app.local
+#   TRAEFIK_NETWORK  rete condivisa con Traefik, predefinita edge
+#   LDAP_*           configurazione directory (vedi .env.example), opzionale
+#   OIDC_*           configurazione SSO (vedi .env.example), opzionale
+services:
+  stego:
+    build:
+      context: ./backend
+      target: production
+    image: stego:latest
+    container_name: stego
+    restart: unless-stopped
+    networks:
+      - edge
+    volumes:
+      - stego_data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/stego.db
+      # Obbligatoria: senza, l'app genera un segreto casuale a ogni avvio
+      # e tutte le sessioni cadono a ogni riavvio del container.
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET mancante — impostala nelle variabili dello stack}
+      # Traefik è l'unico proxy davanti all'app: un hop fidato, da cui il
+      # rate limiter legge l'IP reale del client e la sessione capisce di
+      # essere su HTTPS (X-Forwarded-Proto) e marca il cookie Secure.
+      - TRUST_PROXY=1
+      - BACKUP_CRON=${BACKUP_CRON:-0 2 * * *}
+      - LDAP_ENABLED=${LDAP_ENABLED:-false}
+      - LDAP_URL=${LDAP_URL:-}
+      - LDAP_BIND_DN=${LDAP_BIND_DN:-}
+      - LDAP_BIND_PASSWORD=${LDAP_BIND_PASSWORD:-}
+      - LDAP_SEARCH_BASE=${LDAP_SEARCH_BASE:-}
+      - LDAP_SEARCH_FILTER=${LDAP_SEARCH_FILTER:-(sAMAccountName={{username}})}
+      - LDAP_TLS_REJECT_UNAUTHORIZED=${LDAP_TLS_REJECT_UNAUTHORIZED:-false}
+      - OIDC_ENABLED=${OIDC_ENABLED:-false}
+      - OIDC_ISSUER=${OIDC_ISSUER:-}
+      - OIDC_CLIENT_ID=${OIDC_CLIENT_ID:-}
+      - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET:-}
+      - OIDC_REDIRECT_URI=${OIDC_REDIRECT_URI:-}
+      - OIDC_LABEL=${OIDC_LABEL:-SSO}
+      - OIDC_TLS_REJECT_UNAUTHORIZED=${OIDC_TLS_REJECT_UNAUTHORIZED:-true}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.stego.rule=Host(`${STEGO_HOST:-stego.app.local}`)
+      - traefik.http.routers.stego.entrypoints=websecure
+      - traefik.http.routers.stego.tls=true
+      - traefik.http.services.stego.loadbalancer.server.port=3000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/config"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  edge:
+    external: true
+    name: ${TRAEFIK_NETWORK:-edge}
+
+volumes:
+  stego_data:
