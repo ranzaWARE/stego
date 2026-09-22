@@ -123,10 +123,17 @@ file non le dichiara si assumono millimetri e l'app lo segnala.
 
 ### DWG
 
-Il container include `dwg2dxf` di **LibreDWG**, compilato durante la
-costruzione dell'immagine. Regge bene i DWG fino a R2000 e in modo meno
-prevedibile quelli più recenti: se un file non passa, la via più solida
-resta esportare un DXF dal programma che l'ha prodotto.
+Il container include `dwg2dxf` di **LibreDWG 0.14**, un binario x86_64
+collegato staticamente che sta in [backend/vendor/bin/](backend/vendor/README.md):
+non c'è niente da compilare al momento della costruzione. È stato provato
+sui DWG R2000, R2007, R2013 e R2018.
+
+Su un nodo che non sia x86_64 il binario non parte — l'app se ne accorge
+e lo dice — e allora si compila dai sorgenti mettendo `DWG_BUILD=1` nelle
+variabili dello stack.
+
+Se un DWG non passa, la via più solida resta esportare un DXF dal
+programma che l'ha prodotto.
 
 #### Se la costruzione del convertitore fallisce
 
@@ -139,18 +146,46 @@ motivo vero, con il log completo di quel solo pezzo:
 docker build --target dwg --progress=plain ./backend
 ```
 
-Le due cause tipiche:
+Nel log compare una riga `[dwg] ATTENZIONE: …` che dice quale dei tre
+passi è caduto. Le cause tipiche:
 
-- **il nodo non raggiunge github.com** (proxy aziendale): si scarica il
-  tarball altrove e si usa `CAD_CONVERT_CMD`, oppure si costruisce
-  l'immagine su una macchina che ha rete e la si pubblica;
-- **memoria esaurita durante la compilazione**: i sorgenti generati di
-  LibreDWG sono enormi e con molti core in parallelo il compilatore viene
-  ucciso — dall'esterno si vede solo `exit code 1`. Si riduce il
-  parallelismo con `--build-arg DWG_JOBS=1`.
+| Cosa si legge | Cosa significa | Cosa fare |
+|---|---|---|
+| `download fallito` | il nodo non raggiunge github.com (proxy) | costruire l'immagine dove c'è rete, o fornire il binario dall'esterno (sotto) |
+| `configure fallito` | mancano strumenti di compilazione | le ultime 30 righe di `config.log` sono già nel log |
+| la build muore senza messaggio | memoria esaurita: i sorgenti generati di LibreDWG sono enormi e il compilatore viene ucciso | `DWG_JOBS=1` nelle variabili dello stack |
+
+`DWG_JOBS`, `DWG_REQUIRED` e `LIBREDWG_VERSION` si impostano dalle
+variabili dello stack in Portainer: sono già collegate agli argomenti di
+build nel `docker-compose.yml`.
 
 Con `--build-arg DWG_REQUIRED=1` la costruzione fallisce invece di
 proseguire senza convertitore, utile in un'immagine che deve averlo.
+
+#### Convertitore preso da fuori
+
+Se sul nodo la compilazione non si riesce a far funzionare, il binario si
+può fornire già pronto, in due modi:
+
+- **dentro l'immagine**, depositandolo in `backend/vendor/bin/dwg2dxf` —
+  viene copiato durante la costruzione. Le istruzioni per ottenerne uno,
+  con un solo comando Docker, sono in [backend/vendor/README.md](backend/vendor/README.md);
+- **montandolo dall'esterno**, con la riga già pronta da scommentare nel
+  `docker-compose.yml`:
+
+  ```yaml
+      volumes:
+        - /opt/stego/dwg2dxf:/usr/local/bin/dwg2dxf:ro
+  ```
+
+In entrambi i casi dev'essere eseguibile (`chmod +x`), della stessa
+architettura del nodo, e compatibile con musl: l'immagine è su Alpine,
+quindi va bene un binario compilato su Alpine o collegato staticamente —
+uno dinamico costruito su Debian o Ubuntu non parte.
+
+All'avvio l'app esegue `dwg2dxf --version`: se il binario non parte si
+comporta come se non ci fosse e scrive il motivo nel log del container,
+invece di fallire alla prima conversione.
 
 Chi ha **ODA File Converter** può usarlo al suo posto — è più affidabile
 sui DWG recenti, ma è proprietario e non può essere distribuito

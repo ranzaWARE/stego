@@ -49,13 +49,19 @@ async function detect() {
     return cached;
   }
   if (await which('dwg2dxf')) {
-    let version = '';
+    // Non basta che il file ci sia: deve anche partire. Un binario per
+    // un'altra architettura, o senza permesso di esecuzione, esiste ma
+    // non funziona — meglio accorgersene qui che alla prima conversione,
+    // quando l'utente ha già caricato il suo file.
     try {
       const { stdout, stderr } = await run('dwg2dxf', ['--version']);
-      version = String(stdout || stderr || '').split('\n')[0].trim();
-    } catch { /* la versione è un di più */ }
-    cached = { kind: 'libredwg', name: version || 'LibreDWG' };
-    return cached;
+      const version = String(stdout || stderr || '').split('\n')[0].trim();
+      cached = { kind: 'libredwg', name: version || 'LibreDWG' };
+      return cached;
+    } catch (e) {
+      console.warn('[import] dwg2dxf è presente ma non si avvia (architettura diversa? permessi?):',
+        String(e.stderr || e.message || '').split('\n')[0]);
+    }
   }
   if (process.env.ODA_CONVERTER_PATH) {
     cached = { kind: 'oda', name: 'ODA File Converter' };

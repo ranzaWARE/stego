@@ -14,6 +14,18 @@ services:
     build:
       context: ./backend
       target: production
+      args:
+        # Convertitore DWG. L'immagine usa il binario già pronto in
+        # backend/vendor/bin/ (LibreDWG 0.14, x86_64 statico), quindi di
+        # base non compila niente. Dalle variabili dello stack:
+        #   DWG_BUILD=1     compila dai sorgenti — serve su architetture
+        #                   diverse da x86_64, o per cambiare versione
+        #   DWG_JOBS=1      meno memoria durante la compilazione
+        #   DWG_REQUIRED=1  la build fallisce se il convertitore non esce
+        DWG_BUILD: ${DWG_BUILD:-0}
+        DWG_JOBS: ${DWG_JOBS:-2}
+        DWG_REQUIRED: ${DWG_REQUIRED:-0}
+        LIBREDWG_VERSION: ${LIBREDWG_VERSION:-0.14}
     image: stego:latest
     container_name: stego
     restart: unless-stopped
@@ -21,6 +33,10 @@ services:
       - edge
     volumes:
       - stego_data:/app/data
+      # Convertitore DWG preso da fuori, quando quello compilato
+      # nell'immagine manca (nodo senza rete verso GitHub, o build
+      # saltata). Il file sull'host dev'essere eseguibile: chmod +x.
+      # - /opt/stego/dwg2dxf:/usr/local/bin/dwg2dxf:ro
     environment:
       - NODE_ENV=production
       - DB_PATH=/app/data/stego.db

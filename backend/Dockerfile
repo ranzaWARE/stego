@@ -6,12 +6,16 @@
 # Ogni passo è una RUN a sé: se qualcosa non va, il log dice *quale*
 # invece di riportare una catena di comandi lunga una riga.
 #
-# La compilazione NON è bloccante. Il DWG è un di più — DXF e tutto il
-# resto dell'app funzionano comunque — e un nodo senza accesso a GitHub o
-# con poca memoria non deve impedire di pubblicare l'applicazione. Se
-# fallisce, il binario semplicemente non c'è: l'app se ne accorge da sola
-# e la pagina di importazione lo scrive. Per pretendere invece che ci sia:
+# La compilazione NON è bloccante: un nodo senza accesso a GitHub o con
+# poca memoria non deve impedire di pubblicare l'app. Se fallisce, il
+# convertitore semplicemente non c'è e la pagina di importazione lo dice.
+# Per pretendere invece che ci sia:
 #   docker build --build-arg DWG_REQUIRED=1 ...
+#
+# Di base NON si compila niente: l'immagine usa il dwg2dxf già pronto in
+# backend/vendor/bin/ (LibreDWG 0.14, x86_64, statico). Con DWG_BUILD=1
+# si compila dai sorgenti — serve su architetture diverse da x86_64, o
+# per cambiare versione — e il binario compilato ha la precedenza.
 FROM node:20-alpine AS dwg
 ARG LIBREDWG_VERSION=0.14
 # Due lavori in parallelo: i file generati di LibreDWG sono enormi e con
@@ -19,12 +23,14 @@ ARG LIBREDWG_VERSION=0.14
 # killer — che dall'esterno si vede solo come "exit code 1".
 ARG DWG_JOBS=2
 ARG DWG_REQUIRED=0
+ARG DWG_BUILD=0
 
 RUN mkdir -p /out
-RUN apk add --no-cache build-base curl
+RUN if [ "$DWG_BUILD" = "1" ]; then apk add --no-cache build-base curl; fi
 
 WORKDIR /src
 RUN set -eu; \
+    if [ "$DWG_BUILD" != "1" ]; then echo "[dwg] compilazione non richiesta: si usa il binario in vendor/"; exit 0; fi; \
     url="https://github.com/LibreDWG/libredwg/releases/download/${LIBREDWG_VERSION}/libredwg-${LIBREDWG_VERSION}.tar.xz"; \
     echo "[dwg] scarico $url"; \
     if ! curl -fsSL --retry 3 --retry-delay 2 "$url" -o src.tar.xz; then \
@@ -68,8 +74,10 @@ COPY package*.json ./
 FROM base AS development
 RUN npm install
 RUN mkdir -p /app/data /app/certs
-# Si copia la cartella, non il file: se la compilazione del convertitore è
-# saltata, /out è vuota e la COPY non fallisce.
+# Prima l'eventuale binario depositato a mano, poi quello compilato: se
+# lo stage ne ha prodotto uno vince lui. Si copiano le cartelle e non i
+# file, così una vendor/bin/ o una /out vuote non fanno fallire la COPY.
+COPY vendor/bin/ /usr/local/bin/
 COPY --from=dwg /out/ /usr/local/bin/
 COPY entrypoint.sh /entrypoint.sh
 COPY backup.sh /app/backup.sh
@@ -81,8 +89,10 @@ FROM base AS production
 RUN npm install --omit=dev
 COPY . .
 RUN mkdir -p /app/data /app/certs
+COPY vendor/bin/ /usr/local/bin/
 COPY --from=dwg /out/ /usr/local/bin/
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /app/backup.sh
+RUN chmod +x /entrypoint.sh /app/backup.sh; \
+    [ -f /usr/local/bin/dwg2dxf ] && chmod +x /usr/local/bin/dwg2dxf || true
 EXPOSE 3000 3443
 ENTRYPOINT ["/entrypoint.sh"]
