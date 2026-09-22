@@ -25,7 +25,7 @@ ARG DWG_JOBS=2
 ARG DWG_REQUIRED=0
 ARG DWG_BUILD=0
 
-RUN mkdir -p /out
+RUN mkdir -p /out && touch /out/.keep
 RUN if [ "$DWG_BUILD" = "1" ]; then apk add --no-cache build-base curl; fi
 
 WORKDIR /src
