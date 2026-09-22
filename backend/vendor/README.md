@@ -17,6 +17,10 @@ niente sul nodo.
 Provato su: DWG R2000, R2007, R2013 e R2018 dei file di test di LibreDWG,
 tutti convertiti in DXF con le entità leggibili da `public/js/dxf-import.js`.
 
+Verificato in esercizio dentro il container Alpine il 2026-09-23: un
+eseguibile collegato staticamente non ha bisogno del loader di glibc,
+quindi gira su musl senza adattamenti.
+
 ## Se non parte
 
 L'app esegue `dwg2dxf --version` all'avvio: se il binario non parte si
