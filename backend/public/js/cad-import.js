@@ -11,11 +11,25 @@
 
   var api = global.StegoApi;
 
+  // Ultimo file letto: tenerlo permette di rifare l'importazione con
+  // un'altra unità senza ricaricare niente — che per un DWG vorrebbe
+  // dire rifare tutto il giro di conversione sul server.
+  var last = null;   // { dxf, name, histIndex }
+
   function $(id) { return document.getElementById(id); }
   function tr(key, fallback) { return global.t ? global.t(key) : fallback; }
 
   function toast(message, tone) {
     if (global.AurorToast) global.AurorToast.show({ message: message, tone: tone || 'neutral' });
+  }
+
+  // Il valore del menu è già il fattore verso i millimetri: 'auto' lascia
+  // decidere al file, come prima.
+  function chosenScale() {
+    var el = $('importUnits');
+    if (!el || el.value === 'auto') return undefined;
+    var n = parseFloat(el.value);
+    return isFinite(n) && n > 0 ? n : undefined;
   }
 
   // ---- inserimento nel disegno ------------------------------------------
@@ -104,6 +118,32 @@
     if (zoomInput) zoomInput.value = (Math.round(px * 100) / 100);
   }
 
+  // Ingombro del disegno importato: è il modo più rapido per capire se
+  // le unità erano quelle giuste — un monitor largo 24 mm non esiste.
+  function extent(p) {
+    var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+    function at(x, y) {
+      if (!isFinite(x) || !isFinite(y)) return;
+      if (x < minx) minx = x;
+      if (y < miny) miny = y;
+      if (x > maxx) maxx = x;
+      if (y > maxy) maxy = y;
+    }
+    p.segments.forEach(function (o) { at(o.a.x, o.a.y); at(o.b.x, o.b.y); });
+    p.polylines.forEach(function (o) { o.pts.forEach(function (q) { at(q.x, q.y); }); });
+    p.arcs.forEach(function (o) { at(o.cx - o.r, o.cy - o.r); at(o.cx + o.r, o.cy + o.r); });
+    p.ellipses.forEach(function (o) { at(o.cx - o.rx, o.cy - o.ry); at(o.cx + o.rx, o.cy + o.ry); });
+    p.texts.forEach(function (o) { at(o.x, o.y); });
+    if (!isFinite(minx)) return null;
+    return { w: maxx - minx, h: maxy - miny };
+  }
+
+  function mm(v) {
+    if (v >= 1000) return (v / 1000).toFixed(2) + ' m';
+    if (v < 1) return v.toFixed(2) + ' mm';
+    return Math.round(v) + ' mm';
+  }
+
   // ---- resoconto ---------------------------------------------------------
   function report(parsed, fileName) {
     var box = $('importReport');
@@ -116,6 +156,12 @@
 
     var by = Object.keys(s.byType).sort().map(function (k) { return k + ' ' + s.byType[k]; });
     if (by.length) lines.push('<span class="mono">' + escapeHtml(by.join(' · ')) + '</span>');
+
+    var size = extent(parsed);
+    if (size) {
+      lines.push(tr('import.extent', 'Ingombro') + ': <span class="mono">' +
+        escapeHtml(mm(size.w) + ' × ' + mm(size.h)) + '</span>');
+    }
 
     var sk = Object.keys(s.skipped).sort().map(function (k) { return k + ' ' + s.skipped[k]; });
     if (sk.length) lines.push('Non importato: ' + escapeHtml(sk.join(' · ')) + '.');
@@ -141,6 +187,27 @@
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  // Legge il DXF con le unità scelte e lo inserisce nel disegno. È il
+  // punto comune fra il primo import e il "rifai con queste unità".
+  function place(dxf, name) {
+    var parsed = global.StegoDXF.parse(dxf, { unitScale: chosenScale() });
+    if (!parsed.stats.imported) {
+      fail(tr('import.empty', 'Il file è stato letto ma non conteneva geometria importabile.'));
+      return false;
+    }
+    merge(parsed);
+    report(parsed, name);
+    // Da qui si può rifare con un'altra unità, ma solo finché il disegno
+    // non viene toccato d'altro: il rifacimento annulla l'ultimo passo di
+    // storico, e se nel frattempo ne sono arrivati altri annullerebbe
+    // quelli invece dell'importazione.
+    last = { dxf: dxf, name: name, histIndex: global.state ? global.state.histIndex : -1 };
+    var again = $('btnReimport');
+    if (again) { again.hidden = false; again.classList.remove('primary'); }
+    toast(parsed.stats.imported + ' ' + tr('import.toast', 'oggetti importati'), 'success');
+    return true;
   }
 
   // ---- ingresso dei file -------------------------------------------------
@@ -186,14 +253,7 @@
         }
         dxf = await convertOnServer(file);
       }
-      var parsed = global.StegoDXF.parse(dxf);
-      if (!parsed.stats.imported) {
-        fail('Il file è stato letto ma non conteneva geometria importabile.');
-        return;
-      }
-      merge(parsed);
-      report(parsed, file.name);
-      toast(parsed.stats.imported + ' oggetti importati', 'success');
+      place(dxf, file.name);
     } catch (e) {
       fail(e.message || 'Importazione fallita');
     } finally {
@@ -212,6 +272,30 @@
       var f = input.files && input.files[0];
       input.value = '';
       importFile(f);
+    });
+
+    var again = $('btnReimport');
+    if (again) again.addEventListener('click', function () {
+      if (!last) return;
+      var st = global.state;
+      if (!st || st.histIndex !== last.histIndex) {
+        fail(tr('import.again.stale', 'Il disegno è cambiato dopo l\'importazione: annulla a mano e reimporta il file.'));
+        again.hidden = true;
+        last = null;
+        return;
+      }
+      if (typeof global.undo !== 'function') return;
+      global.undo();                     // toglie l'importazione precedente
+      if (typeof global.refreshUI === 'function') global.refreshUI();
+      place(last.dxf, last.name);
+    });
+
+    var units = $('importUnits');
+    if (units) units.addEventListener('change', function () {
+      // Cambiare unità senza rifare l'import non serve a niente: lo si
+      // dice invece di lasciar credere che sia già successo qualcosa.
+      var a = $('btnReimport');
+      if (last && a) a.classList.add('primary');
     });
 
     // La tela accetta anche il trascinamento: è il gesto che uno prova

@@ -151,7 +151,8 @@
 
     // --- unità ---
     var insunits = header.$INSUNITS;
-    var unit = opts.unitScale || UNITS[insunits];
+    var forced = opts.unitScale > 0;
+    var unit = forced ? opts.unitScale : UNITS[insunits];
     if (unit == null) {
       unit = 1;
       if (insunits !== 4) {
@@ -159,6 +160,12 @@
           ? 'Il file non dichiara le unità: si assumono millimetri.'
           : 'Unità sconosciute (' + insunits + '): si assumono millimetri.');
       }
+    }
+    // Se le unità sono state imposte da fuori, quello che dichiara il
+    // file non conta più: dirlo sarebbe fuorviante, e va detto invece
+    // che si sta ignorando la sua dichiarazione.
+    if (forced && UNITS[insunits] && UNITS[insunits] !== unit) {
+      warnings.push('Il file dichiarava altre unità: si sta usando quella scelta a mano.');
     }
 
     // --- raccolta ---

@@ -342,8 +342,25 @@
             </span><span class="btnTxt" data-i18n="import.choose">Scegli un file…</span></button>
             <input id="fileImportCad" type="file" accept=".dxf,.dwg" hidden>
           </div>
+          <div class="field">
+            <label for="importUnits" data-i18n="import.units">Unità del file</label>
+            <select id="importUnits" class="aurorSelect">
+              <option value="auto" data-i18n="import.units.auto">Come dichiarate nel file</option>
+              <option value="1" data-i18n="import.units.mm">Millimetri</option>
+              <option value="10" data-i18n="import.units.cm">Centimetri</option>
+              <option value="1000" data-i18n="import.units.m">Metri</option>
+              <option value="25.4" data-i18n="import.units.in">Pollici</option>
+              <option value="304.8" data-i18n="import.units.ft">Piedi</option>
+            </select>
+            <div class="help" data-i18n="import.units.help">Serve quando il file non le dichiara: senza, si assumono millimetri.</div>
+          </div>
           <div class="helpTxt" id="importHint" data-i18n="import.hint">Si può anche trascinare un file sulla tela. Il disegno importato si aggiunge a quello aperto e si annulla con Undo.</div>
           <div class="aurorNotice" id="importReport" hidden></div>
+          <div class="btnRow">
+            <button id="btnReimport" class="aurorBtn" type="button" hidden><span class="btnIco">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.4 9.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 5v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span><span class="btnTxt" data-i18n="import.again">Rifai con queste unità</span></button>
+          </div>
   </div>
 </section>
 

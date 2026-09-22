@@ -118,8 +118,21 @@ Restano fuori: campiture, solidi, immagini raster incorporate e tutto ciò
 che è tridimensionale. Le quote importate sono disegni, non quote
 ricalcolabili.
 
-Le unità del file (`$INSUNITS`) vengono convertite in millimetri. Se il
-file non le dichiara si assumono millimetri e l'app lo segnala.
+### Unità
+
+Le unità dichiarate dal file (`$INSUNITS`) vengono convertite in
+millimetri. Molti DWG però non le dichiarano affatto: in quel caso si
+assumono millimetri e il resoconto lo scrive.
+
+Per accorgersene subito, il resoconto riporta anche **l'ingombro** del
+disegno importato: un monitor largo 24 mm era in pollici, non in
+millimetri. Il menu *Unità del file* permette di imporle, e
+**Rifai con queste unità** rifà l'importazione senza ricaricare il file —
+utile con i DWG, che altrimenti andrebbero riconvertiti dal server.
+
+Il rifacimento annulla l'importazione precedente, quindi funziona solo
+finché non si è disegnato altro: se il disegno è cambiato, l'app lo dice
+invece di annullare il lavoro sbagliato.
 
 ### DWG
 

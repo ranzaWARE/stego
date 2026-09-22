@@ -146,6 +146,27 @@ await test('senza unità dichiarate si assumono i millimetri, e lo si dice', () 
   assert.ok(r.warnings.some(w => /unità/i.test(w)));
 });
 
+await test('le unità imposte da fuori vincono su quelle del file', () => {
+  const src = dxf([
+    ['HEADER', [9, '$INSUNITS', 70, 4]],          // il file dice millimetri
+    ['ENTITIES', [0, 'LINE', 8, '0', 10, 0, 20, 0, 11, 1, 21, 0]],
+  ]);
+  const r = DXF.parse(src, { unitScale: 25.4 });  // ma noi diciamo pollici
+  assert.strictEqual(r.unitScale, 25.4);
+  near(r.segments[0].b.x, 25.4, 'lunghezza convertita');
+  assert.ok(r.warnings.some(w => /dichiarava altre unità/i.test(w)),
+    'va detto che si sta ignorando quello che dichiara il file');
+});
+
+await test('con le unità imposte non si avvisa che mancano', () => {
+  // Il file non le dichiara, ma le ha scelte l'utente: dire "si assumono
+  // millimetri" sarebbe falso.
+  const r = DXF.parse(entities(0, 'LINE', 10, 0, 20, 0, 11, 1, 21, 0), { unitScale: 10 });
+  assert.strictEqual(r.unitScale, 10);
+  assert.strictEqual(r.segments[0].b.x, 10);
+  assert.ok(!r.warnings.some(w => /non dichiara le unità/i.test(w)));
+});
+
 await test('i layer portano nome e colore, le entità il proprio colore', () => {
   const src = dxf([
     ['TABLES', [0, 'LAYER', 2, 'MURI', 62, 1, 70, 0]],
