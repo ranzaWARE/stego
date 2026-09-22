@@ -14,7 +14,7 @@
   // Ultimo file letto: tenerlo permette di rifare l'importazione con
   // un'altra unità senza ricaricare niente — che per un DWG vorrebbe
   // dire rifare tutto il giro di conversione sul server.
-  var last = null;   // { dxf, name, histIndex }
+  var last = null;   // { dxf, name, histIndex, scale, size }
 
   function $(id) { return document.getElementById(id); }
   function tr(key, fallback) { return global.t ? global.t(key) : fallback; }
@@ -147,7 +147,7 @@
   // ---- resoconto ---------------------------------------------------------
   function report(parsed, fileName) {
     var box = $('importReport');
-    if (!box) return;
+    if (!box) return null;
     var s = parsed.stats;
     var lines = [];
     lines.push('<strong>' + escapeHtml(fileName) + '</strong> — ' +
@@ -171,6 +171,7 @@
     box.className = 'aurorNotice' + (sk.length || parsed.warnings.length ? ' aurorNotice--warn' : ' aurorNotice--success');
     box.innerHTML = lines.join('<br>');
     box.hidden = false;
+    return size;
   }
 
   function fail(message) {
@@ -191,23 +192,95 @@
 
   // Legge il DXF con le unità scelte e lo inserisce nel disegno. È il
   // punto comune fra il primo import e il "rifai con queste unità".
-  function place(dxf, name) {
-    var parsed = global.StegoDXF.parse(dxf, { unitScale: chosenScale() });
+  function place(dxf, name, forcedScale) {
+    var parsed = global.StegoDXF.parse(dxf, { unitScale: forcedScale || chosenScale() });
     if (!parsed.stats.imported) {
       fail(tr('import.empty', 'Il file è stato letto ma non conteneva geometria importabile.'));
       return false;
     }
     merge(parsed);
-    report(parsed, name);
+    var size = report(parsed, name);
     // Da qui si può rifare con un'altra unità, ma solo finché il disegno
     // non viene toccato d'altro: il rifacimento annulla l'ultimo passo di
     // storico, e se nel frattempo ne sono arrivati altri annullerebbe
     // quelli invece dell'importazione.
-    last = { dxf: dxf, name: name, histIndex: global.state ? global.state.histIndex : -1 };
+    last = {
+      dxf: dxf, name: name,
+      histIndex: global.state ? global.state.histIndex : -1,
+      scale: parsed.unitScale,
+      size: size,
+    };
+    showSize(size);
     var again = $('btnReimport');
     if (again) { again.hidden = false; again.classList.remove('primary'); }
     toast(parsed.stats.imported + ' ' + tr('import.toast', 'oggetti importati'), 'success');
     return true;
+  }
+
+  // ---- misure volute ----------------------------------------------------
+  // Le due caselle mostrano l'ingombro appena importato e si possono
+  // riscrivere: è la misura che l'utente conosce davvero ("questo monitor
+  // è largo 597"), mentre l'unità del file è solo un modo indiretto per
+  // arrivarci. Da quel numero si ricava il fattore di scala.
+  function showSize(size) {
+    var row = $('importSizeRow'), help = $('importSizeHelp');
+    var w = $('importW'), h = $('importH');
+    if (!row || !w || !h) return;
+    if (!size) { row.hidden = true; if (help) help.hidden = true; return; }
+    row.hidden = false;
+    if (help) help.hidden = false;
+    w.value = round1(size.w);
+    h.value = round1(size.h);
+  }
+
+  function round1(v) { return Math.round(v * 10) / 10; }
+
+  // Scrivendo una misura l'altra segue: un disegno importato va scalato,
+  // non deformato, quindi il rapporto fra i lati non si tocca.
+  function linkSizeFields() {
+    var w = $('importW'), h = $('importH');
+    if (!w || !h) return;
+    function ratio() {
+      if (!last || !last.size || !last.size.w || !last.size.h) return null;
+      return last.size.h / last.size.w;
+    }
+    w.addEventListener('input', function () {
+      var r = ratio();
+      if (r == null) return;
+      var v = parseFloat(w.value);
+      h.value = isFinite(v) && v > 0 ? round1(v * r) : '';
+      markChanged();
+    });
+    h.addEventListener('input', function () {
+      var r = ratio();
+      if (r == null || !r) return;
+      var v = parseFloat(h.value);
+      w.value = isFinite(v) && v > 0 ? round1(v / r) : '';
+      markChanged();
+    });
+  }
+
+  function markChanged() {
+    var a = $('btnReimport');
+    if (last && a) a.classList.add('primary');
+  }
+
+  // Fattore da applicare al prossimo import: dalle misure se sono state
+  // toccate, altrimenti da quello che dice il menu delle unità.
+  function scaleFromFields() {
+    if (!last || !last.size) return null;
+    var w = parseFloat(($('importW') || {}).value);
+    if (last.size.w > 0 && isFinite(w) && w > 0) {
+      if (Math.abs(w - last.size.w) < 1e-6) return null;   // invariata
+      return last.scale * (w / last.size.w);
+    }
+    // Un disegno tutto verticale non ha larghezza: comanda l'altezza.
+    var h = parseFloat(($('importH') || {}).value);
+    if (last.size.h > 0 && isFinite(h) && h > 0) {
+      if (Math.abs(h - last.size.h) < 1e-6) return null;
+      return last.scale * (h / last.size.h);
+    }
+    return null;
   }
 
   // ---- ingresso dei file -------------------------------------------------
@@ -285,17 +358,22 @@
         return;
       }
       if (typeof global.undo !== 'function') return;
+      var forced = scaleFromFields();
+      var src = last;
       global.undo();                     // toglie l'importazione precedente
       if (typeof global.refreshUI === 'function') global.refreshUI();
-      place(last.dxf, last.name);
+      place(src.dxf, src.name, forced);
     });
+
+    linkSizeFields();
 
     var units = $('importUnits');
     if (units) units.addEventListener('change', function () {
-      // Cambiare unità senza rifare l'import non serve a niente: lo si
-      // dice invece di lasciar credere che sia già successo qualcosa.
-      var a = $('btnReimport');
-      if (last && a) a.classList.add('primary');
+      // Cambiare unità da sole non fa niente finché non si rifà l'import:
+      // il pulsante si mette in evidenza invece di lasciarlo credere.
+      markChanged();
+      // Le misure mostrate valgono per l'import fatto, non per quello che
+      // verrà: si riallineano dopo.
     });
 
     // La tela accetta anche il trascinamento: è il gesto che uno prova

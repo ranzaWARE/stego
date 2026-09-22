@@ -354,12 +354,23 @@
             </select>
             <div class="help" data-i18n="import.units.help">Serve quando il file non le dichiara: senza, si assumono millimetri.</div>
           </div>
+          <div class="grid2" id="importSizeRow" hidden>
+            <div class="field">
+              <label for="importW" data-i18n="import.width">Larghezza (mm)</label>
+              <input id="importW" class="aurorInput" type="number" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="importH" data-i18n="import.height">Altezza (mm)</label>
+              <input id="importH" class="aurorInput" type="number" min="0" step="0.1">
+            </div>
+          </div>
+          <div class="helpTxt" id="importSizeHelp" hidden data-i18n="import.size.help">Scrivi la misura che conosci: l'altra segue mantenendo le proporzioni. Le dimensioni hanno la precedenza sulle unità.</div>
           <div class="helpTxt" id="importHint" data-i18n="import.hint">Si può anche trascinare un file sulla tela. Il disegno importato si aggiunge a quello aperto e si annulla con Undo.</div>
           <div class="aurorNotice" id="importReport" hidden></div>
           <div class="btnRow">
             <button id="btnReimport" class="aurorBtn" type="button" hidden><span class="btnIco">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.4 9.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 5v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span><span class="btnTxt" data-i18n="import.again">Rifai con queste unità</span></button>
+            </span><span class="btnTxt" data-i18n="import.again">Rifai l'importazione</span></button>
           </div>
   </div>
 </section>

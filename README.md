@@ -124,11 +124,20 @@ Le unità dichiarate dal file (`$INSUNITS`) vengono convertite in
 millimetri. Molti DWG però non le dichiarano affatto: in quel caso si
 assumono millimetri e il resoconto lo scrive.
 
-Per accorgersene subito, il resoconto riporta anche **l'ingombro** del
-disegno importato: un monitor largo 24 mm era in pollici, non in
-millimetri. Il menu *Unità del file* permette di imporle, e
-**Rifai con queste unità** rifà l'importazione senza ricaricare il file —
-utile con i DWG, che altrimenti andrebbero riconvertiti dal server.
+Per accorgersene subito, il resoconto riporta **l'ingombro** del disegno
+importato: un monitor largo 24 mm era in pollici, non in millimetri.
+
+Da lì si corregge in due modi, e il secondo è quello che si usa davvero:
+
+- il menu *Unità del file*, se si sa in che unità è stato disegnato;
+- i campi **Larghezza** e **Altezza**, che partono dall'ingombro appena
+  importato e si riscrivono con la misura vera. Scrivendone una, l'altra
+  segue mantenendo le proporzioni: un disegno si scala, non si deforma.
+  Le dimensioni hanno la precedenza sulle unità.
+
+**Rifai l'importazione** applica la correzione rileggendo il DXF già in
+memoria, senza ricaricare il file — con i DWG significa non rifare il
+giro di conversione sul server.
 
 Il rifacimento annulla l'importazione precedente, quindi funziona solo
 finché non si è disegnato altro: se il disegno è cambiato, l'app lo dice
